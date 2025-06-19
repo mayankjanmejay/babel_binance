@@ -1,0 +1,14 @@
+name: babel_binance
+description: A comprehensive Dart wrapper for the Binance API, covering all major endpoints including Spot, Futures, Margin, and more.
+version: 0.5.0
+homepage: https://github.com/mayankjanmejay/babel_binance
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  http: ^0.13.3
+  crypto: ^3.0.1
+
+dev_dependencies:
+  test: ^1.16.0
