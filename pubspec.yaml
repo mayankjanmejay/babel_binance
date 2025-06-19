@@ -4,7 +4,12 @@ version: 0.5.1
 homepage: https://github.com/mayankjanmejay/babel_binance
 # author: M1 Leopard < MayCloud.uk
 repository: https://github.com/mayankjanmejay/babel_binance
-topics: API, Binance, Dart, Cryptocurrency, Trading
+topics:
+  - API
+  - Binance
+  - Dart
+  - Cryptocurrency
+  - Trading
 license: MIT
 
 environment:
