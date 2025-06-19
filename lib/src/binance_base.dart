@@ -14,33 +14,43 @@ class BinanceBase {
     String path, {
     Map<String, dynamic>? params,
   }) async {
-    final url = Uri.parse('$baseUrl$path');
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    if (apiKey != null) {
-      headers['X-MBX-APIKEY'] = apiKey!;
-    }
-
     params ??= {};
-    params['timestamp'] = DateTime.now().millisecondsSinceEpoch;
-
     if (apiSecret != null) {
+      params['timestamp'] = DateTime.now().millisecondsSinceEpoch;
       final query = Uri(queryParameters: params.map((key, value) => MapEntry(key, value.toString()))).query;
       final signature = Hmac(sha256, utf8.encode(apiSecret!)).convert(utf8.encode(query)).toString();
       params['signature'] = signature;
     }
-    
-    final finalUrl = url.replace(queryParameters: params.map((key, value) => MapEntry(key, value.toString())));
+
+    final uri = Uri.parse('$baseUrl$path').replace(
+      queryParameters:
+          params.map((key, value) => MapEntry(key, value.toString())),
+    );
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      if (apiKey != null) 'X-MBX-APIKEY': apiKey!,
+    };
 
     http.Response response;
-    if (method == 'GET') {
-      response = await http.get(finalUrl, headers: headers);
-    } else if (method == 'POST') {
-      response = await http.post(finalUrl, headers: headers);
-    } else {
-      throw Exception('Unsupported HTTP method');
+    switch (method.toUpperCase()) {
+      case 'GET':
+        response = await http.get(uri, headers: headers);
+        break;
+      case 'POST':
+        response = await http.post(uri, headers: headers);
+        break;
+      case 'DELETE':
+        response = await http.delete(uri, headers: headers);
+        break;
+      case 'PUT':
+        response = await http.put(uri, headers: headers);
+        break;
+      default:
+        throw Exception('Unsupported HTTP method: $method');
     }
 
-    if (response.statusCode == 200) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       return json.decode(response.body);
     } else {
       throw Exception('Failed to load data: ${response.statusCode} ${response.body}');
