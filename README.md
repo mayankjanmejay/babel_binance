@@ -15,7 +15,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.5.1
+  babel_binance: ^0.5.2
 ```
 
 ## Usage
