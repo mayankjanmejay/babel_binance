@@ -1,3 +1,11 @@
+## 0.6.2
+
+- **deps**: Updated crypto dependency from ^3.0.3 to ^3.0.6
+- **deps**: Updated http dependency from ^1.2.1 to ^1.4.0  
+- **deps**: Updated web_socket_channel dependency from ^2.4.0 to ^3.0.3
+- **improvement**: Enhanced compatibility with latest dependency versions
+- **docs**: Updated documentation to reflect dependency version changes
+
 ## 0.6.1
 
 - **fix**: Fixed compilation errors across multiple example files

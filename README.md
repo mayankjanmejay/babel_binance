@@ -35,15 +35,15 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.1
+  babel_binance: ^0.6.2
 ```
 
-> **🆕 Latest Updates (v0.6.1):**
-> - ✅ Fixed all compilation errors across example files
-> - 🔧 Resolved type casting and null safety issues
-> - 📝 Updated comprehensive examples to use available APIs
-> - ✨ Enhanced simulation demonstrations with realistic scenarios
-> - 🧪 All tests now pass successfully
+> **🆕 Latest Updates (v0.6.2):**
+> - 📦 Updated crypto dependency to ^3.0.6 for enhanced security features
+> - 🔄 Updated http dependency to ^1.4.0 for improved performance
+> - 📡 Updated web_socket_channel to ^3.0.3 for better real-time data handling
+> - ✨ Enhanced compatibility with latest Dart ecosystem updates
+> - 🔧 All previous v0.6.1 fixes maintained (compilation errors, type safety, enhanced examples)
 
 ### Your First API Call
 
