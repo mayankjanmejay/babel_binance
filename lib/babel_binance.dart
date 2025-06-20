@@ -24,6 +24,7 @@ export 'src/portfolio_margin.dart';
 export 'src/rebate.dart';
 export 'src/savings.dart';
 export 'src/simple_earn.dart';
+export 'src/simulated_convert.dart';
 export 'src/spot.dart';
 export 'src/staking.dart';
 export 'src/sub_account.dart';
