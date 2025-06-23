@@ -128,14 +128,6 @@ class SimulatedMarginTrading {
     'BNB': {'free': 20.0, 'locked': 0.0, 'borrowed': 0.0, 'interest': 0.0},
   };
 
-  // Interest rates for borrowing (annual rates)
-  final Map<String, double> _interestRates = {
-    'BTC': 0.02, // 2% annual
-    'ETH': 0.025, // 2.5% annual
-    'USDT': 0.06, // 6% annual
-    'BNB': 0.03, // 3% annual
-  };
-
   SimulatedMarginTrading({this.apiKey, this.apiSecret});
 
   Future<Map<String, dynamic>> simulateBorrow({

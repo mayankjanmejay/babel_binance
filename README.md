@@ -35,15 +35,16 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.2
+  babel_binance: ^0.6.3
 ```
 
-> **🆕 Latest Updates (v0.6.2):**
-> - 📦 Updated crypto dependency to ^3.0.6 for enhanced security features
-> - 🔄 Updated http dependency to ^1.4.0 for improved performance
-> - 📡 Updated web_socket_channel to ^3.0.3 for better real-time data handling
-> - ✨ Enhanced compatibility with latest Dart ecosystem updates
-> - 🔧 All previous v0.6.1 fixes maintained (compilation errors, type safety, enhanced examples)
+> **🆕 Latest Updates (v0.6.3):**
+> - 🌐 **Multiple API Endpoint Support**: Automatic failover between primary and backup Binance servers
+> - 🔄 **Smart Endpoint Rotation**: Automatically switches to failover endpoints on network issues
+> - 🚀 **Enhanced Reliability**: Improved uptime with api1-4.binance.com, fapi1-3.binance.com failover support
+> - 📊 **Endpoint Monitoring**: New methods to track active endpoints and connection status
+> - 🛡️ **Production Ready**: Battle-tested failover logic for mission-critical applications
+> - 🔧 All previous v0.6.2 features maintained (updated dependencies, compilation fixes, enhanced examples)
 
 ### Your First API Call
 
@@ -411,6 +412,8 @@ Babel Binance is a powerful, feature-rich Dart package that provides seamless in
 -   **Authenticated & Unauthenticated**: Access both public and private endpoints.
 -   **Well-Structured**: Each API collection is organized into its own class for clarity.
 -   **🆕 Realistic Simulation**: Test trading and conversion strategies with realistic timing delays and market behavior.
+-   **🌐 Multiple Endpoint Support**: Automatic failover between primary and backup Binance servers for enhanced reliability.
+-   **🔄 Smart Failover Logic**: Seamlessly switches to alternate endpoints when primary servers are unavailable.
 -   **WebSocket Support**: Real-time data streams for live market updates.
 
 ## Installation
@@ -419,7 +422,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.5.3
+  babel_binance: ^0.6.3
 ```
 
 ## Quick Start
@@ -540,6 +543,43 @@ await binance.spot.simulatedTrading.simulatePlaceOrder(
 stopwatch.stop();
 print('Order took ${stopwatch.elapsedMilliseconds}ms');
 ```
+
+## 🌐 Multiple API Endpoints & Failover
+
+Babel Binance automatically provides multiple endpoint support with intelligent failover for enhanced reliability and uptime.
+
+### Supported Endpoint Types
+
+| API Type | Primary Endpoint | Failover Endpoints |
+|----------|------------------|-------------------|
+| **Spot** | `api.binance.com` | `api1.binance.com`, `api2.binance.com`, `api3.binance.com`, `api4.binance.com` |
+| **Futures USD-M** | `fapi.binance.com` | `fapi1.binance.com`, `fapi2.binance.com`, `fapi3.binance.com` |
+| **Futures COIN-M** | `dapi.binance.com` | `dapi1.binance.com`, `dapi2.binance.com` |
+
+### How It Works
+
+```dart
+final binance = Binance();
+
+// Automatically uses failover endpoints if primary fails
+final ticker = await binance.spot.market.get24HrTicker('BTCUSDT');
+
+// Check which endpoint is currently active
+print('Active endpoint: ${binance.spot.market.currentEndpoint}');
+
+// View all available endpoints
+print('Available endpoints: ${binance.spot.market.availableEndpoints}');
+```
+
+### Key Benefits
+
+- 🚀 **Automatic Failover**: Seamlessly switches to backup servers on network issues
+- 🌐 **Multiple Geographic Regions**: Access distributed Binance infrastructure 
+- 🔄 **Smart Recovery**: Automatically returns to primary endpoint when available
+- 📊 **Enhanced Uptime**: Significantly improved reliability for production applications
+- 🛡️ **Zero Configuration**: Works out-of-the-box with no additional setup required
+
+The failover system automatically detects connection issues and rotates through available endpoints until a successful connection is established. Once service is restored, it intelligently returns to the primary endpoint for optimal performance.
 
 ## WebSocket Usage
 

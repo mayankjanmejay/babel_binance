@@ -1,3 +1,25 @@
+## 0.6.4
+
+- **maintenance**: Version bump for pub.dev publication readiness  
+- **stability**: Consolidated existing features and improvements from 0.6.3
+- **docs**: Updated documentation for better clarity and developer experience
+- **quality**: Code review and minor optimizations for production deployment
+- **publish**: Prepared package for official pub.dev distribution
+
+## 0.6.3
+
+- **feat**: Implemented multiple API endpoint URLs with automatic failover support
+- **feat**: Added primary and failover endpoints for Spot API (api.binance.com → api1-4.binance.com)
+- **feat**: Added primary and failover endpoints for Futures USD-M API (fapi.binance.com → fapi1-3.binance.com)
+- **feat**: Added primary and failover endpoints for Futures COIN-M API (dapi.binance.com → dapi1-2.binance.com)
+- **feat**: Automatic endpoint rotation on network errors or server issues
+- **feat**: Smart reset to primary endpoint after successful failover recovery
+- **feat**: Enhanced reliability and uptime for production applications
+- **feat**: Added endpoint monitoring methods: `availableEndpoints`, `currentEndpoint`, `primaryEndpoint`
+- **example**: Added comprehensive endpoint failover demonstration example
+- **improvement**: Improved connection stability and error resilience
+- **docs**: Updated documentation to reflect new endpoint failover capabilities
+
 ## 0.6.2
 
 - **deps**: Updated crypto dependency from ^3.0.3 to ^3.0.6

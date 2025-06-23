@@ -132,9 +132,6 @@ class SimulatedFuturesTrading {
     'SOLUSDT': {'mark': 180.0, 'index': 179.5, 'funding': 0.0001},
   };
 
-  // Simulated positions for demonstration
-  final Map<String, Map<String, dynamic>> _mockPositions = {};
-
   SimulatedFuturesTrading({this.apiKey, this.apiSecret});
 
   Future<Map<String, dynamic>> simulatePlaceOrder({
