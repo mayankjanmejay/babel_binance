@@ -28,6 +28,7 @@ export 'src/simulated_convert.dart';
 export 'src/spot.dart';
 export 'src/staking.dart';
 export 'src/sub_account.dart';
+export 'src/testnet.dart';
 export 'src/vip_loan.dart';
 export 'src/wallet.dart';
 export 'src/websockets.dart';

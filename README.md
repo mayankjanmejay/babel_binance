@@ -35,16 +35,17 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.3
+  babel_binance: ^0.6.4
 ```
 
-> **🆕 Latest Updates (v0.6.3):**
-> - 🌐 **Multiple API Endpoint Support**: Automatic failover between primary and backup Binance servers
-> - 🔄 **Smart Endpoint Rotation**: Automatically switches to failover endpoints on network issues
-> - 🚀 **Enhanced Reliability**: Improved uptime with api1-4.binance.com, fapi1-3.binance.com failover support
-> - 📊 **Endpoint Monitoring**: New methods to track active endpoints and connection status
-> - 🛡️ **Production Ready**: Battle-tested failover logic for mission-critical applications
-> - 🔧 All previous v0.6.2 features maintained (updated dependencies, compilation fixes, enhanced examples)
+> **🆕 Latest Updates (v0.6.4):**
+> - 🧪 **Binance Testnet Integration**: Full testnet support for realistic testing without real money
+> - 🌐 **Testnet API Endpoints**: Complete spot and futures trading on testnet.binance.vision
+> - 🎯 **Three-Tier Testing**: Simulated → Testnet → Live trading progression
+> - �️ **Risk-Free Development**: Test strategies with real API behavior but fake funds
+> - � **Enhanced Examples**: Comprehensive testnet integration guide and updated quick start
+> - � **Developer Experience**: Improved testing workflow with `Binance.testnet()` factory
+> - 🌐 All previous v0.6.3 features maintained (endpoint failover, enhanced reliability)
 
 ### Your First API Call
 
@@ -88,7 +89,11 @@ void main() async {
 }
 ```
 
-### 2. Simulated Trading - Risk-Free Testing
+### 2. Risk-Free Trading - Three Options
+
+Babel Binance offers three different ways to test your trading strategies safely:
+
+#### 🎮 Option 1: Simulated Trading (Built-in Simulation)
 
 ```dart
 import 'package:babel_binance/babel_binance.dart';
@@ -111,34 +116,74 @@ void main() async {
   print('   Status: ${buyOrder['status']}');
   print('   Filled: ${buyOrder['executedQty']} BTC');
   print('   Cost: \$${buyOrder['cummulativeQuoteQty']}');
-  
-  // Simulate placing a limit sell order
-  final sellOrder = await binance.spot.simulatedTrading.simulatePlaceOrder(
-    symbol: 'BTCUSDT',
-    side: 'SELL',
-    type: 'LIMIT',
-    quantity: 0.001,
-    price: 100000.0, // Sell at $100k
-    timeInForce: 'GTC',
-  );
-  
-  print('📋 Limit Sell Order Placed');
-  print('   Order ID: ${sellOrder['orderId']}');
-  print('   Status: ${sellOrder['status']}');
-  print('   Price: \$${sellOrder['price']}');
-  
-  // Check order status later
-  await Future.delayed(Duration(seconds: 2));
-  final status = await binance.spot.simulatedTrading.simulateOrderStatus(
-    symbol: 'BTCUSDT',
-    orderId: int.parse(sellOrder['orderId'].toString()),
-  );
-  
-  print('📊 Order Status Update');
-  print('   Status: ${status['status']}');
-  print('   Filled: ${status['executedQty']}/${status['origQty']}');
 }
 ```
+
+#### 🧪 Option 2: Testnet Trading (Real API, Test Money)
+
+```dart
+import 'package:babel_binance/babel_binance.dart';
+
+void main() async {
+  // Get your testnet API keys from: https://testnet.binance.vision/
+  final binance = Binance.testnet(
+    apiKey: 'your_testnet_api_key',
+    apiSecret: 'your_testnet_secret',
+  );
+
+  print('🧪 Testing on Binance Testnet');
+  
+  // Real API call to testnet with test money
+  final ticker = await binance.testnetSpot.market.get24HrTicker('BTCUSDT');
+  print('BTC Price on Testnet: \$${ticker['lastPrice']}');
+  
+  // Place real order on testnet (no real money)
+  final order = await binance.testnetSpot.trading.placeOrder(
+    symbol: 'BTCUSDT',
+    side: 'BUY',
+    type: 'MARKET',
+    quantity: 0.001,
+  );
+  
+  print('✅ Real Testnet Order Placed');
+  print('   Order ID: ${order['orderId']}');
+  print('   Status: ${order['status']}');
+}
+```
+
+#### 💰 Option 3: Live Trading (Real Money)
+
+```dart
+import 'package:babel_binance/babel_binance.dart';
+
+void main() async {
+  // ⚠️ LIVE TRADING - REAL MONEY AT RISK!
+  final binance = Binance(
+    apiKey: 'your_live_api_key',
+    apiSecret: 'your_live_secret',
+  );
+
+  // Always start with small amounts!
+  final order = await binance.spot.trading.placeOrder(
+    symbol: 'BTCUSDT',
+    side: 'BUY',
+    type: 'MARKET',
+    quantity: 0.0001, // Very small amount
+  );
+}
+```
+
+#### 📊 Trading Options Comparison
+
+| Feature | Simulated | Testnet | Live |
+|---------|-----------|---------|------|
+| Real API calls | ❌ No | ✅ Yes | ✅ Yes |
+| Real money risk | ❌ No | ❌ No | ✅ Yes |
+| API keys needed | ❌ No | ✅ Yes (testnet) | ✅ Yes (live) |
+| Network latency | ❌ No | ✅ Real | ✅ Real |
+| Rate limiting | ❌ No | ✅ Real | ✅ Real |
+| Order matching | 🎯 Simulated | ✅ Real | ✅ Real |
+| Best for | 🎓 Learning | 🧪 Final testing | 💰 Production |
 
 ### 3. Currency Conversion Simulation
 

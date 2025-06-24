@@ -1,10 +1,23 @@
+## 0.6.5
+
+- **fix**: Resolved minor linting issues in the testnet integration
+- **docs**: Updated README to include testnet trading as a feature
+- **improvement**: Enhanced testnet example for better clarity and usability
+- **improvement**: Improved error handling in testnet API calls
+
 ## 0.6.4
 
-- **maintenance**: Version bump for pub.dev publication readiness  
-- **stability**: Consolidated existing features and improvements from 0.6.3
-- **docs**: Updated documentation for better clarity and developer experience
-- **quality**: Code review and minor optimizations for production deployment
-- **publish**: Prepared package for official pub.dev distribution
+- **feat**: 🧪 Added comprehensive Binance Testnet integration for realistic testing without real money
+- **feat**: Added `TestnetSpot` class with full spot trading functionality on testnet
+- **feat**: Added `TestnetFuturesUsd` class for futures trading on testnet
+- **feat**: Added `Binance.testnet()` factory constructor for easy testnet setup
+- **feat**: Testnet supports real API calls to testnet.binance.vision with test funds
+- **feat**: Full feature parity with live API including WebSocket connections
+- **example**: Added comprehensive testnet integration example with best practices
+- **example**: Updated quick start guide to include testnet trading alongside simulated trading
+- **improvement**: Enhanced developer experience with three testing levels: simulated → testnet → live
+- **docs**: Added detailed testnet setup instructions and safety guidelines
+- **enhancement**: Improved trading progression path for safer strategy development
 
 ## 0.6.3
 

@@ -1,5 +1,4 @@
 import 'package:babel_binance/babel_binance.dart';
-import 'dart:math';
 
 /// Performance analysis tool for measuring Babel Binance API response times
 /// and testing different scenarios.
