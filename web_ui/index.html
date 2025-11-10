@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="dark-mode.css">
     <link rel="stylesheet" href="performance.css">
     <link rel="stylesheet" href="alerts.css">
+    <link rel="stylesheet" href="strategy.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -181,6 +182,102 @@
                 </div>
             </div>
 
+            <!-- Multi-Algorithm Strategy Section -->
+            <div class="strategy-section">
+                <div class="strategy-header">
+                    <h2><i class="fas fa-brain"></i> Multi-Algorithm Strategy</h2>
+                    <span id="strategyStatus" class="status-badge status-active">Multi-Strategy Active</span>
+                </div>
+
+                <!-- Enable/Disable Toggle -->
+                <div class="enable-toggle">
+                    <label for="strategyEnabled">Enable Multi-Strategy Mode</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="strategyEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+
+                <!-- Mode Selector -->
+                <div class="mode-selector">
+                    <label for="strategyMode">Strategy Composition Mode</label>
+                    <select id="strategyMode">
+                        <option value="voting">Voting - Require N of M algorithms to agree</option>
+                        <option value="weighted">Weighted - Weighted consensus with configurable weights</option>
+                        <option value="unanimous">Unanimous - All algorithms must agree</option>
+                    </select>
+                </div>
+
+                <!-- Voting Mode Controls -->
+                <div id="votingControls" class="mode-controls">
+                    <h3>Voting Configuration</h3>
+                    <p>Require a minimum number of algorithms to agree on the same direction (BUY/SELL) before executing a trade.</p>
+                    <div class="control-group">
+                        <label for="requiredVotes">Required Votes</label>
+                        <input type="number" id="requiredVotes" min="1" max="3" value="2">
+                        <small>How many algorithms must agree (out of total enabled)</small>
+                    </div>
+                    <div class="mode-info">
+                        <h4>Example:</h4>
+                        <ul>
+                            <li>If 3 algorithms are enabled and required votes = 2</li>
+                            <li>Trade executes when at least 2 algorithms signal BUY or SELL</li>
+                            <li>Confidence is averaged from agreeing algorithms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Weighted Mode Controls -->
+                <div id="weightedControls" class="mode-controls" style="display: none;">
+                    <h3>Weighted Configuration</h3>
+                    <p>Each algorithm contributes to the final signal based on its weight. Weights must sum to 100%.</p>
+                    <div id="weightWarning" class="weight-warning"></div>
+                    <button type="button" class="btn-balance" onclick="autoBalanceWeights()" style="margin-top: 0.5rem;">
+                        <i class="fas fa-balance-scale"></i> Auto-Balance Weights
+                    </button>
+                    <div class="mode-info">
+                        <h4>Example:</h4>
+                        <ul>
+                            <li>SMA: 40%, RSI: 35%, Grid: 25%</li>
+                            <li>If SMA signals BUY (0.8 confidence), RSI signals SELL (0.6 confidence), Grid signals BUY (0.7 confidence)</li>
+                            <li>BUY score: 0.4×0.8 + 0.25×0.7 = 0.495</li>
+                            <li>SELL score: 0.35×0.6 = 0.21</li>
+                            <li>No trade (BUY score below 0.5 threshold)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Unanimous Mode Info -->
+                <div id="unanimousInfo" class="mode-controls" style="display: none;">
+                    <h3>Unanimous Mode</h3>
+                    <p>All active algorithms must agree on the same direction (BUY or SELL) for a trade to execute. This is the most conservative mode with the fewest trades but highest confidence.</p>
+                    <div class="mode-info">
+                        <h4>Characteristics:</h4>
+                        <ul>
+                            <li>Highest precision, lowest frequency</li>
+                            <li>Best for risk-averse strategies</li>
+                            <li>Averages confidence from all algorithms</li>
+                            <li>Any disagreement = no trade</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Algorithm List -->
+                <div class="algorithm-list">
+                    <h3>Active Algorithms</h3>
+                    <div id="algorithmList">
+                        <p class="loading">Loading algorithms...</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="strategy-actions">
+                    <button class="btn-save" onclick="saveStrategyConfig()">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                </div>
+            </div>
+
             <!-- Price Alerts Section -->
             <div class="alerts-section">
                 <div class="section-header">
@@ -280,6 +377,7 @@
     <script src="theme-toggle.js"></script>
     <script src="websocket-client.js"></script>
     <script src="alerts.js"></script>
+    <script src="strategy.js"></script>
     <script src="performance.js"></script>
     <script src="app.js"></script>
 </body>
