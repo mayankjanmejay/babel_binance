@@ -1,7 +1,36 @@
+## 0.7.0
+
+- **feat**: Expanded main Binance class to expose all 25+ API collections
+- **feat**: Added comprehensive custom exception classes for better error handling
+  - `BinanceException` - Base exception
+  - `BinanceAuthenticationException` - Auth errors (401, 403)
+  - `BinanceRateLimitException` - Rate limit errors (429) with retry-after
+  - `BinanceValidationException` - Parameter validation errors (400)
+  - `BinanceNetworkException` - Network/connectivity errors
+  - `BinanceServerException` - Server errors (500-504)
+  - `BinanceInsufficientBalanceException` - Balance errors
+  - `BinanceTimeoutException` - Request timeout errors
+- **feat**: Added configurable request timeout (default: 30s)
+- **feat**: Implemented automatic retry logic with exponential backoff (max 3 retries)
+- **feat**: Added automatic rate limiting to prevent API limit violations (default: 10 req/s)
+- **feat**: Added `BinanceConfig` class for customizing client behavior
+- **improvement**: Enhanced error messages with status codes and response bodies
+- **improvement**: Better handling of network errors with automatic retries
+- **improvement**: All API collections now accessible from main Binance class:
+  - Core Trading: Spot, FuturesUsd, FuturesCoin, FuturesAlgo, Margin, PortfolioMargin
+  - Wallet & Account: Wallet, SubAccount
+  - Earn Products: Staking, Savings, SimpleEarn, AutoInvest
+  - Lending & Loans: Loan, VipLoan
+  - Trading Tools: Convert, SimulatedConvert, CopyTrading
+  - Fiat & Payment: Fiat, C2C, Pay
+  - Other Services: Mining, BLVT, NFT, GiftCard, Rebate
+- **docs**: Enhanced library documentation with comprehensive examples
+- **docs**: Added usage examples for error handling
+
 ## 0.6.2
 
 - **deps**: Updated crypto dependency from ^3.0.3 to ^3.0.6
-- **deps**: Updated http dependency from ^1.2.1 to ^1.4.0  
+- **deps**: Updated http dependency from ^1.2.1 to ^1.4.0
 - **deps**: Updated web_socket_channel dependency from ^2.4.0 to ^3.0.3
 - **improvement**: Enhanced compatibility with latest dependency versions
 - **docs**: Updated documentation to reflect dependency version changes
