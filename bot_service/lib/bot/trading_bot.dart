@@ -1,0 +1,278 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:babel_binance/babel_binance.dart';
+import 'package:logging/logging.dart';
+
+import '../algorithms/trading_algorithm.dart';
+import '../models/watchlist_item.dart';
+import '../models/trade_record.dart';
+import '../services/appwrite_service.dart';
+
+/// Main trading bot that runs 24/7 monitoring markets and executing trades
+class TradingBot {
+  final Binance binance;
+  final AppwriteService appwrite;
+  final String userId;
+  final List<TradingAlgorithm> algorithms;
+  final int checkIntervalSeconds;
+  final bool simulationMode;
+  final Logger _log = Logger('TradingBot');
+
+  bool _running = false;
+  Timer? _mainTimer;
+  Timer? _healthCheckTimer;
+  List<WatchlistItem> _watchlist = [];
+
+  // Statistics
+  int _cyclesCompleted = 0;
+  int _tradesExecuted = 0;
+  int _errorsEncountered = 0;
+  DateTime? _startTime;
+
+  TradingBot({
+    required this.binance,
+    required this.appwrite,
+    required this.userId,
+    required this.algorithms,
+    this.checkIntervalSeconds = 30,
+    this.simulationMode = true,
+  });
+
+  /// Start the trading bot
+  Future<void> start() async {
+    if (_running) {
+      _log.warning('Bot is already running');
+      return;
+    }
+
+    _running = true;
+    _startTime = DateTime.now();
+    _log.info('🤖 Starting Trading Bot');
+    _log.info('   User ID: $userId');
+    _log.info('   Mode: ${simulationMode ? "SIMULATION" : "LIVE TRADING"}');
+    _log.info('   Check interval: ${checkIntervalSeconds}s');
+    _log.info('   Algorithms: ${algorithms.map((a) => a.name).join(", ")}');
+
+    // Verify Appwrite connection
+    final appwriteOk = await appwrite.healthCheck();
+    if (!appwriteOk) {
+      _log.severe('❌ Appwrite connection failed - bot will not start');
+      _running = false;
+      return;
+    }
+
+    // Load watchlist
+    await _refreshWatchlist();
+
+    if (_watchlist.isEmpty) {
+      _log.warning('⚠️  Watchlist is empty - add items to start trading');
+    } else {
+      _log.info('📋 Watching ${_watchlist.length} symbols: ${_watchlist.map((w) => w.symbol).join(", ")}');
+    }
+
+    // Start main trading cycle
+    _mainTimer = Timer.periodic(
+      Duration(seconds: checkIntervalSeconds),
+      (_) => _runTradingCycle(),
+    );
+
+    // Start health check timer (every 5 minutes)
+    _healthCheckTimer = Timer.periodic(
+      Duration(minutes: 5),
+      (_) => _performHealthCheck(),
+    );
+
+    // Run first cycle immediately
+    await _runTradingCycle();
+
+    _log.info('✅ Trading bot started successfully');
+  }
+
+  /// Stop the trading bot
+  void stop() {
+    _running = false;
+    _mainTimer?.cancel();
+    _healthCheckTimer?.cancel();
+
+    final uptime = _startTime != null
+        ? DateTime.now().difference(_startTime!).inMinutes
+        : 0;
+
+    _log.info('🛑 Trading bot stopped');
+    _log.info('   Uptime: ${uptime} minutes');
+    _log.info('   Cycles completed: $_cyclesCompleted');
+    _log.info('   Trades executed: $_tradesExecuted');
+    _log.info('   Errors encountered: $_errorsEncountered');
+  }
+
+  /// Main trading cycle - runs every check interval
+  Future<void> _runTradingCycle() async {
+    if (!_running) return;
+
+    final cycleStart = DateTime.now();
+    _cyclesCompleted++;
+
+    try {
+      _log.fine('🔄 Starting trading cycle #$_cyclesCompleted');
+
+      // Refresh watchlist periodically
+      if (_cyclesCompleted % 20 == 0) {
+        await _refreshWatchlist();
+      }
+
+      // Process each symbol in watchlist
+      for (final item in _watchlist) {
+        if (!_running) break;
+
+        await _processSymbol(item);
+      }
+
+      final duration = DateTime.now().difference(cycleStart).inMilliseconds;
+      _log.fine('✅ Cycle #$_cyclesCompleted completed in ${duration}ms');
+    } catch (e, stack) {
+      _errorsEncountered++;
+      _log.severe('❌ Error in trading cycle: $e\n$stack');
+    }
+  }
+
+  /// Process a single symbol - get price and run algorithms
+  Future<void> _processSymbol(WatchlistItem item) async {
+    try {
+      // Get current market price
+      final ticker = await binance.spot.market.get24HrTicker(item.symbol);
+      final currentPrice = double.parse(ticker['lastPrice']);
+
+      _log.fine('${item.symbol}: \$${currentPrice.toStringAsFixed(2)}');
+
+      // Run all active algorithms
+      for (final algorithm in algorithms) {
+        if (!algorithm.active) continue;
+
+        final signal = await algorithm.analyze(item.symbol, currentPrice);
+
+        if (signal != null) {
+          _log.info('📊 Signal: ${signal.algorithmName} - ${signal.side} ${item.symbol} @ ${signal.price ?? "MARKET"}');
+          _log.info('   Reason: ${signal.reason}');
+          _log.info('   Confidence: ${(signal.confidence * 100).toStringAsFixed(1)}%');
+
+          // Execute trade
+          await _executeTrade(item.symbol, signal);
+        }
+      }
+    } catch (e) {
+      _log.warning('Failed to process ${item.symbol}: $e');
+    }
+  }
+
+  /// Execute a trade based on a signal
+  Future<void> _executeTrade(String symbol, dynamic signal) async {
+    try {
+      Map<String, dynamic> order;
+
+      if (simulationMode) {
+        // Use simulation mode
+        _log.info('🎯 Executing SIMULATED trade');
+        order = await binance.spot.simulatedTrading.simulatePlaceOrder(
+          symbol: symbol,
+          side: signal.side,
+          type: signal.type,
+          quantity: signal.quantity,
+          price: signal.price,
+          timeInForce: signal.timeInForce,
+        );
+      } else {
+        // Live trading - BE CAREFUL!
+        _log.warning('🔴 Executing LIVE trade');
+        order = await binance.spot.trading.placeOrder(
+          symbol: symbol,
+          side: signal.side,
+          type: signal.type,
+          quantity: signal.quantity,
+          price: signal.price,
+          timeInForce: signal.timeInForce,
+        );
+      }
+
+      _tradesExecuted++;
+
+      _log.info('✅ Trade executed successfully');
+      _log.info('   Order ID: ${order['orderId']}');
+      _log.info('   Status: ${order['status']}');
+      _log.info('   Filled: ${order['executedQty']} ${symbol.replaceAll('USDT', '')}');
+
+      // Save to database
+      final trade = TradeRecord(
+        userId: userId,
+        symbol: symbol,
+        side: signal.side,
+        quantity: signal.quantity,
+        price: double.tryParse(order['price']?.toString() ?? '0') ?? 0,
+        totalValue: double.tryParse(order['cummulativeQuoteQty']?.toString() ?? '0') ?? 0,
+        timestamp: DateTime.now(),
+        algorithmName: signal.algorithmName,
+        orderId: order['orderId'].toString(),
+        status: order['status'],
+      );
+
+      await appwrite.saveTrade(trade);
+    } catch (e, stack) {
+      _errorsEncountered++;
+      _log.severe('❌ Failed to execute trade: $e\n$stack');
+    }
+  }
+
+  /// Refresh watchlist from database
+  Future<void> _refreshWatchlist() async {
+    try {
+      _watchlist = await appwrite.getActiveWatchlist(userId);
+      _log.info('📋 Watchlist refreshed: ${_watchlist.length} items');
+    } catch (e) {
+      _log.warning('Failed to refresh watchlist: $e');
+    }
+  }
+
+  /// Perform health check
+  Future<void> _performHealthCheck() async {
+    _log.info('🏥 Health check');
+
+    // Check Appwrite
+    final appwriteOk = await appwrite.healthCheck();
+    _log.info('   Appwrite: ${appwriteOk ? "✅" : "❌"}');
+
+    // Check Binance API
+    try {
+      await binance.spot.market.getServerTime();
+      _log.info('   Binance: ✅');
+    } catch (e) {
+      _log.severe('   Binance: ❌ ($e)');
+    }
+
+    // Statistics
+    final uptime = _startTime != null
+        ? DateTime.now().difference(_startTime!).inMinutes
+        : 0;
+
+    _log.info('   Uptime: ${uptime} minutes');
+    _log.info('   Cycles: $_cyclesCompleted');
+    _log.info('   Trades: $_tradesExecuted');
+    _log.info('   Errors: $_errorsEncountered');
+  }
+
+  /// Get bot statistics
+  Map<String, dynamic> getStatistics() {
+    final uptime = _startTime != null
+        ? DateTime.now().difference(_startTime!).inMinutes
+        : 0;
+
+    return {
+      'running': _running,
+      'uptime_minutes': uptime,
+      'cycles_completed': _cyclesCompleted,
+      'trades_executed': _tradesExecuted,
+      'errors_encountered': _errorsEncountered,
+      'watchlist_size': _watchlist.length,
+      'active_algorithms': algorithms.where((a) => a.active).length,
+      'total_algorithms': algorithms.length,
+    };
+  }
+}

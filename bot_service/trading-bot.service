@@ -1,0 +1,51 @@
+# Systemd service file for running the trading bot as a system service
+# Install to: /etc/systemd/system/trading-bot.service
+#
+# Commands:
+#   sudo systemctl enable trading-bot    # Enable on boot
+#   sudo systemctl start trading-bot     # Start service
+#   sudo systemctl stop trading-bot      # Stop service
+#   sudo systemctl restart trading-bot   # Restart service
+#   sudo systemctl status trading-bot    # Check status
+#   sudo journalctl -u trading-bot -f    # View logs
+
+[Unit]
+Description=Crypto Trading Bot - 24/7 Automated Trading
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bot
+Group=bot
+WorkingDirectory=/opt/trading-bot
+Environment="PATH=/usr/bin:/usr/local/bin"
+
+# Path to the compiled executable or Dart runtime
+ExecStart=/opt/trading-bot/trading_bot
+# Or if using Dart runtime:
+# ExecStart=/usr/lib/dart/bin/dart run /opt/trading-bot/bin/server.dart
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Resource limits
+LimitNOFILE=65536
+MemoryLimit=1G
+CPUQuota=50%
+
+# Logging
+StandardOutput=append:/var/log/trading-bot/stdout.log
+StandardError=append:/var/log/trading-bot/stderr.log
+SyslogIdentifier=trading-bot
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/trading-bot
+
+[Install]
+WantedBy=multi-user.target

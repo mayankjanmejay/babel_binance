@@ -1,0 +1,36 @@
+name: crypto_trading_bot
+description: 24/7 automated cryptocurrency trading bot using Binance API
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Binance API wrapper (your library)
+  babel_binance:
+    path: ../ # Local development - points to parent directory
+    # For production, use: ^0.6.2
+
+  # Appwrite SDK for backend services
+  dart_appwrite: ^11.0.0
+
+  # HTTP and WebSocket
+  http: ^1.4.0
+  web_socket_channel: ^3.0.3
+
+  # Environment variables
+  dotenv: ^4.2.0
+
+  # Logging
+  logging: ^1.2.0
+
+  # Date/Time utilities
+  intl: ^0.19.0
+
+  # JSON serialization
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  test: ^1.25.2
+  build_runner: ^2.4.0
+  json_serializable: ^6.8.0

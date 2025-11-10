@@ -1,0 +1,165 @@
+import 'dart:io';
+import 'package:babel_binance/babel_binance.dart';
+import 'package:dotenv/dotenv.dart';
+import 'package:logging/logging.dart';
+
+import '../lib/algorithms/sma_crossover.dart';
+import '../lib/algorithms/rsi_strategy.dart';
+import '../lib/algorithms/grid_trading.dart';
+import '../lib/bot/trading_bot.dart';
+import '../lib/services/appwrite_service.dart';
+
+/// Main entry point for the 24/7 trading bot
+void main(List<String> arguments) async {
+  // Setup logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    final timestamp = record.time.toIso8601String().substring(11, 19);
+    print('[$timestamp] ${record.level.name}: ${record.message}');
+
+    // Also write to file if configured
+    final logToFile = env['LOG_TO_FILE'] == 'true';
+    if (logToFile) {
+      final logFile = File(env['LOG_FILE_PATH'] ?? '/var/log/trading_bot.log');
+      logFile.writeAsStringSync(
+        '[$timestamp] ${record.level.name}: ${record.message}\n',
+        mode: FileMode.append,
+      );
+    }
+  });
+
+  final log = Logger('Main');
+
+  log.info('🚀 Crypto Trading Bot Starting...');
+
+  // Load environment variables
+  try {
+    load('.env');
+    log.info('✅ Environment variables loaded from .env file');
+  } catch (e) {
+    log.warning('⚠️  No .env file found, using environment variables');
+  }
+
+  // Verify required environment variables
+  final requiredVars = [
+    'BINANCE_API_KEY',
+    'BINANCE_API_SECRET',
+    'APPWRITE_ENDPOINT',
+    'APPWRITE_PROJECT_ID',
+    'APPWRITE_API_KEY',
+  ];
+
+  for (final varName in requiredVars) {
+    if (env[varName] == null || env[varName]!.isEmpty) {
+      log.severe('❌ Missing required environment variable: $varName');
+      exit(1);
+    }
+  }
+
+  log.info('✅ All required environment variables present');
+
+  // Initialize Binance client
+  final binance = Binance(
+    apiKey: env['BINANCE_API_KEY']!,
+    apiSecret: env['BINANCE_API_SECRET']!,
+  );
+
+  log.info('✅ Binance client initialized');
+
+  // Initialize Appwrite service
+  final appwrite = AppwriteService(
+    endpoint: env['APPWRITE_ENDPOINT']!,
+    projectId: env['APPWRITE_PROJECT_ID']!,
+    apiKey: env['APPWRITE_API_KEY']!,
+    databaseId: env['APPWRITE_DATABASE_ID'] ?? 'crypto_trading',
+    watchlistCollectionId: env['APPWRITE_COLLECTION_WATCHLIST'] ?? 'watchlist',
+    tradesCollectionId: env['APPWRITE_COLLECTION_TRADES'] ?? 'trades',
+    algorithmsCollectionId: env['APPWRITE_COLLECTION_ALGORITHMS'] ?? 'algorithms',
+    portfoliosCollectionId: env['APPWRITE_COLLECTION_PORTFOLIOS'] ?? 'portfolios',
+  );
+
+  log.info('✅ Appwrite service initialized');
+
+  // Initialize trading algorithms
+  final algorithms = [
+    SMACrossover(
+      shortPeriod: 20,
+      longPeriod: 50,
+      quantity: 0.001,
+    ),
+    RSIStrategy(
+      period: 14,
+      oversold: 30,
+      overbought: 70,
+      quantity: 0.001,
+    ),
+    GridTrading(
+      lowerBound: 90000,
+      upperBound: 100000,
+      gridLevels: 10,
+      quantityPerGrid: 0.0001,
+    ),
+  ];
+
+  log.info('✅ ${algorithms.length} trading algorithms loaded');
+
+  // Initialize trading bot
+  final bot = TradingBot(
+    binance: binance,
+    appwrite: appwrite,
+    userId: env['BOT_USER_ID'] ?? 'default_user',
+    algorithms: algorithms,
+    checkIntervalSeconds: int.parse(env['BOT_CHECK_INTERVAL_SECONDS'] ?? '30'),
+    simulationMode: env['BOT_SIMULATION_MODE'] != 'false',
+  );
+
+  // Setup graceful shutdown
+  ProcessSignal.sigint.watch().listen((signal) async {
+    log.info('\n🛑 Received interrupt signal, shutting down gracefully...');
+    bot.stop();
+
+    // Wait a bit for cleanup
+    await Future.delayed(Duration(seconds: 2));
+
+    log.info('👋 Goodbye!');
+    exit(0);
+  });
+
+  // Start the bot
+  await bot.start();
+
+  // Keep the process running
+  log.info('🔄 Bot is now running... Press Ctrl+C to stop');
+
+  // Optional: Start health check HTTP server
+  if (env['ENABLE_HEALTH_CHECK'] == 'true') {
+    final port = int.parse(env['HEALTH_CHECK_PORT'] ?? '8080');
+    final server = await HttpServer.bind(InternetAddress.anyIPv4, port);
+
+    log.info('🏥 Health check server running on port $port');
+
+    server.listen((request) {
+      final stats = bot.getStatistics();
+
+      request.response
+        ..statusCode = stats['running'] ? 200 : 503
+        ..headers.contentType = ContentType.json
+        ..write('''
+{
+  "status": "${stats['running'] ? 'healthy' : 'unhealthy'}",
+  "uptime_minutes": ${stats['uptime_minutes']},
+  "cycles_completed": ${stats['cycles_completed']},
+  "trades_executed": ${stats['trades_executed']},
+  "errors_encountered": ${stats['errors_encountered']},
+  "watchlist_size": ${stats['watchlist_size']},
+  "active_algorithms": ${stats['active_algorithms']},
+  "timestamp": "${DateTime.now().toIso8601String()}"
+}
+''')
+        ..close();
+    });
+  }
+
+  // Keep running forever (until interrupted)
+  await Future.delayed(Duration(days: 365 * 100));
+}

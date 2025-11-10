@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  trading-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crypto-trading-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override specific env vars if needed
+      - BOT_SIMULATION_MODE=true
+      - ENABLE_HEALTH_CHECK=true
+      - HEALTH_CHECK_PORT=8080
+    volumes:
+      # Mount logs directory
+      - ./logs:/var/log:rw
+      # Mount .env file (create from .env.example first)
+      - ./.env:/app/.env:ro
+    ports:
+      - "8080:8080"  # Health check endpoint
+    networks:
+      - trading-network
+    depends_on:
+      - appwrite
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Appwrite services (if not already running)
+  # Comment out if you already have Appwrite running separately
+  appwrite:
+    image: appwrite/appwrite:1.5
+    container_name: appwrite
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - appwrite-data:/storage
+      - appwrite-config:/storage/config
+      - appwrite-certificates:/storage/certificates
+      - appwrite-functions:/storage/functions
+    environment:
+      - _APP_ENV=production
+      - _APP_LOCALE=en
+      - _APP_OPTIONS_ABUSE=enabled
+      - _APP_OPTIONS_FORCE_HTTPS=disabled
+      - _APP_OPENSSL_KEY_V1=your-secret-key
+      - _APP_DOMAIN=localhost
+      - _APP_DOMAIN_TARGET=localhost
+      - _APP_REDIS_HOST=redis
+      - _APP_REDIS_PORT=6379
+      - _APP_DB_HOST=mariadb
+      - _APP_DB_PORT=3306
+      - _APP_DB_SCHEMA=appwrite
+      - _APP_DB_USER=appwrite
+      - _APP_DB_PASS=appwrite_password
+    networks:
+      - trading-network
+    depends_on:
+      - mariadb
+      - redis
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: appwrite-mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=appwrite
+      - MYSQL_USER=appwrite
+      - MYSQL_PASSWORD=appwrite_password
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - trading-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: appwrite-redis
+    restart: unless-stopped
+    networks:
+      - trading-network
+    volumes:
+      - redis-data:/data
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  appwrite-data:
+  appwrite-config:
+  appwrite-certificates:
+  appwrite-functions:
+  mariadb-data:
+  redis-data:

@@ -1,0 +1,36 @@
+# Dart
+.dart_tool/
+.packages
+pubspec.lock
+build/
+*.dart.js
+*.js_
+*.js.deps
+*.js.map
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+
+# Build output
+trading_bot
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
