@@ -1,0 +1,33 @@
+name: crypto_api_server
+description: REST API server for the trading bot web UI
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # HTTP server framework
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+  shelf_cors_headers: ^0.1.5
+
+  # Binance API
+  babel_binance:
+    path: ../
+
+  # Appwrite SDK
+  dart_appwrite: ^11.0.0
+
+  # Environment variables
+  dotenv: ^4.2.0
+
+  # Logging
+  logging: ^1.2.0
+
+  # JSON
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  test: ^1.25.2
+  build_runner: ^2.4.0
+  json_serializable: ^6.8.0

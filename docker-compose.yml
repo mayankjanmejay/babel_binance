@@ -1,0 +1,197 @@
+version: '3.8'
+
+# Complete all-in-one crypto trading platform
+# Includes: Appwrite + Trading Bot + Web UI
+# One command: docker-compose up -d
+
+services:
+  # ============================================================================
+  # APPWRITE BACKEND - Database, Auth, Storage
+  # ============================================================================
+  appwrite:
+    image: appwrite/appwrite:1.5.7
+    container_name: crypto-appwrite
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - appwrite-uploads:/storage/uploads:rw
+      - appwrite-cache:/storage/cache:rw
+      - appwrite-config:/storage/config:rw
+      - appwrite-certificates:/storage/certificates:rw
+      - appwrite-functions:/storage/functions:rw
+    environment:
+      - _APP_ENV=production
+      - _APP_LOCALE=en
+      - _APP_OPTIONS_ABUSE=enabled
+      - _APP_OPTIONS_FORCE_HTTPS=disabled
+      - _APP_OPENSSL_KEY_V1=your-secret-key-change-this
+      - _APP_DOMAIN=localhost
+      - _APP_DOMAIN_TARGET=localhost
+      - _APP_REDIS_HOST=redis
+      - _APP_REDIS_PORT=6379
+      - _APP_REDIS_USER=
+      - _APP_REDIS_PASS=
+      - _APP_DB_HOST=mariadb
+      - _APP_DB_PORT=3306
+      - _APP_DB_SCHEMA=appwrite
+      - _APP_DB_USER=appwrite
+      - _APP_DB_PASS=appwrite_password
+      - _APP_STORAGE_LIMIT=30000000
+      - _APP_FUNCTIONS_TIMEOUT=900
+      - _APP_FUNCTIONS_BUILD_TIMEOUT=900
+    depends_on:
+      - mariadb
+      - redis
+
+  # ============================================================================
+  # MARIADB - Appwrite Database
+  # ============================================================================
+  mariadb:
+    image: mariadb:10.11
+    container_name: crypto-mariadb
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    volumes:
+      - mariadb-data:/var/lib/mysql:rw
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=appwrite
+      - MYSQL_USER=appwrite
+      - MYSQL_PASSWORD=appwrite_password
+    command: 'mysqld --innodb-flush-method=fsync'
+
+  # ============================================================================
+  # REDIS - Appwrite Cache
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: crypto-redis
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    volumes:
+      - redis-data:/data:rw
+    command: redis-server --save 60 1 --loglevel warning
+
+  # ============================================================================
+  # TRADING BOT - 24/7 Automated Trading
+  # ============================================================================
+  trading-bot:
+    build:
+      context: ./bot_service
+      dockerfile: Dockerfile
+    container_name: crypto-trading-bot
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    env_file:
+      - ./bot_service/.env
+    environment:
+      - BOT_SIMULATION_MODE=${BOT_SIMULATION_MODE:-true}
+      - APPWRITE_ENDPOINT=http://appwrite/v1
+      - ENABLE_HEALTH_CHECK=true
+      - HEALTH_CHECK_PORT=8080
+    volumes:
+      - ./bot_service/logs:/var/log:rw
+      - ./bot_service/.env:/app/.env:ro
+    depends_on:
+      - appwrite
+      - api-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================================
+  # API SERVER - REST API for Web UI
+  # ============================================================================
+  api-server:
+    build:
+      context: ./api_server
+      dockerfile: Dockerfile
+    container_name: crypto-api-server
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./bot_service/.env
+    environment:
+      - APPWRITE_ENDPOINT=http://appwrite/v1
+      - API_PORT=3000
+      - CORS_ORIGIN=*
+    volumes:
+      - ./bot_service/.env:/app/.env:ro
+    depends_on:
+      - appwrite
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 2m
+      timeout: 5s
+      retries: 3
+
+  # ============================================================================
+  # WEB UI - Dashboard & Controls
+  # ============================================================================
+  web-ui:
+    image: nginx:alpine
+    container_name: crypto-web-ui
+    restart: unless-stopped
+    networks:
+      - crypto-network
+    ports:
+      - "8888:80"
+    volumes:
+      - ./web_ui:/usr/share/nginx/html:ro
+      - ./web_ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api-server
+
+  # ============================================================================
+  # INIT CONTAINER - Auto-setup Database
+  # ============================================================================
+  init-setup:
+    image: curlimages/curl:latest
+    container_name: crypto-init-setup
+    networks:
+      - crypto-network
+    volumes:
+      - ./scripts/init_database.sh:/init_database.sh:ro
+    depends_on:
+      - appwrite
+    entrypoint: ["/bin/sh", "/init_database.sh"]
+    restart: "no"
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  crypto-network:
+    driver: bridge
+
+# ============================================================================
+# VOLUMES - Persistent Data
+# ============================================================================
+volumes:
+  mariadb-data:
+    driver: local
+  redis-data:
+    driver: local
+  appwrite-uploads:
+    driver: local
+  appwrite-cache:
+    driver: local
+  appwrite-config:
+    driver: local
+  appwrite-certificates:
+    driver: local
+  appwrite-functions:
+    driver: local
