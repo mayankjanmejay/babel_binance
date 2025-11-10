@@ -490,6 +490,205 @@ tr:hover {
 }
 
 /* ============================================================================
+   ENHANCED COIN SELECTION
+   ============================================================================ */
+
+/* Larger modal for coin selection */
+.modal-large {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Coin Search */
+.coin-search {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.coin-search i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+}
+
+.coin-search input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.coin-search input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Popular Coins Section */
+.popular-coins-section,
+.all-coins-section,
+.custom-symbol-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.popular-coins-section h3,
+.all-coins-section h3,
+.custom-symbol-section h3 {
+    font-size: 1rem;
+    color: var(--dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.popular-coins-section h3 i {
+    color: #f59e0b;
+}
+
+.all-coins-section h3 i {
+    color: var(--primary);
+}
+
+.custom-symbol-section h3 i {
+    color: var(--success);
+}
+
+.popular-coins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+}
+
+.coin-chip {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.coin-chip:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.coin-chip.added {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.05);
+    cursor: not-allowed;
+}
+
+.coin-chip.added:hover {
+    transform: none;
+}
+
+.coin-chip-symbol {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--dark);
+}
+
+.coin-chip-name {
+    font-size: 0.75rem;
+    color: var(--gray);
+}
+
+.coin-chip-added {
+    font-size: 0.75rem;
+    color: var(--success);
+    display: none;
+}
+
+.coin-chip.added .coin-chip-added {
+    display: block;
+}
+
+/* All Coins List */
+.coins-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.coin-list-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.coin-list-item:last-child {
+    border-bottom: none;
+}
+
+.coin-list-item:hover {
+    background: var(--light-gray);
+}
+
+.coin-list-item.added {
+    background: rgba(16, 185, 129, 0.05);
+    cursor: not-allowed;
+}
+
+.coin-list-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.coin-list-symbol {
+    font-weight: 700;
+    color: var(--dark);
+    min-width: 100px;
+}
+
+.coin-list-name {
+    color: var(--gray);
+    font-size: 0.875rem;
+}
+
+.coin-list-action {
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.coin-list-item.added .coin-list-action {
+    color: var(--success);
+}
+
+/* Form Row */
+.form-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
@@ -505,5 +704,18 @@ tr:hover {
     .header .container {
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .modal-large {
+        max-width: 95vw;
+        margin: 1rem;
+    }
+
+    .popular-coins-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }

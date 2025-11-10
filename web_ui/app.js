@@ -296,19 +296,159 @@ async function loadTrades() {
 }
 
 // ============================================================================
-// ADD SYMBOL MODAL
+// ENHANCED COIN SELECTION
 // ============================================================================
 
-function openAddSymbolModal() {
+// Popular coins for quick-add
+const POPULAR_COINS = [
+    { symbol: 'BTCUSDT', name: 'Bitcoin' },
+    { symbol: 'ETHUSDT', name: 'Ethereum' },
+    { symbol: 'BNBUSDT', name: 'BNB' },
+    { symbol: 'SOLUSDT', name: 'Solana' },
+    { symbol: 'XRPUSDT', name: 'Ripple' },
+    { symbol: 'ADAUSDT', name: 'Cardano' },
+    { symbol: 'DOGEUSDT', name: 'Dogecoin' },
+    { symbol: 'MATICUSDT', name: 'Polygon' },
+];
+
+// All available coins
+const ALL_COINS = [
+    ...POPULAR_COINS,
+    { symbol: 'DOTUSDT', name: 'Polkadot' },
+    { symbol: 'AVAXUSDT', name: 'Avalanche' },
+    { symbol: 'LINKUSDT', name: 'Chainlink' },
+    { symbol: 'UNIUSDT', name: 'Uniswap' },
+    { symbol: 'ATOMUSDT', name: 'Cosmos' },
+    { symbol: 'LTCUSDT', name: 'Litecoin' },
+    { symbol: 'ETCUSDT', name: 'Ethereum Classic' },
+    { symbol: 'NEARUSDT', name: 'NEAR Protocol' },
+    { symbol: 'ALGOUSDT', name: 'Algorand' },
+    { symbol: 'ICPUSDT', name: 'Internet Computer' },
+];
+
+let currentWatchlistSymbols = [];
+
+async function openAddSymbolModal() {
     document.getElementById('addSymbolModal').classList.add('show');
+
+    // Load current watchlist to mark added coins
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/watchlist`);
+        const watchlist = await response.json();
+        currentWatchlistSymbols = watchlist.map(item => item.symbol);
+    } catch (error) {
+        console.error('Failed to load watchlist:', error);
+        currentWatchlistSymbols = [];
+    }
+
+    // Populate popular coins
+    renderPopularCoins();
+
+    // Populate all coins list
+    renderAllCoins();
 }
 
 function closeAddSymbolModal() {
     document.getElementById('addSymbolModal').classList.remove('show');
     document.getElementById('addSymbolForm').reset();
+    document.getElementById('coinSearch').value = '';
 }
 
-async function addSymbol(event) {
+function renderPopularCoins() {
+    const container = document.getElementById('popularCoinsGrid');
+    let html = '';
+
+    POPULAR_COINS.forEach(coin => {
+        const isAdded = currentWatchlistSymbols.includes(coin.symbol);
+        html += `
+            <div class="coin-chip ${isAdded ? 'added' : ''}" onclick="quickAddCoin('${coin.symbol}', this)">
+                <div class="coin-chip-symbol">${coin.symbol.replace('USDT', '')}</div>
+                <div class="coin-chip-name">${coin.name}</div>
+                <div class="coin-chip-added">✓ Added</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function renderAllCoins(filterText = '') {
+    const container = document.getElementById('allCoinsList');
+    let html = '';
+
+    const filteredCoins = ALL_COINS.filter(coin =>
+        coin.symbol.toLowerCase().includes(filterText.toLowerCase()) ||
+        coin.name.toLowerCase().includes(filterText.toLowerCase())
+    );
+
+    if (filteredCoins.length === 0) {
+        container.innerHTML = '<p class="loading">No coins found</p>';
+        return;
+    }
+
+    filteredCoins.forEach(coin => {
+        const isAdded = currentWatchlistSymbols.includes(coin.symbol);
+        html += `
+            <div class="coin-list-item ${isAdded ? 'added' : ''}" onclick="quickAddCoin('${coin.symbol}', this)">
+                <div class="coin-list-info">
+                    <div class="coin-list-symbol">${coin.symbol}</div>
+                    <div class="coin-list-name">${coin.name}</div>
+                </div>
+                <div class="coin-list-action">${isAdded ? '✓ Added' : 'Add +'}</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function filterCoins(searchText) {
+    renderAllCoins(searchText);
+}
+
+async function quickAddCoin(symbol, element) {
+    // Check if already added
+    if (currentWatchlistSymbols.includes(symbol)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/watchlist`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                symbol,
+                target_buy: null,
+                target_sell: null,
+            }),
+        });
+
+        if (response.ok) {
+            // Mark as added
+            currentWatchlistSymbols.push(symbol);
+
+            // Update UI
+            if (element.classList.contains('coin-chip')) {
+                element.classList.add('added');
+            } else if (element.classList.contains('coin-list-item')) {
+                element.classList.add('added');
+                element.querySelector('.coin-list-action').textContent = '✓ Added';
+            }
+
+            // Reload watchlist in background
+            await loadWatchlist();
+        } else {
+            alert(`Failed to add ${symbol}. Please try again.`);
+        }
+    } catch (error) {
+        console.error('Failed to add symbol:', error);
+        alert('Failed to add symbol. Please check your connection.');
+    }
+}
+
+async function addCustomSymbol(event) {
     event.preventDefault();
 
     const symbol = document.getElementById('symbolInput').value.toUpperCase();

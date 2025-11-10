@@ -336,32 +336,64 @@
         </div>
     </div>
 
-    <!-- Add Symbol Modal -->
+    <!-- Enhanced Add Symbol Modal -->
     <div id="addSymbolModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-large">
             <div class="modal-header">
-                <h2>Add Symbol to Watchlist</h2>
+                <h2><i class="fas fa-plus-circle"></i> Add Coins to Watchlist</h2>
                 <span class="close" onclick="closeAddSymbolModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="addSymbolForm" onsubmit="addSymbol(event)">
-                    <div class="form-group">
-                        <label for="symbolInput">Symbol (e.g., BTCUSDT)</label>
-                        <input type="text" id="symbolInput" required placeholder="BTCUSDT">
+                <!-- Search Bar -->
+                <div class="coin-search">
+                    <i class="fas fa-search"></i>
+                    <input
+                        type="text"
+                        id="coinSearch"
+                        placeholder="Search coins (e.g., BTC, ETH, SOL)..."
+                        oninput="filterCoins(this.value)"
+                    >
+                </div>
+
+                <!-- Popular Coins Section -->
+                <div class="popular-coins-section">
+                    <h3><i class="fas fa-fire"></i> Popular Coins</h3>
+                    <div class="popular-coins-grid" id="popularCoinsGrid">
+                        <!-- Populated by JavaScript -->
                     </div>
-                    <div class="form-group">
-                        <label for="targetBuyInput">Target Buy Price (optional)</label>
-                        <input type="number" id="targetBuyInput" step="0.01" placeholder="90000">
+                </div>
+
+                <!-- All Coins List -->
+                <div class="all-coins-section">
+                    <h3><i class="fas fa-list"></i> All Available Coins</h3>
+                    <div class="coins-list" id="allCoinsList">
+                        <p class="loading">Loading coins...</p>
                     </div>
-                    <div class="form-group">
-                        <label for="targetSellInput">Target Sell Price (optional)</label>
-                        <input type="number" id="targetSellInput" step="0.01" placeholder="100000">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" onclick="closeAddSymbolModal()">Cancel</button>
-                        <button type="submit" class="btn-primary">Add Symbol</button>
-                    </div>
-                </form>
+                </div>
+
+                <!-- Custom Symbol Form -->
+                <div class="custom-symbol-section">
+                    <h3><i class="fas fa-edit"></i> Or Add Custom Symbol</h3>
+                    <form id="addSymbolForm" onsubmit="addCustomSymbol(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="symbolInput">Symbol (e.g., BTCUSDT)</label>
+                                <input type="text" id="symbolInput" required placeholder="BTCUSDT">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetBuyInput">Target Buy Price</label>
+                                <input type="number" id="targetBuyInput" step="0.01" placeholder="Optional">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetSellInput">Target Sell Price</label>
+                                <input type="number" id="targetSellInput" step="0.01" placeholder="Optional">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Add Custom Symbol
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
