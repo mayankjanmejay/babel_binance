@@ -9,6 +9,8 @@ import 'package:logging/logging.dart';
 import 'package:babel_binance/babel_binance.dart';
 import 'package:dart_appwrite/dart_appwrite.dart';
 
+import '../lib/websocket_service.dart';
+
 /// REST API Server for the trading bot web UI
 void main() async {
   // Setup logging
@@ -42,6 +44,11 @@ void main() async {
 
   final databases = Databases(client);
   final databaseId = env['APPWRITE_DATABASE_ID'] ?? 'crypto_trading';
+
+  // Initialize WebSocket service
+  final wsService = WebSocketService(binance: binance);
+  wsService.startHeartbeat();
+  log.info('✅ WebSocket service initialized');
 
   // Create router
   final router = Router();
@@ -460,6 +467,98 @@ void main() async {
   });
 
   // ============================================================================
+  // WEBSOCKET - Real-Time Streams
+  // ============================================================================
+
+  router.get('/ws', wsService.createHandler());
+
+  router.get('/api/ws/stats', (Request request) {
+    return Response.ok(
+      json.encode(wsService.getStatistics()),
+      headers: {'Content-Type': 'application/json'},
+    );
+  });
+
+  // ============================================================================
+  // PRICE ALERTS
+  // ============================================================================
+
+  router.get('/api/alerts', (Request request) async {
+    try {
+      final response = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: 'price_alerts',
+        queries: [
+          Query.equal('user_id', env['BOT_USER_ID'] ?? 'default_user'),
+          Query.orderDesc('created_at'),
+        ],
+      );
+
+      return Response.ok(
+        json.encode(response.documents.map((doc) => doc.data).toList()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  router.post('/api/alerts', (Request request) async {
+    try {
+      final payload = json.decode(await request.readAsString());
+
+      await databases.createDocument(
+        databaseId: databaseId,
+        collectionId: 'price_alerts',
+        documentId: ID.unique(),
+        data: {
+          'user_id': env['BOT_USER_ID'] ?? 'default_user',
+          'symbol': payload['symbol'],
+          'condition': payload['condition'],
+          'target_price': payload['targetPrice'],
+          'message': payload['message'],
+          'active': true,
+          'triggered': false,
+          'created_at': DateTime.now().toIso8601String(),
+        },
+      );
+
+      return Response.ok(
+        json.encode({'success': true, 'message': 'Alert created'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  router.delete('/api/alerts/<id>', (Request request, String id) async {
+    try {
+      await databases.deleteDocument(
+        databaseId: databaseId,
+        collectionId: 'price_alerts',
+        documentId: id,
+      );
+
+      return Response.ok(
+        json.encode({'success': true, 'message': 'Alert deleted'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  // ============================================================================
   // BOT CONTROL (Future implementation)
   // ============================================================================
 
@@ -488,18 +587,24 @@ void main() async {
 
   log.info('✅ API Server running on http://${server.address.host}:${server.port}');
   log.info('📡 CORS enabled for all origins');
-  log.info('🔗 Endpoints:');
-  log.info('   GET  /health');
-  log.info('   GET  /status');
-  log.info('   GET  /api/market/ticker/<symbol>');
-  log.info('   GET  /api/market/tickers');
-  log.info('   GET  /api/watchlist');
-  log.info('   POST /api/watchlist');
-  log.info('   GET  /api/trades');
-  log.info('   GET  /api/trades/stats');
-  log.info('   GET  /api/performance/summary');
-  log.info('   GET  /api/performance/chart');
-  log.info('   GET  /api/performance/algorithms');
+  log.info('🔗 REST Endpoints:');
+  log.info('   GET    /health');
+  log.info('   GET    /status');
+  log.info('   GET    /api/market/ticker/<symbol>');
+  log.info('   GET    /api/market/tickers');
+  log.info('   GET    /api/watchlist');
+  log.info('   POST   /api/watchlist');
+  log.info('   GET    /api/trades');
+  log.info('   GET    /api/trades/stats');
+  log.info('   GET    /api/performance/summary');
+  log.info('   GET    /api/performance/chart');
+  log.info('   GET    /api/performance/algorithms');
+  log.info('   GET    /api/alerts');
+  log.info('   POST   /api/alerts');
+  log.info('   DELETE /api/alerts/<id>');
+  log.info('🌐 WebSocket:');
+  log.info('   WS     /ws (real-time price streams)');
+  log.info('   GET    /api/ws/stats');
 }
 
 /// Helper to get watchlist

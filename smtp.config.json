@@ -1,0 +1,48 @@
+{
+  "provider": "sendgrid",
+  "smtp": {
+    "host": "smtp.sendgrid.net",
+    "port": 587,
+    "secure": false,
+    "username": "apikey",
+    "password": "YOUR_SENDGRID_API_KEY_HERE"
+  },
+  "sendgrid": {
+    "apiKey": "YOUR_SENDGRID_API_KEY_HERE"
+  },
+  "gmail": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "username": "your-email@gmail.com",
+    "password": "YOUR_APP_PASSWORD_HERE"
+  },
+  "mailgun": {
+    "host": "smtp.mailgun.org",
+    "port": 587,
+    "secure": false,
+    "username": "postmaster@your-domain.com",
+    "password": "YOUR_MAILGUN_PASSWORD_HERE"
+  },
+  "from": {
+    "email": "bot@yourdomain.com",
+    "name": "Crypto Trading Bot"
+  },
+  "to": {
+    "email": "your@email.com",
+    "name": "Your Name"
+  },
+  "notifications": {
+    "tradeExecuted": true,
+    "stopLoss": true,
+    "takeProfit": true,
+    "alertTriggered": true,
+    "dailySummary": true,
+    "errors": true
+  },
+  "dailySummary": {
+    "enabled": true,
+    "time": "18:00",
+    "timezone": "UTC"
+  }
+}
