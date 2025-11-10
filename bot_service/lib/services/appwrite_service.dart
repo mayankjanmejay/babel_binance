@@ -3,6 +3,7 @@ import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:logging/logging.dart';
 import '../models/watchlist_item.dart';
 import '../models/trade_record.dart';
+import '../models/price_alert.dart';
 
 /// Service for interacting with Appwrite backend
 class AppwriteService {
@@ -15,6 +16,7 @@ class AppwriteService {
   final String tradesCollectionId;
   final String algorithmsCollectionId;
   final String portfoliosCollectionId;
+  final String alertsCollectionId;
 
   AppwriteService({
     required String endpoint,
@@ -25,7 +27,9 @@ class AppwriteService {
     required this.tradesCollectionId,
     required this.algorithmsCollectionId,
     required this.portfoliosCollectionId,
-  })  : _client = Client()
+    String? alertsCollectionId,
+  })  : alertsCollectionId = alertsCollectionId ?? 'price_alerts',
+        _client = Client()
             .setEndpoint(endpoint)
             .setProject(projectId)
             .setKey(apiKey),
@@ -135,6 +139,78 @@ class AppwriteService {
     } catch (e) {
       _log.severe('Failed to calculate P&L: $e');
       return 0;
+    }
+  }
+
+  /// Get active price alerts for a user
+  Future<List<PriceAlert>> getActiveAlerts(String userId) async {
+    try {
+      final response = await _databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: alertsCollectionId,
+        queries: [
+          Query.equal('user_id', userId),
+          Query.equal('active', true),
+          Query.equal('triggered', false),
+        ],
+      );
+
+      return response.documents
+          .map((doc) => PriceAlert.fromJson(doc.$id, doc.data))
+          .toList();
+    } catch (e) {
+      _log.severe('Failed to get active alerts: $e');
+      return [];
+    }
+  }
+
+  /// Create a new price alert
+  Future<void> createAlert(PriceAlert alert) async {
+    try {
+      await _databases.createDocument(
+        databaseId: databaseId,
+        collectionId: alertsCollectionId,
+        documentId: ID.unique(),
+        data: alert.toJson(),
+      );
+
+      _log.info('✅ Alert created: ${alert.symbol}');
+    } catch (e) {
+      _log.severe('Failed to create alert: $e');
+      rethrow;
+    }
+  }
+
+  /// Update an alert (e.g., mark as triggered)
+  Future<void> updateAlert(String alertId, Map<String, dynamic> data) async {
+    try {
+      await _databases.updateDocument(
+        databaseId: databaseId,
+        collectionId: alertsCollectionId,
+        documentId: alertId,
+        data: data,
+      );
+
+      _log.info('✅ Alert updated: $alertId');
+    } catch (e) {
+      _log.severe('Failed to update alert: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete an alert
+  Future<void> deleteAlert(String alertId) async {
+    try {
+      await _databases.deleteDocument(
+        databaseId: databaseId,
+        collectionId: alertsCollectionId,
+        documentId: alertId,
+      );
+
+      _log.info('✅ Alert deleted: $alertId');
+    } catch (e) {
+      _log.severe('Failed to delete alert: $e');
+      rethrow;
     }
   }
 

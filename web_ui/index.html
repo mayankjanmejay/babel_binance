@@ -6,6 +6,7 @@
     <title>Crypto Trading Bot Dashboard</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dark-mode.css">
+    <link rel="stylesheet" href="performance.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -113,6 +114,71 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Performance Analytics Section -->
+            <div class="performance-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Performance Analytics</h2>
+                    <button class="btn-secondary refresh-performance" onclick="refreshPerformanceCharts()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Performance Summary Cards -->
+                <div class="performance-cards">
+                    <div class="perf-card">
+                        <h4>Total P&L</h4>
+                        <p class="perf-value" id="totalPL">$0.00</p>
+                    </div>
+                    <div class="perf-card">
+                        <h4>Win Rate</h4>
+                        <p class="perf-value" id="winRate">0%</p>
+                    </div>
+                    <div class="perf-card">
+                        <h4>Avg Profit</h4>
+                        <p class="perf-value positive" id="avgProfit">$0.00</p>
+                    </div>
+                    <div class="perf-card">
+                        <h4>Avg Loss</h4>
+                        <p class="perf-value negative" id="avgLoss">$0.00</p>
+                    </div>
+                    <div class="perf-card">
+                        <h4>Total Wins</h4>
+                        <p class="perf-value" id="totalWins">0</p>
+                    </div>
+                    <div class="perf-card">
+                        <h4>Total Losses</h4>
+                        <p class="perf-value" id="totalLosses">0</p>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <!-- P&L Over Time Chart -->
+                    <div class="chart-panel">
+                        <h3><i class="fas fa-line-chart"></i> Profit & Loss Over Time</h3>
+                        <div class="chart-container">
+                            <canvas id="plChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Win Rate Chart -->
+                    <div class="chart-panel">
+                        <h3><i class="fas fa-pie-chart"></i> Win/Loss Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="winRateChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm Performance Chart -->
+                    <div class="chart-panel full-width">
+                        <h3><i class="fas fa-bar-chart"></i> Algorithm Performance Comparison</h3>
+                        <div class="chart-container">
+                            <canvas id="algoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -153,7 +219,9 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="theme-toggle.js"></script>
+    <script src="performance.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

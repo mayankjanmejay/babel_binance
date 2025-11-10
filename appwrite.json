@@ -686,6 +686,152 @@
           "orders": ["ASC"]
         }
       ]
+    },
+    {
+      "$id": "price_alerts",
+      "$permissions": [
+        "read(\"any\")",
+        "create(\"any\")",
+        "update(\"any\")",
+        "delete(\"any\")"
+      ],
+      "databaseId": "crypto_trading",
+      "name": "Price Alerts",
+      "enabled": true,
+      "documentSecurity": true,
+      "attributes": [
+        {
+          "key": "userId",
+          "type": "string",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "size": 255,
+          "default": null
+        },
+        {
+          "key": "symbol",
+          "type": "string",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "size": 50,
+          "default": null
+        },
+        {
+          "key": "condition",
+          "type": "string",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "size": 20,
+          "default": null
+        },
+        {
+          "key": "targetPrice",
+          "type": "double",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "min": null,
+          "max": null,
+          "default": null
+        },
+        {
+          "key": "active",
+          "type": "boolean",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "default": true
+        },
+        {
+          "key": "triggered",
+          "type": "boolean",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "default": false
+        },
+        {
+          "key": "triggeredAt",
+          "type": "datetime",
+          "status": "available",
+          "error": "",
+          "required": false,
+          "array": false,
+          "default": null,
+          "format": "datetime"
+        },
+        {
+          "key": "createdAt",
+          "type": "datetime",
+          "status": "available",
+          "error": "",
+          "required": true,
+          "array": false,
+          "default": null,
+          "format": "datetime"
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "status": "available",
+          "error": "",
+          "required": false,
+          "array": false,
+          "size": 500,
+          "default": null
+        }
+      ],
+      "indexes": [
+        {
+          "key": "userId_idx",
+          "type": "key",
+          "status": "available",
+          "error": "",
+          "attributes": ["userId"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "symbol_idx",
+          "type": "key",
+          "status": "available",
+          "error": "",
+          "attributes": ["symbol"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "active_idx",
+          "type": "key",
+          "status": "available",
+          "error": "",
+          "attributes": ["active"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "triggered_idx",
+          "type": "key",
+          "status": "available",
+          "error": "",
+          "attributes": ["triggered"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "userId_active_idx",
+          "type": "key",
+          "status": "available",
+          "error": "",
+          "attributes": ["userId", "active"],
+          "orders": ["ASC", "ASC"]
+        }
+      ]
     }
   ]
 }

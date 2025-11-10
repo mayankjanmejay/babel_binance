@@ -266,6 +266,200 @@ void main() async {
   });
 
   // ============================================================================
+  // PERFORMANCE ANALYTICS
+  // ============================================================================
+
+  router.get('/api/performance/summary', (Request request) async {
+    try {
+      final response = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: env['APPWRITE_COLLECTION_TRADES'] ?? 'trades',
+        queries: [Query.limit(1000)],
+      );
+
+      final trades = response.documents.map((doc) => doc.data).toList();
+
+      if (trades.isEmpty) {
+        return Response.ok(
+          json.encode({
+            'total_trades': 0,
+            'total_profit_loss': 0.0,
+            'win_rate': 0.0,
+            'avg_profit': 0.0,
+            'avg_loss': 0.0,
+            'total_wins': 0,
+            'total_losses': 0,
+          }),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+
+      // Calculate P&L (simplified - assumes paired buy/sell trades)
+      final buys = <String, Map<String, dynamic>>{};
+      double totalPL = 0.0;
+      int wins = 0;
+      int losses = 0;
+      double totalProfits = 0.0;
+      double totalLosses = 0.0;
+
+      for (final trade in trades) {
+        final symbol = trade['symbol'];
+        final side = trade['side'];
+        final price = trade['price'] ?? 0.0;
+        final quantity = trade['quantity'] ?? 0.0;
+
+        if (side == 'BUY') {
+          buys[symbol] = trade;
+        } else if (side == 'SELL' && buys.containsKey(symbol)) {
+          final buyPrice = buys[symbol]!['price'] ?? 0.0;
+          final pl = (price - buyPrice) * quantity;
+          totalPL += pl;
+
+          if (pl > 0) {
+            wins++;
+            totalProfits += pl;
+          } else if (pl < 0) {
+            losses++;
+            totalLosses += pl.abs();
+          }
+
+          buys.remove(symbol);
+        }
+      }
+
+      final winRate = (wins + losses) > 0 ? wins / (wins + losses) : 0.0;
+      final avgProfit = wins > 0 ? totalProfits / wins : 0.0;
+      final avgLoss = losses > 0 ? totalLosses / losses : 0.0;
+
+      return Response.ok(
+        json.encode({
+          'total_trades': trades.length,
+          'total_profit_loss': totalPL,
+          'win_rate': winRate,
+          'avg_profit': avgProfit,
+          'avg_loss': avgLoss,
+          'total_wins': wins,
+          'total_losses': losses,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  router.get('/api/performance/chart', (Request request) async {
+    try {
+      final params = request.url.queryParameters;
+      final period = params['period'] ?? 'week'; // day, week, month
+
+      final response = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: env['APPWRITE_COLLECTION_TRADES'] ?? 'trades',
+        queries: [
+          Query.orderAsc('timestamp'),
+          Query.limit(1000),
+        ],
+      );
+
+      final trades = response.documents.map((doc) => doc.data).toList();
+      final chartData = <Map<String, dynamic>>[];
+
+      // Group trades by time period
+      final buys = <String, Map<String, dynamic>>{};
+      double cumulativePL = 0.0;
+
+      for (final trade in trades) {
+        final symbol = trade['symbol'];
+        final side = trade['side'];
+        final price = trade['price'] ?? 0.0;
+        final quantity = trade['quantity'] ?? 0.0;
+        final timestamp = trade['timestamp'];
+
+        if (side == 'BUY') {
+          buys[symbol] = trade;
+        } else if (side == 'SELL' && buys.containsKey(symbol)) {
+          final buyPrice = buys[symbol]!['price'] ?? 0.0;
+          final pl = (price - buyPrice) * quantity;
+          cumulativePL += pl;
+
+          chartData.add({
+            'timestamp': timestamp,
+            'profit_loss': pl,
+            'cumulative_pl': cumulativePL,
+            'symbol': symbol,
+          });
+
+          buys.remove(symbol);
+        }
+      }
+
+      return Response.ok(
+        json.encode(chartData),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  router.get('/api/performance/algorithms', (Request request) async {
+    try {
+      final response = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: env['APPWRITE_COLLECTION_TRADES'] ?? 'trades',
+        queries: [Query.limit(1000)],
+      );
+
+      final trades = response.documents.map((doc) => doc.data).toList();
+      final algoPerformance = <String, Map<String, dynamic>>{};
+
+      for (final trade in trades) {
+        final algo = trade['algorithmName'] ?? 'Unknown';
+
+        if (!algoPerformance.containsKey(algo)) {
+          algoPerformance[algo] = {
+            'name': algo,
+            'total_trades': 0,
+            'total_volume': 0.0,
+            'buy_count': 0,
+            'sell_count': 0,
+          };
+        }
+
+        algoPerformance[algo]!['total_trades'] =
+          (algoPerformance[algo]!['total_trades'] as int) + 1;
+        algoPerformance[algo]!['total_volume'] =
+          (algoPerformance[algo]!['total_volume'] as double) + (trade['total_value'] ?? 0.0);
+
+        if (trade['side'] == 'BUY') {
+          algoPerformance[algo]!['buy_count'] =
+            (algoPerformance[algo]!['buy_count'] as int) + 1;
+        } else {
+          algoPerformance[algo]!['sell_count'] =
+            (algoPerformance[algo]!['sell_count'] as int) + 1;
+        }
+      }
+
+      return Response.ok(
+        json.encode(algoPerformance.values.toList()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: json.encode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  });
+
+  // ============================================================================
   // BOT CONTROL (Future implementation)
   // ============================================================================
 
@@ -303,6 +497,9 @@ void main() async {
   log.info('   POST /api/watchlist');
   log.info('   GET  /api/trades');
   log.info('   GET  /api/trades/stats');
+  log.info('   GET  /api/performance/summary');
+  log.info('   GET  /api/performance/chart');
+  log.info('   GET  /api/performance/algorithms');
 }
 
 /// Helper to get watchlist

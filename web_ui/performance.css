@@ -1,0 +1,214 @@
+/* Performance Analytics Styles */
+
+.performance-section {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-header h2 i {
+    color: var(--primary);
+}
+
+.refresh-performance {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.refresh-performance:hover {
+    transform: translateY(-2px);
+}
+
+.refresh-performance.spinning i {
+    animation: spin 0.5s linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Performance Summary Cards */
+.performance-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.perf-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.perf-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.perf-card h4 {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.perf-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0;
+}
+
+.perf-value.positive {
+    color: #22c55e;
+}
+
+.perf-value.negative {
+    color: #ef4444;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.chart-panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.chart-panel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chart-panel.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-panel h3 {
+    font-size: 1.125rem;
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.chart-panel h3 i {
+    color: var(--primary);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-container canvas {
+    max-height: 100%;
+}
+
+.no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #9ca3af;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* Dark Mode Support */
+:root[data-theme="dark"] .perf-card,
+:root[data-theme="dark"] .chart-panel {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+:root[data-theme="dark"] .perf-card h4 {
+    color: #9ca3af;
+}
+
+:root[data-theme="dark"] .section-header {
+    border-bottom-color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .performance-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .performance-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .perf-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
