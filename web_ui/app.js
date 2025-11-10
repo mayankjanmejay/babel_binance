@@ -3,29 +3,19 @@
 // ============================================================================
 
 const API_BASE_URL = 'http://localhost:3000';
-const REFRESH_INTERVAL = 30000; // 30 seconds
-
-// ============================================================================
-// STATE
-// ============================================================================
-
-let refreshIntervalId = null;
 
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Crypto Trading Bot Dashboard initialized');
+    console.log('🚀 Crypto Trading Bot Dashboard initialized (Real-Time Mode)');
 
     // Check API status
     await checkApiStatus();
 
-    // Load initial data
+    // Load initial data ONCE - WebSocket handles all updates from here
     await loadDashboardData();
-
-    // Start auto-refresh
-    startAutoRefresh();
 });
 
 // ============================================================================
@@ -102,14 +92,30 @@ async function loadWatchlist() {
 
         if (data.length === 0) {
             container.innerHTML = '<p class="loading">No symbols in watchlist. Add some to get started!</p>';
+            // Unsubscribe from all if watchlist is empty
+            if (window.tradingWS) {
+                window.tradingWS.subscribedSymbols.forEach(symbol => {
+                    window.tradingWS.unsubscribe(symbol);
+                });
+            }
             return;
         }
 
+        // Extract symbols and subscribe to WebSocket streams
+        const symbols = data.map(item => item.symbol);
+        if (window.tradingWS) {
+            window.tradingWS.subscribe(symbols);
+            console.log('📡 Subscribed to real-time price streams:', symbols);
+        }
+
+        // Render watchlist table with price columns
         let html = `
             <table>
                 <thead>
                     <tr>
                         <th>Symbol</th>
+                        <th>Current Price</th>
+                        <th>24h Change</th>
                         <th>Target Buy</th>
                         <th>Target Sell</th>
                         <th>Status</th>
@@ -121,8 +127,10 @@ async function loadWatchlist() {
 
         data.forEach(item => {
             html += `
-                <tr>
+                <tr data-symbol="${item.symbol}">
                     <td><strong>${item.symbol}</strong></td>
+                    <td class="price">Loading...</td>
+                    <td class="change">-</td>
                     <td>${item.target_buy ? '$' + item.target_buy : '-'}</td>
                     <td>${item.target_sell ? '$' + item.target_sell : '-'}</td>
                     <td>
@@ -334,27 +342,107 @@ async function addSymbol(event) {
 }
 
 // ============================================================================
-// AUTO REFRESH
+// REAL-TIME UPDATE HANDLERS
 // ============================================================================
 
-function startAutoRefresh() {
-    refreshIntervalId = setInterval(async () => {
-        console.log('🔄 Auto-refreshing data...');
-        await loadDashboardData();
-    }, REFRESH_INTERVAL);
-}
+// Add trade to table in real-time when WebSocket receives new trade
+function addTradeToTable(trade) {
+    const container = document.getElementById('tradesTable');
+    if (!container) return;
 
-function stopAutoRefresh() {
-    if (refreshIntervalId) {
-        clearInterval(refreshIntervalId);
-        refreshIntervalId = null;
+    // Check if table exists
+    let table = container.querySelector('table');
+    if (!table) {
+        // Create table if it doesn't exist
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Symbol</th>
+                        <th>Side</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Algorithm</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesTableBody">
+                </tbody>
+            </table>
+        `;
+        table = container.querySelector('table');
+    }
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+
+    // Create new row
+    const timestamp = new Date(trade.timestamp).toLocaleString();
+    const row = document.createElement('tr');
+    row.className = 'new-trade'; // For animation
+    row.innerHTML = `
+        <td>${timestamp}</td>
+        <td><strong>${trade.symbol}</strong></td>
+        <td>
+            <span class="badge ${trade.side === 'BUY' ? 'badge-success' : 'badge-danger'}">
+                ${trade.side}
+            </span>
+        </td>
+        <td>${parseFloat(trade.quantity).toFixed(6)}</td>
+        <td>$${parseFloat(trade.price).toFixed(2)}</td>
+        <td>$${parseFloat(trade.total_value || trade.totalValue || 0).toFixed(2)}</td>
+        <td>${trade.algorithm_name || trade.algorithmName}</td>
+        <td><span class="badge badge-success">${trade.status}</span></td>
+    `;
+
+    // Add to top of table
+    tbody.insertBefore(row, tbody.firstChild);
+
+    // Fade in animation
+    setTimeout(() => {
+        row.classList.remove('new-trade');
+    }, 100);
+
+    // Keep only last 50 trades
+    while (tbody.children.length > 50) {
+        tbody.removeChild(tbody.lastChild);
     }
 }
 
-// ============================================================================
-// CLEANUP
-// ============================================================================
+// Update stats in real-time when a trade happens
+function updateStatsOnTrade(trade) {
+    try {
+        // Get current values
+        const totalTradesEl = document.getElementById('totalTrades');
+        const buyTradesEl = document.getElementById('buyTrades');
+        const sellTradesEl = document.getElementById('sellTrades');
+        const totalVolumeEl = document.getElementById('totalVolume');
 
-window.addEventListener('beforeunload', () => {
-    stopAutoRefresh();
-});
+        // Increment totals
+        const totalTrades = parseInt(totalTradesEl.textContent) + 1;
+        totalTradesEl.textContent = totalTrades;
+
+        if (trade.side === 'BUY') {
+            const buyTrades = parseInt(buyTradesEl.textContent) + 1;
+            buyTradesEl.textContent = buyTrades;
+        } else {
+            const sellTrades = parseInt(sellTradesEl.textContent) + 1;
+            sellTradesEl.textContent = sellTrades;
+        }
+
+        // Update volume
+        const currentVolume = parseFloat(totalVolumeEl.textContent.replace(/[$,]/g, ''));
+        const newVolume = currentVolume + parseFloat(trade.total_value || trade.totalValue || 0);
+        totalVolumeEl.textContent = `$${newVolume.toFixed(2)}`;
+
+        // Flash animation
+        [totalTradesEl, buyTradesEl, sellTradesEl, totalVolumeEl].forEach(el => {
+            el.classList.add('stat-updated');
+            setTimeout(() => el.classList.remove('stat-updated'), 500);
+        });
+    } catch (error) {
+        console.error('Failed to update stats:', error);
+    }
+}

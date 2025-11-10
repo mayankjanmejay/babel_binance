@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dark-mode.css">
     <link rel="stylesheet" href="performance.css">
+    <link rel="stylesheet" href="alerts.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -179,8 +180,64 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Price Alerts Section -->
+            <div class="alerts-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bell"></i> Price Alerts</h2>
+                    <button class="btn-primary" onclick="openCreateAlertModal()">
+                        <i class="fas fa-plus"></i> Create Alert
+                    </button>
+                </div>
+
+                <div id="alertsList" class="alerts-list">
+                    <p class="loading">Loading alerts...</p>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- Create Alert Modal -->
+    <div id="createAlertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Price Alert</h2>
+                <span class="close" onclick="closeCreateAlertModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createAlertForm" onsubmit="createAlert(event)">
+                    <div class="form-group">
+                        <label for="alertSymbol">Symbol</label>
+                        <select id="alertSymbol" required>
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="alertCondition">Condition</label>
+                        <select id="alertCondition" required>
+                            <option value="above">Price goes above</option>
+                            <option value="below">Price goes below</option>
+                            <option value="crosses">Price crosses</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="alertPrice">Target Price</label>
+                        <input type="number" id="alertPrice" step="0.01" required placeholder="e.g., 95000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="alertMessage">Message (optional)</label>
+                        <textarea id="alertMessage" placeholder="Add a note for this alert..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeCreateAlertModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-bell"></i> Create Alert
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Symbol Modal -->
     <div id="addSymbolModal" class="modal">
@@ -221,6 +278,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="theme-toggle.js"></script>
+    <script src="websocket-client.js"></script>
+    <script src="alerts.js"></script>
     <script src="performance.js"></script>
     <script src="app.js"></script>
 </body>

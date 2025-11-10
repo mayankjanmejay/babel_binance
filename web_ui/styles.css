@@ -456,6 +456,40 @@ tr:hover {
 }
 
 /* ============================================================================
+   REAL-TIME ANIMATIONS
+   ============================================================================ */
+
+/* Fade in animation for new trades */
+.new-trade {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Flash animation for updated stats */
+.stat-updated {
+    animation: flashHighlight 0.5s ease;
+}
+
+@keyframes flashHighlight {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(99, 102, 241, 0.2);
+    }
+}
+
+/* ============================================================================
    RESPONSIVE
    ============================================================================ */
 

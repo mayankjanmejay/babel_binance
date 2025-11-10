@@ -372,6 +372,32 @@ function formatPercent(value) {
     return `${(value * 100).toFixed(1)}%`;
 }
 
+/**
+ * Update performance charts in real-time when a trade happens
+ * Called by WebSocket event handlers
+ */
+async function updatePerformanceChartsRealtime(trade) {
+    try {
+        // Update summary metrics
+        await loadPerformanceSummary();
+
+        // Reload P&L chart to include new trade
+        await loadPLChart();
+
+        // Update win rate chart if trade is complete
+        if (trade.status === 'COMPLETED' || trade.status === 'FILLED') {
+            await loadWinRateChart();
+        }
+
+        // Update algorithm chart
+        await loadAlgorithmChart();
+
+        console.log('📊 Performance charts updated in real-time');
+    } catch (error) {
+        console.error('Failed to update performance charts in real-time:', error);
+    }
+}
+
 // Initialize charts when DOM is loaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initPerformanceCharts);
@@ -379,5 +405,5 @@ if (document.readyState === 'loading') {
     initPerformanceCharts();
 }
 
-// Auto-refresh every 30 seconds
-setInterval(refreshPerformanceCharts, 30000);
+// Real-time chart updates via WebSocket (NO POLLING!)
+// This will be called by websocket-client.js when trade_update or performance_update events arrive
