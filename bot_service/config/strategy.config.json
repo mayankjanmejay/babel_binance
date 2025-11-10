@@ -1,0 +1,61 @@
+{
+  "enabled": true,
+  "mode": "voting",
+  "requiredVotes": 2,
+  "description": "Multi-Algorithm Strategy Configuration",
+  "modes": {
+    "voting": {
+      "description": "Require N of M algorithms to agree on trade direction",
+      "requiredVotes": 2
+    },
+    "weighted": {
+      "description": "Weighted average of algorithm signals",
+      "weights": {
+        "SMA Crossover": 0.4,
+        "RSI Strategy": 0.35,
+        "Grid Trading": 0.25
+      }
+    },
+    "unanimous": {
+      "description": "All active algorithms must agree"
+    }
+  },
+  "algorithms": [
+    {
+      "name": "SMA Crossover",
+      "enabled": true,
+      "weight": 0.4,
+      "params": {
+        "short_period": 7,
+        "long_period": 25
+      }
+    },
+    {
+      "name": "RSI Strategy",
+      "enabled": true,
+      "weight": 0.35,
+      "params": {
+        "period": 14,
+        "oversold": 30,
+        "overbought": 70
+      }
+    },
+    {
+      "name": "Grid Trading",
+      "enabled": true,
+      "weight": 0.25,
+      "params": {
+        "grid_levels": 5,
+        "grid_spacing": 0.02
+      }
+    }
+  ],
+  "notes": [
+    "Set 'enabled' to false to disable multi-strategy mode and use algorithms independently",
+    "Modes: 'voting', 'weighted', 'unanimous'",
+    "Voting mode: Requires 'requiredVotes' algorithms to agree (default: majority)",
+    "Weighted mode: Each algorithm contributes based on its weight (must sum to 1.0)",
+    "Unanimous mode: All active algorithms must agree on the same direction",
+    "Individual algorithm weights are used in 'weighted' mode only"
+  ]
+}

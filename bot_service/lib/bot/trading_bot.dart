@@ -9,6 +9,7 @@ import '../models/trade_record.dart';
 import '../services/appwrite_service.dart';
 import '../services/stop_loss_manager.dart';
 import '../services/email_service.dart';
+import '../services/strategy_composer.dart';
 
 /// Main trading bot that runs 24/7 monitoring markets and executing trades
 class TradingBot {
@@ -20,6 +21,7 @@ class TradingBot {
   final bool simulationMode;
   final StopLossManager? stopLossManager;
   final EmailService? emailService;
+  final StrategyComposer? strategyComposer;
   final Logger _log = Logger('TradingBot');
 
   bool _running = false;
@@ -42,6 +44,7 @@ class TradingBot {
     this.simulationMode = true,
     this.stopLossManager,
     this.emailService,
+    this.strategyComposer,
   });
 
   /// Start the trading bot
@@ -58,6 +61,13 @@ class TradingBot {
     _log.info('   Mode: ${simulationMode ? "SIMULATION" : "LIVE TRADING"}');
     _log.info('   Check interval: ${checkIntervalSeconds}s');
     _log.info('   Algorithms: ${algorithms.map((a) => a.name).join(", ")}');
+
+    if (strategyComposer != null) {
+      final status = strategyComposer!.getStatus();
+      _log.info('   🎯 Multi-Strategy Mode: ${status['mode']} (${status['requiredVotes'] ?? 'N/A'} votes)');
+    } else {
+      _log.info('   Strategy Mode: Independent algorithms');
+    }
 
     // Verify Appwrite connection
     final appwriteOk = await appwrite.healthCheck();
@@ -155,19 +165,35 @@ class TradingBot {
 
       _log.fine('${item.symbol}: \$${currentPrice.toStringAsFixed(2)}');
 
-      // Run all active algorithms
-      for (final algorithm in algorithms) {
-        if (!algorithm.active) continue;
+      // Use strategy composer if enabled, otherwise run algorithms independently
+      if (strategyComposer != null) {
+        // Multi-strategy mode - compose signals from multiple algorithms
+        final composedSignal = await strategyComposer!.composeSignal(item.symbol, currentPrice);
 
-        final signal = await algorithm.analyze(item.symbol, currentPrice);
+        if (composedSignal != null) {
+          _log.info('📊 Multi-Strategy Signal: ${composedSignal.algorithmName}');
+          _log.info('   ${composedSignal.side} ${item.symbol} @ ${composedSignal.price ?? "MARKET"}');
+          _log.info('   Reason: ${composedSignal.reason}');
+          _log.info('   Confidence: ${(composedSignal.confidence * 100).toStringAsFixed(1)}%');
 
-        if (signal != null) {
-          _log.info('📊 Signal: ${signal.algorithmName} - ${signal.side} ${item.symbol} @ ${signal.price ?? "MARKET"}');
-          _log.info('   Reason: ${signal.reason}');
-          _log.info('   Confidence: ${(signal.confidence * 100).toStringAsFixed(1)}%');
+          // Execute composed trade
+          await _executeTrade(item.symbol, composedSignal);
+        }
+      } else {
+        // Independent algorithm mode - run each algorithm separately
+        for (final algorithm in algorithms) {
+          if (!algorithm.active) continue;
 
-          // Execute trade
-          await _executeTrade(item.symbol, signal);
+          final signal = await algorithm.analyze(item.symbol, currentPrice);
+
+          if (signal != null) {
+            _log.info('📊 Signal: ${signal.algorithmName} - ${signal.side} ${item.symbol} @ ${signal.price ?? "MARKET"}');
+            _log.info('   Reason: ${signal.reason}');
+            _log.info('   Confidence: ${(signal.confidence * 100).toStringAsFixed(1)}%');
+
+            // Execute trade
+            await _executeTrade(item.symbol, signal);
+          }
         }
       }
     } catch (e) {

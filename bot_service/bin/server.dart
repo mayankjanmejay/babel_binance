@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:babel_binance/babel_binance.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:logging/logging.dart';
@@ -11,6 +12,7 @@ import '../lib/bot/trading_bot.dart';
 import '../lib/services/appwrite_service.dart';
 import '../lib/services/stop_loss_manager.dart';
 import '../lib/services/email_service.dart';
+import '../lib/services/strategy_composer.dart';
 import '../lib/setup/database_setup.dart';
 
 /// Main entry point for the 24/7 trading bot
@@ -154,6 +156,70 @@ void main(List<String> arguments) async {
     log.info('⚠️  Email notifications disabled');
   }
 
+  // Initialize strategy composer (optional)
+  StrategyComposer? strategyComposer;
+  try {
+    final strategyConfigFile = File('config/strategy.config.json');
+    if (await strategyConfigFile.exists()) {
+      final configContent = await strategyConfigFile.readAsString();
+      final config = json.decode(configContent) as Map<String, dynamic>;
+
+      if (config['enabled'] == true) {
+        final mode = config['mode'] as String;
+        CompositionMode compositionMode;
+
+        switch (mode) {
+          case 'voting':
+            compositionMode = CompositionMode.voting;
+            break;
+          case 'weighted':
+            compositionMode = CompositionMode.weighted;
+            break;
+          case 'unanimous':
+            compositionMode = CompositionMode.unanimous;
+            break;
+          default:
+            log.warning('⚠️  Unknown strategy mode: $mode, defaulting to voting');
+            compositionMode = CompositionMode.voting;
+        }
+
+        // Build weights map for weighted mode
+        final weights = <String, double>{};
+        if (mode == 'weighted' && config['modes']?['weighted']?['weights'] != null) {
+          final weightsConfig = config['modes']['weighted']['weights'] as Map<String, dynamic>;
+          weightsConfig.forEach((key, value) {
+            weights[key] = (value as num).toDouble();
+          });
+        } else {
+          // Default weights
+          for (final algo in algorithms) {
+            weights[algo.name] = 1.0 / algorithms.length;
+          }
+        }
+
+        final requiredVotes = mode == 'voting'
+            ? (config['modes']?['voting']?['requiredVotes'] as int? ?? (algorithms.length / 2).ceil())
+            : null;
+
+        strategyComposer = StrategyComposer(
+          algorithms: algorithms,
+          mode: compositionMode,
+          weights: weights,
+          requiredVotes: requiredVotes,
+        );
+
+        log.info('✅ Strategy composer initialized ($mode mode)');
+      } else {
+        log.info('⚠️  Strategy composer disabled in config');
+      }
+    } else {
+      log.info('⚠️  No strategy config found, using independent algorithms');
+    }
+  } catch (e, stack) {
+    log.warning('⚠️  Failed to load strategy config: $e');
+    log.fine(stack.toString());
+  }
+
   // Initialize trading bot
   final bot = TradingBot(
     binance: binance,
@@ -164,6 +230,7 @@ void main(List<String> arguments) async {
     simulationMode: env['BOT_SIMULATION_MODE'] != 'false',
     stopLossManager: stopLossManager,
     emailService: emailService,
+    strategyComposer: strategyComposer,
   );
 
   // Setup graceful shutdown
