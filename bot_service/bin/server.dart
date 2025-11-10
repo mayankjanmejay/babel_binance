@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:babel_binance/babel_binance.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:logging/logging.dart';
+import 'package:dart_appwrite/dart_appwrite.dart';
 
 import '../lib/algorithms/sma_crossover.dart';
 import '../lib/algorithms/rsi_strategy.dart';
@@ -10,6 +11,7 @@ import '../lib/bot/trading_bot.dart';
 import '../lib/services/appwrite_service.dart';
 import '../lib/services/stop_loss_manager.dart';
 import '../lib/services/email_service.dart';
+import '../lib/setup/database_setup.dart';
 
 /// Main entry point for the 24/7 trading bot
 void main(List<String> arguments) async {
@@ -81,6 +83,27 @@ void main(List<String> arguments) async {
   );
 
   log.info('✅ Appwrite service initialized');
+
+  // Setup database (auto-create collections if they don't exist)
+  final dbSetup = DatabaseSetup(
+    client: Client()
+        .setEndpoint(env['APPWRITE_ENDPOINT']!)
+        .setProject(env['APPWRITE_PROJECT_ID']!)
+        .setKey(env['APPWRITE_API_KEY']!),
+    databaseId: env['APPWRITE_DATABASE_ID'] ?? 'crypto_trading',
+    watchlistCollectionId: env['APPWRITE_COLLECTION_WATCHLIST'] ?? 'watchlist',
+    tradesCollectionId: env['APPWRITE_COLLECTION_TRADES'] ?? 'trades',
+    algorithmsCollectionId: env['APPWRITE_COLLECTION_ALGORITHMS'] ?? 'algorithms',
+    portfoliosCollectionId: env['APPWRITE_COLLECTION_PORTFOLIOS'] ?? 'portfolios',
+    botConfigsCollectionId: env['APPWRITE_COLLECTION_BOT_CONFIGS'] ?? 'bot_configs',
+    alertsCollectionId: 'price_alerts',
+  );
+
+  final dbReady = await dbSetup.setup();
+  if (!dbReady) {
+    log.severe('❌ Database setup failed - bot cannot start');
+    exit(1);
+  }
 
   // Initialize trading algorithms
   final algorithms = [
