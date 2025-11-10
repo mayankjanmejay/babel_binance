@@ -8,6 +8,8 @@ import '../lib/algorithms/rsi_strategy.dart';
 import '../lib/algorithms/grid_trading.dart';
 import '../lib/bot/trading_bot.dart';
 import '../lib/services/appwrite_service.dart';
+import '../lib/services/stop_loss_manager.dart';
+import '../lib/services/email_service.dart';
 
 /// Main entry point for the 24/7 trading bot
 void main(List<String> arguments) async {
@@ -103,6 +105,32 @@ void main(List<String> arguments) async {
 
   log.info('✅ ${algorithms.length} trading algorithms loaded');
 
+  // Initialize stop-loss manager
+  final stopLossManager = StopLossManager(
+    defaultStopLossPercent: double.parse(env['STOP_LOSS_PERCENT'] ?? '0.02'),
+    defaultTakeProfitPercent: double.parse(env['TAKE_PROFIT_PERCENT'] ?? '0.05'),
+    enableTrailingStop: env['ENABLE_TRAILING_STOP'] != 'false',
+    trailingStopPercent: double.parse(env['TRAILING_STOP_PERCENT'] ?? '0.02'),
+  );
+
+  log.info('✅ Stop-loss manager initialized');
+
+  // Initialize email service (optional)
+  EmailService? emailService;
+  if (env['EMAIL_ENABLED'] == 'true') {
+    emailService = EmailService(
+      provider: env['EMAIL_PROVIDER'] ?? 'sendgrid',
+      apiKey: env['EMAIL_API_KEY'] ?? '',
+      fromEmail: env['EMAIL_FROM'] ?? '',
+      fromName: env['EMAIL_FROM_NAME'] ?? 'Crypto Trading Bot',
+      toEmail: env['EMAIL_TO'] ?? '',
+    );
+
+    log.info('✅ Email service initialized');
+  } else {
+    log.info('⚠️  Email notifications disabled');
+  }
+
   // Initialize trading bot
   final bot = TradingBot(
     binance: binance,
@@ -111,6 +139,8 @@ void main(List<String> arguments) async {
     algorithms: algorithms,
     checkIntervalSeconds: int.parse(env['BOT_CHECK_INTERVAL_SECONDS'] ?? '30'),
     simulationMode: env['BOT_SIMULATION_MODE'] != 'false',
+    stopLossManager: stopLossManager,
+    emailService: emailService,
   );
 
   // Setup graceful shutdown
@@ -153,6 +183,9 @@ void main(List<String> arguments) async {
   "errors_encountered": ${stats['errors_encountered']},
   "watchlist_size": ${stats['watchlist_size']},
   "active_algorithms": ${stats['active_algorithms']},
+  "active_stop_losses": ${stats['active_stop_losses'] ?? 0},
+  "active_take_profits": ${stats['active_take_profits'] ?? 0},
+  "total_positions": ${stats['total_positions'] ?? 0},
   "timestamp": "${DateTime.now().toIso8601String()}"
 }
 ''')

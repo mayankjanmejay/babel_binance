@@ -7,6 +7,8 @@ import '../algorithms/trading_algorithm.dart';
 import '../models/watchlist_item.dart';
 import '../models/trade_record.dart';
 import '../services/appwrite_service.dart';
+import '../services/stop_loss_manager.dart';
+import '../services/email_service.dart';
 
 /// Main trading bot that runs 24/7 monitoring markets and executing trades
 class TradingBot {
@@ -16,6 +18,8 @@ class TradingBot {
   final List<TradingAlgorithm> algorithms;
   final int checkIntervalSeconds;
   final bool simulationMode;
+  final StopLossManager? stopLossManager;
+  final EmailService? emailService;
   final Logger _log = Logger('TradingBot');
 
   bool _running = false;
@@ -36,6 +40,8 @@ class TradingBot {
     required this.algorithms,
     this.checkIntervalSeconds = 30,
     this.simulationMode = true,
+    this.stopLossManager,
+    this.emailService,
   });
 
   /// Start the trading bot
@@ -120,6 +126,11 @@ class TradingBot {
         await _refreshWatchlist();
       }
 
+      // Check stop-loss and take-profit orders
+      if (stopLossManager != null && _watchlist.isNotEmpty) {
+        await _checkRiskManagement();
+      }
+
       // Process each symbol in watchlist
       for (final item in _watchlist) {
         if (!_running) break;
@@ -195,6 +206,8 @@ class TradingBot {
 
       _tradesExecuted++;
 
+      final executedPrice = double.tryParse(order['price']?.toString() ?? '0') ?? 0;
+
       _log.info('✅ Trade executed successfully');
       _log.info('   Order ID: ${order['orderId']}');
       _log.info('   Status: ${order['status']}');
@@ -206,7 +219,7 @@ class TradingBot {
         symbol: symbol,
         side: signal.side,
         quantity: signal.quantity,
-        price: double.tryParse(order['price']?.toString() ?? '0') ?? 0,
+        price: executedPrice,
         totalValue: double.tryParse(order['cummulativeQuoteQty']?.toString() ?? '0') ?? 0,
         timestamp: DateTime.now(),
         algorithmName: signal.algorithmName,
@@ -215,9 +228,116 @@ class TradingBot {
       );
 
       await appwrite.saveTrade(trade);
+
+      // Add stop-loss and take-profit orders for this position
+      if (stopLossManager != null && executedPrice > 0) {
+        stopLossManager!.addStopLoss(
+          symbol: symbol,
+          side: signal.side,
+          entryPrice: executedPrice,
+          quantity: signal.quantity,
+        );
+
+        stopLossManager!.addTakeProfit(
+          symbol: symbol,
+          side: signal.side,
+          entryPrice: executedPrice,
+          quantity: signal.quantity,
+        );
+
+        _log.info('   Risk management orders added (SL/TP)');
+      }
+
+      // Send email notification
+      if (emailService != null) {
+        try {
+          await emailService!.notifyTradeExecuted(trade);
+          _log.fine('   Email notification sent');
+        } catch (e) {
+          _log.warning('   Failed to send email notification: $e');
+        }
+      }
     } catch (e, stack) {
       _errorsEncountered++;
       _log.severe('❌ Failed to execute trade: $e\n$stack');
+
+      // Send error notification
+      if (emailService != null) {
+        try {
+          await emailService!.notifyError(
+            'Failed to execute trade for $symbol',
+            details: e.toString(),
+          );
+        } catch (_) {
+          // Ignore email errors
+        }
+      }
+    }
+  }
+
+  /// Check stop-loss and take-profit orders
+  Future<void> _checkRiskManagement() async {
+    try {
+      // Get current prices for all symbols with active orders
+      final activeStopLosses = stopLossManager!.getActiveStopLosses();
+      final activeTakeProfits = stopLossManager!.getActiveTakeProfits();
+
+      if (activeStopLosses.isEmpty && activeTakeProfits.isEmpty) {
+        return;
+      }
+
+      // Build map of current prices
+      final priceMap = <String, double>{};
+      final symbols = <String>{
+        ...activeStopLosses.map((sl) => sl.symbol),
+        ...activeTakeProfits.map((tp) => tp.symbol),
+      };
+
+      for (final symbol in symbols) {
+        try {
+          final ticker = await binance.spot.market.get24HrTicker(symbol);
+          priceMap[symbol] = double.parse(ticker['lastPrice']);
+        } catch (e) {
+          _log.warning('Failed to get price for $symbol: $e');
+        }
+      }
+
+      // Check all risk management orders
+      final triggeredSignals = stopLossManager!.checkAll(priceMap);
+
+      // Execute exit trades for triggered orders
+      for (final signal in triggeredSignals) {
+        _log.warning('🛑 Risk management order triggered: ${signal.reason}');
+
+        // Execute the exit trade
+        await _executeTrade(signal.side == 'BUY' ? 'BTCUSDT' : 'BTCUSDT', signal);
+
+        // Send stop-loss notification if it was a stop-loss trigger
+        if (emailService != null && signal.reason.contains('Stop-loss')) {
+          try {
+            final stopLoss = activeStopLosses.firstWhere(
+              (sl) => sl.symbol == signal.side,
+              orElse: () => activeStopLosses.first,
+            );
+
+            final currentPrice = priceMap[stopLoss.symbol] ?? 0;
+            final loss = stopLoss.calculatePL(currentPrice);
+            final lossPercent = stopLoss.calculatePLPercent(currentPrice);
+
+            await emailService!.notifyStopLoss(
+              symbol: stopLoss.symbol,
+              entryPrice: stopLoss.entryPrice,
+              exitPrice: currentPrice,
+              loss: loss.abs(),
+              lossPercent: lossPercent.abs(),
+            );
+          } catch (e) {
+            _log.warning('Failed to send stop-loss email: $e');
+          }
+        }
+      }
+    } catch (e, stack) {
+      _log.warning('Error checking risk management: $e\n$stack');
     }
   }
 
@@ -264,7 +384,7 @@ class TradingBot {
         ? DateTime.now().difference(_startTime!).inMinutes
         : 0;
 
-    return {
+    final stats = {
       'running': _running,
       'uptime_minutes': uptime,
       'cycles_completed': _cyclesCompleted,
@@ -274,5 +394,12 @@ class TradingBot {
       'active_algorithms': algorithms.where((a) => a.active).length,
       'total_algorithms': algorithms.length,
     };
+
+    // Add risk management statistics if available
+    if (stopLossManager != null) {
+      stats.addAll(stopLossManager!.getStatistics());
+    }
+
+    return stats;
   }
 }
