@@ -9,3 +9,5 @@ pubspec.lock
 # Migration artifacts
 *.patch
 MIGRATION_GUIDE.md
+APPLY_TO_BABELCOIN.sh
+QUICK_START.txt
