@@ -19,7 +19,6 @@ class RateLimiter {
 
   // Order count tracking
   int _orderCountToday = 0;
-  DateTime _orderCountResetTime = DateTime.now();
 
   RateLimiter({
     RateLimitConfig? config,
@@ -126,7 +125,6 @@ class RateLimiter {
   /// Reset daily order count
   void _resetDailyOrderCount() {
     _orderCountToday = 0;
-    _orderCountResetTime = DateTime.now();
   }
 
   /// Get current rate limit status

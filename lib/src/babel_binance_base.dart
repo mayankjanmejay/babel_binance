@@ -55,8 +55,8 @@ class Binance {
     spot.market.dispose();
     futuresUsd.dispose();
     margin.dispose();
-    testnetSpot.dispose();
-    testnetFutures.dispose();
+    // Note: TestnetSpot and TestnetFuturesUsd don't have dispose methods
+    // as they are composed of sub-classes that handle their own cleanup
   }
 }
 
