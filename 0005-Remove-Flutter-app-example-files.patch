@@ -1,0 +1,5810 @@
+From 531f92b7d2fdc236cd2487aacc17f291b9b2bbba Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 10 Nov 2025 12:55:09 +0000
+Subject: [PATCH 5/7] Remove Flutter app example files
+
+Removing the flutter_app directory and all associated files per user request to undo recent work.
+---
+ example/flutter_app/README.md                 | 290 --------
+ .../kotlin/com/babel/binance/MainActivity.kt  | 189 -----
+ example/flutter_app/firebase/firestore.rules  | 111 ---
+ example/flutter_app/firebase/storage.rules    | 110 ---
+ .../flutter_app/ios/Runner/AppDelegate.swift  | 181 -----
+ example/flutter_app/lib/main.dart             |  96 ---
+ .../lib/src/config/app_config.dart            |  44 --
+ .../lib/src/config/theme_config.dart          |  71 --
+ .../lib/src/i18n/app_localizations.dart       |  40 --
+ .../lib/src/models/database_structure.dart    | 234 -------
+ .../src/platform_channels/native_bridge.dart  | 184 -----
+ .../lib/src/screens/ai/ai_chat_screen.dart    | 222 ------
+ .../biometric/biometric_setup_wizard.dart     | 359 ----------
+ .../lib/src/screens/home_screen.dart          | 168 -----
+ .../screens/media/audio_recording_screen.dart | 126 ----
+ .../screens/media/video_recording_screen.dart | 172 -----
+ .../screens/privacy/privacy_dashboard.dart    | 305 ---------
+ .../src/screens/settings/settings_page.dart   | 313 ---------
+ .../screens/setup/appwrite_setup_wizard.dart  | 643 ------------------
+ .../lib/src/screens/splash_screen.dart        |  66 --
+ .../subscription/subscription_screen.dart     | 389 -----------
+ .../lib/src/services/analytics_service.dart   |  62 --
+ .../lib/src/services/appwrite_service.dart    | 343 ----------
+ .../lib/src/services/auth_service.dart        |  75 --
+ .../lib/src/services/geofencing_service.dart  |  78 ---
+ .../lib/src/services/payment_service.dart     |  50 --
+ .../src/services/subscription_service.dart    |  56 --
+ .../lib/src/widgets/lock_screen_widget.dart   | 204 ------
+ example/flutter_app/pubspec.yaml              | 116 ----
+ .../test/models/database_structure_test.dart  |  65 --
+ .../platform_channels/native_bridge_test.dart |  59 --
+ .../test/services/appwrite_service_test.dart  |  50 --
+ .../test/services/auth_service_test.dart      |  23 -
+ example/flutter_app/test/widget_test.dart     |  32 -
+ 34 files changed, 5526 deletions(-)
+ delete mode 100644 example/flutter_app/README.md
+ delete mode 100644 example/flutter_app/android/app/src/main/kotlin/com/babel/binance/MainActivity.kt
+ delete mode 100644 example/flutter_app/firebase/firestore.rules
+ delete mode 100644 example/flutter_app/firebase/storage.rules
+ delete mode 100644 example/flutter_app/ios/Runner/AppDelegate.swift
+ delete mode 100644 example/flutter_app/lib/main.dart
+ delete mode 100644 example/flutter_app/lib/src/config/app_config.dart
+ delete mode 100644 example/flutter_app/lib/src/config/theme_config.dart
+ delete mode 100644 example/flutter_app/lib/src/i18n/app_localizations.dart
+ delete mode 100644 example/flutter_app/lib/src/models/database_structure.dart
+ delete mode 100644 example/flutter_app/lib/src/platform_channels/native_bridge.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/ai/ai_chat_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/biometric/biometric_setup_wizard.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/home_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/media/audio_recording_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/media/video_recording_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/privacy/privacy_dashboard.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/settings/settings_page.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/setup/appwrite_setup_wizard.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/splash_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/screens/subscription/subscription_screen.dart
+ delete mode 100644 example/flutter_app/lib/src/services/analytics_service.dart
+ delete mode 100644 example/flutter_app/lib/src/services/appwrite_service.dart
+ delete mode 100644 example/flutter_app/lib/src/services/auth_service.dart
+ delete mode 100644 example/flutter_app/lib/src/services/geofencing_service.dart
+ delete mode 100644 example/flutter_app/lib/src/services/payment_service.dart
+ delete mode 100644 example/flutter_app/lib/src/services/subscription_service.dart
+ delete mode 100644 example/flutter_app/lib/src/widgets/lock_screen_widget.dart
+ delete mode 100644 example/flutter_app/pubspec.yaml
+ delete mode 100644 example/flutter_app/test/models/database_structure_test.dart
+ delete mode 100644 example/flutter_app/test/platform_channels/native_bridge_test.dart
+ delete mode 100644 example/flutter_app/test/services/appwrite_service_test.dart
+ delete mode 100644 example/flutter_app/test/services/auth_service_test.dart
+ delete mode 100644 example/flutter_app/test/widget_test.dart
+
+diff --git a/example/flutter_app/README.md b/example/flutter_app/README.md
+deleted file mode 100644
+index f2dc2e9..0000000
+--- a/example/flutter_app/README.md
++++ /dev/null
+@@ -1,290 +0,0 @@
+-# Babel Binance Flutter Example App
+-
+-A comprehensive Flutter application demonstrating advanced features including Appwrite backend, subscription management, biometric authentication, AI chat, media recording, and more.
+-
+-## 🚀 Features
+-
+-### 1. Appwrite Setup Wizard
+-- **4-Step Setup Process**
+-  - Welcome screen with requirements
+-  - Appwrite endpoint and project configuration
+-  - User account creation
+-  - Automatic database structure deployment
+-- **Auto-Push Database Structure**
+-  - 5 pre-configured collections (Users, Trades, Portfolios, Watchlist, Analytics)
+-  - Automatic attribute creation
+-  - Customizable schema support
+-
+-### 2. Subscription System
+-- **RevenueCat Integration**
+-  - Monthly, annual, and lifetime plans
+-  - In-app purchase support
+-  - Restore purchases functionality
+-- **Beautiful Pricing UI**
+-  - Feature comparison
+-  - Popular plan highlighting
+-  - Subscription status management
+-
+-### 3. Privacy Dashboard
+-- **Data Collection Controls**
+-  - Analytics toggle
+-  - Crash reporting
+-  - Location tracking
+-- **User Rights**
+-  - Data export request
+-  - Data deletion
+-  - Privacy policy access
+-
+-### 4. Biometric Authentication
+-- **Multi-Step Setup Wizard**
+-  - Availability detection
+-  - Fingerprint/Face ID support
+-  - Fallback PIN authentication
+-- **Lock Screen Widget**
+-  - App background protection
+-  - Biometric unlock
+-  - PIN code fallback
+-
+-### 5. Platform Channels (Native Bridge)
+-- **Android (Kotlin) & iOS (Swift)**
+-  - Battery level
+-  - Device information
+-  - Haptic feedback
+-  - Share content
+-  - Screen brightness
+-  - Clipboard operations
+-  - Root/jailbreak detection
+-  - Network information
+-
+-### 6. AI Trading Assistant
+-- **Google Gemini Integration**
+-  - Real-time chat interface
+-  - Trading advice
+-  - Market analysis
+-  - Message history
+-
+-### 7. Media Recording
+-- **Video Recording**
+-  - Front/back camera switching
+-  - High-resolution recording
+-  - Real-time preview
+-- **Audio Recording**
+-  - Duration tracking
+-  - High-quality audio
+-  - Save to device storage
+-
+-### 8. Testing Suite
+-- **30%+ Code Coverage**
+-  - Appwrite service tests
+-  - Authentication tests
+-  - Platform channel tests
+-  - Database structure tests
+-  - Widget tests
+-
+-### 9. Firebase Security
+-- **Firestore Rules**
+-  - User authentication
+-  - Role-based access
+-  - Data validation
+-- **Storage Rules**
+-  - File type validation
+-  - Size limits
+-  - User isolation
+-
+-### 10. Modern Settings Page
+-- **Account Management**
+-  - Profile editing
+-  - Subscription management
+-  - API key configuration
+-- **Preferences**
+-  - Notifications
+-  - Dark mode
+-  - Language selection
+-- **Security**
+-  - Biometric setup
+-  - Privacy controls
+-  - Password change
+-
+-## 📦 Dependencies
+-
+-### Core
+-- `flutter`: SDK
+-- `flutter_riverpod`: State management
+-- `appwrite`: Backend integration
+-
+-### Authentication & Security
+-- `firebase_auth`: Authentication
+-- `local_auth`: Biometric authentication
+-- `flutter_secure_storage`: Secure data storage
+-
+-### Payments
+-- `purchases_flutter`: RevenueCat SDK
+-- `in_app_purchase`: Native IAP
+-- `stripe_flutter`: Stripe payments
+-
+-### Location
+-- `geolocator`: GPS location
+-- `geofence_service`: Geofencing
+-
+-### Media
+-- `camera`: Video recording
+-- `record`: Audio recording
+-- `image_picker`: Photo selection
+-
+-### AI/ML
+-- `google_generative_ai`: Gemini AI
+-
+-### Analytics
+-- `firebase_analytics`: Firebase Analytics
+-- `mixpanel_flutter`: Mixpanel
+-- `sentry_flutter`: Error tracking
+-
+-### UI/UX
+-- `flutter_screenutil`: Responsive design
+-- `animations`: Advanced animations
+-- `lottie`: Lottie animations
+-- `cached_network_image`: Image caching
+-
+-## 🛠️ Setup
+-
+-### 1. Install Dependencies
+-```bash
+-cd example/flutter_app
+-flutter pub get
+-```
+-
+-### 2. Configure Appwrite
+-- Create an Appwrite project at https://cloud.appwrite.io
+-- Copy your project ID
+-- Run the app and follow the setup wizard
+-
+-### 3. Configure Firebase
+-```bash
+-# Install Firebase CLI
+-npm install -g firebase-tools
+-
+-# Login to Firebase
+-firebase login
+-
+-# Initialize Firebase
+-firebase init
+-
+-# Deploy security rules
+-firebase deploy --only firestore:rules,storage:rules
+-```
+-
+-### 4. Configure API Keys
+-Edit `lib/src/config/app_config.dart` and add your API keys:
+-- RevenueCat API key
+-- Stripe publishable key
+-- Mixpanel token
+-- Gemini API key
+-- Binance API credentials
+-
+-### 5. Run the App
+-```bash
+-flutter run
+-```
+-
+-## 🧪 Running Tests
+-```bash
+-flutter test
+-```
+-
+-For integration tests:
+-```bash
+-flutter test integration_test
+-```
+-
+-## 📱 Platform-Specific Setup
+-
+-### Android
+-1. Update `android/app/build.gradle` with required permissions
+-2. Set minimum SDK version to 21+
+-3. Add required permissions to `AndroidManifest.xml`
+-
+-### iOS
+-1. Update `ios/Runner/Info.plist` with required permissions
+-2. Set minimum iOS version to 12.0+
+-3. Add required capabilities in Xcode
+-
+-## 🔐 Security Features
+-
+-### Firestore Rules
+-- User authentication required
+-- Owner-based access control
+-- Data validation
+-- Admin role support
+-
+-### Storage Rules
+-- File type validation
+-- Size limits (5MB-100MB)
+-- User isolation
+-- Temporary file cleanup
+-
+-### App Security
+-- Biometric authentication
+-- Secure storage for sensitive data
+-- Root/jailbreak detection
+-- Screen lock protection
+-
+-## 📊 Database Structure
+-
+-### Collections
+-1. **Users**: User profiles and preferences
+-2. **Trades**: Trading history and orders
+-3. **Portfolios**: Investment portfolios
+-4. **Watchlist**: Favorite trading pairs
+-5. **Analytics**: Event tracking
+-
+-### Attributes
+-Each collection has properly typed attributes:
+-- String (with size limits)
+-- Integer (with min/max)
+-- Boolean
+-- Datetime
+-
+-## 🎨 Theming
+-
+-The app supports:
+-- Light mode
+-- Dark mode
+-- Custom color schemes
+-- Responsive layouts
+-- Accessibility features
+-
+-## 🌍 Internationalization
+-
+-Supported languages:
+-- English
+-- Español
+-- Français
+-- Deutsch
+-- 中文
+-- 日本語
+-
+-## 📝 License
+-
+-MIT License - See LICENSE file for details
+-
+-## 🤝 Contributing
+-
+-Contributions welcome! Please read our contributing guidelines first.
+-
+-## 📞 Support
+-
+-For issues and questions:
+-- GitHub Issues: https://github.com/mayankjanmejay/babel_binance/issues
+-- Email: support@example.com
+-
+-## 🙏 Acknowledgments
+-
+-- Binance API for cryptocurrency data
+-- Appwrite for backend services
+-- RevenueCat for subscription management
+-- Google for Gemini AI
+-- All open-source contributors
+-
+----
+-
+-Built with ❤️ using Flutter and Babel Binance
+diff --git a/example/flutter_app/android/app/src/main/kotlin/com/babel/binance/MainActivity.kt b/example/flutter_app/android/app/src/main/kotlin/com/babel/binance/MainActivity.kt
+deleted file mode 100644
+index e825658..0000000
+--- a/example/flutter_app/android/app/src/main/kotlin/com/babel/binance/MainActivity.kt
++++ /dev/null
+@@ -1,189 +0,0 @@
+-package com.babel.binance
+-
+-import android.content.Context
+-import android.content.Intent
+-import android.os.BatteryManager
+-import android.os.Build
+-import android.provider.Settings
+-import androidx.annotation.NonNull
+-import io.flutter.embedding.android.FlutterActivity
+-import io.flutter.embedding.engine.FlutterEngine
+-import io.flutter.plugin.common.MethodChannel
+-
+-class MainActivity: FlutterActivity() {
+-    private val CHANNEL = "com.babel.binance/native"
+-
+-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+-        super.configureFlutterEngine(flutterEngine)
+-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
+-            call, result ->
+-            when (call.method) {
+-                "getBatteryLevel" -> {
+-                    val batteryLevel = getBatteryLevel()
+-                    if (batteryLevel != -1) {
+-                        result.success(batteryLevel)
+-                    } else {
+-                        result.error("UNAVAILABLE", "Battery level not available.", null)
+-                    }
+-                }
+-                "getDeviceInfo" -> {
+-                    val deviceInfo = getDeviceInfo()
+-                    result.success(deviceInfo)
+-                }
+-                "hapticFeedback" -> {
+-                    val type = call.argument<String>("type") ?: "light"
+-                    triggerHapticFeedback(type)
+-                    result.success(null)
+-                }
+-                "shareContent" -> {
+-                    val text = call.argument<String>("text") ?: ""
+-                    val subject = call.argument<String>("subject")
+-                    shareContent(text, subject)
+-                    result.success(true)
+-                }
+-                "openSettings" -> {
+-                    val section = call.argument<String>("section")
+-                    openSettings(section)
+-                    result.success(null)
+-                }
+-                "isAppInBackground" -> {
+-                    result.success(false) // Simplified for example
+-                }
+-                "lockScreen" -> {
+-                    // Requires device admin permissions
+-                    result.success(null)
+-                }
+-                "getScreenBrightness" -> {
+-                    val brightness = getScreenBrightness()
+-                    result.success(brightness)
+-                }
+-                "setScreenBrightness" -> {
+-                    val brightness = call.argument<Double>("brightness") ?: 0.5
+-                    setScreenBrightness(brightness.toFloat())
+-                    result.success(null)
+-                }
+-                "getNetworkInfo" -> {
+-                    val networkInfo = getNetworkInfo()
+-                    result.success(networkInfo)
+-                }
+-                "copyToClipboard" -> {
+-                    val text = call.argument<String>("text") ?: ""
+-                    copyToClipboard(text)
+-                    result.success(null)
+-                }
+-                "isDeviceRooted" -> {
+-                    val isRooted = isDeviceRooted()
+-                    result.success(isRooted)
+-                }
+-                "getAppVersion" -> {
+-                    val version = getAppVersion()
+-                    result.success(version)
+-                }
+-                else -> {
+-                    result.notImplemented()
+-                }
+-            }
+-        }
+-    }
+-
+-    private fun getBatteryLevel(): Int {
+-        val batteryLevel: Int
+-        val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+-        batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+-        return batteryLevel
+-    }
+-
+-    private fun getDeviceInfo(): Map<String, Any> {
+-        return mapOf(
+-            "model" to Build.MODEL,
+-            "manufacturer" to Build.MANUFACTURER,
+-            "version" to Build.VERSION.RELEASE,
+-            "sdkInt" to Build.VERSION.SDK_INT,
+-            "brand" to Build.BRAND,
+-            "device" to Build.DEVICE
+-        )
+-    }
+-
+-    private fun triggerHapticFeedback(type: String) {
+-        // Implementation depends on API level and type
+-        // This is a simplified version
+-    }
+-
+-    private fun shareContent(text: String, subject: String?) {
+-        val sendIntent = Intent().apply {
+-            action = Intent.ACTION_SEND
+-            putExtra(Intent.EXTRA_TEXT, text)
+-            subject?.let { putExtra(Intent.EXTRA_SUBJECT, it) }
+-            type = "text/plain"
+-        }
+-        val shareIntent = Intent.createChooser(sendIntent, null)
+-        startActivity(shareIntent)
+-    }
+-
+-    private fun openSettings(section: String?) {
+-        val intent = when (section) {
+-            "app" -> Intent(Settings.ACTION_APPLICATION_SETTINGS)
+-            "wifi" -> Intent(Settings.ACTION_WIFI_SETTINGS)
+-            "bluetooth" -> Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+-            "location" -> Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+-            else -> Intent(Settings.ACTION_SETTINGS)
+-        }
+-        startActivity(intent)
+-    }
+-
+-    private fun getScreenBrightness(): Float {
+-        return try {
+-            Settings.System.getInt(
+-                contentResolver,
+-                Settings.System.SCREEN_BRIGHTNESS
+-            ) / 255.0f
+-        } catch (e: Settings.SettingNotFoundException) {
+-            0.5f
+-        }
+-    }
+-
+-    private fun setScreenBrightness(brightness: Float) {
+-        val layoutParams = window.attributes
+-        layoutParams.screenBrightness = brightness
+-        window.attributes = layoutParams
+-    }
+-
+-    private fun getNetworkInfo(): Map<String, Any> {
+-        // Simplified implementation
+-        return mapOf(
+-            "isConnected" to true,
+-            "type" to "wifi"
+-        )
+-    }
+-
+-    private fun copyToClipboard(text: String) {
+-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+-        val clip = android.content.ClipData.newPlainText("label", text)
+-        clipboard.setPrimaryClip(clip)
+-    }
+-
+-    private fun isDeviceRooted(): Boolean {
+-        // Simplified root detection
+-        val paths = arrayOf(
+-            "/system/app/Superuser.apk",
+-            "/sbin/su",
+-            "/system/bin/su",
+-            "/system/xbin/su",
+-            "/data/local/xbin/su",
+-            "/data/local/bin/su",
+-            "/system/sd/xbin/su",
+-            "/system/bin/failsafe/su",
+-            "/data/local/su"
+-        )
+-        return paths.any { java.io.File(it).exists() }
+-    }
+-
+-    private fun getAppVersion(): String {
+-        return try {
+-            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+-            packageInfo.versionName ?: "1.0.0"
+-        } catch (e: Exception) {
+-            "1.0.0"
+-        }
+-    }
+-}
+diff --git a/example/flutter_app/firebase/firestore.rules b/example/flutter_app/firebase/firestore.rules
+deleted file mode 100644
+index 4a7d16c..0000000
+--- a/example/flutter_app/firebase/firestore.rules
++++ /dev/null
+@@ -1,111 +0,0 @@
+-rules_version = '2';
+-service cloud.firestore {
+-  match /databases/{database}/documents {
+-
+-    // Helper functions
+-    function isAuthenticated() {
+-      return request.auth != null;
+-    }
+-
+-    function isOwner(userId) {
+-      return isAuthenticated() && request.auth.uid == userId;
+-    }
+-
+-    function isAdmin() {
+-      return isAuthenticated() &&
+-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+-    }
+-
+-    function hasValidSubscription() {
+-      return isAuthenticated() &&
+-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionTier in ['premium', 'enterprise'];
+-    }
+-
+-    // Users collection
+-    match /users/{userId} {
+-      allow read: if isAuthenticated();
+-      allow create: if isAuthenticated() && request.auth.uid == userId;
+-      allow update: if isOwner(userId);
+-      allow delete: if isOwner(userId) || isAdmin();
+-
+-      // Validate user data
+-      allow write: if request.resource.data.email is string &&
+-                      request.resource.data.displayName is string &&
+-                      request.resource.data.createdAt is timestamp;
+-    }
+-
+-    // Trades collection
+-    match /trades/{tradeId} {
+-      allow read: if isAuthenticated() &&
+-                     resource.data.userId == request.auth.uid;
+-      allow create: if isAuthenticated() &&
+-                       request.resource.data.userId == request.auth.uid;
+-      allow update: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-      allow delete: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-
+-      // Validate trade data
+-      allow write: if request.resource.data.userId == request.auth.uid &&
+-                      request.resource.data.symbol is string &&
+-                      request.resource.data.side in ['BUY', 'SELL'] &&
+-                      request.resource.data.quantity is number &&
+-                      request.resource.data.price is number;
+-    }
+-
+-    // Portfolios collection
+-    match /portfolios/{portfolioId} {
+-      allow read: if isAuthenticated() &&
+-                     resource.data.userId == request.auth.uid;
+-      allow create: if isAuthenticated() &&
+-                       request.resource.data.userId == request.auth.uid;
+-      allow update: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-      allow delete: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-    }
+-
+-    // Watchlist collection
+-    match /watchlist/{watchlistId} {
+-      allow read: if isAuthenticated() &&
+-                     resource.data.userId == request.auth.uid;
+-      allow create: if isAuthenticated() &&
+-                       request.resource.data.userId == request.auth.uid;
+-      allow update: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-      allow delete: if isAuthenticated() &&
+-                       resource.data.userId == request.auth.uid;
+-    }
+-
+-    // Analytics collection - only write for authenticated users
+-    match /analytics/{analyticsId} {
+-      allow read: if isAdmin();
+-      allow create: if isAuthenticated();
+-      allow update: if false;
+-      allow delete: if isAdmin();
+-    }
+-
+-    // Subscriptions collection
+-    match /subscriptions/{subscriptionId} {
+-      allow read: if isAuthenticated() &&
+-                     resource.data.userId == request.auth.uid;
+-      allow write: if false; // Only backend can write
+-    }
+-
+-    // Admin only collections
+-    match /admin/{document=**} {
+-      allow read, write: if isAdmin();
+-    }
+-
+-    // Public data (read-only for all)
+-    match /public/{document=**} {
+-      allow read: if true;
+-      allow write: if isAdmin();
+-    }
+-
+-    // Default deny
+-    match /{document=**} {
+-      allow read, write: if false;
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/firebase/storage.rules b/example/flutter_app/firebase/storage.rules
+deleted file mode 100644
+index 1b7710c..0000000
+--- a/example/flutter_app/firebase/storage.rules
++++ /dev/null
+@@ -1,110 +0,0 @@
+-rules_version = '2';
+-service firebase.storage {
+-  match /b/{bucket}/o {
+-
+-    // Helper functions
+-    function isAuthenticated() {
+-      return request.auth != null;
+-    }
+-
+-    function isOwner(userId) {
+-      return isAuthenticated() && request.auth.uid == userId;
+-    }
+-
+-    function isValidImageFile() {
+-      return request.resource.contentType.matches('image/.*');
+-    }
+-
+-    function isValidDocumentFile() {
+-      return request.resource.contentType.matches('application/pdf') ||
+-             request.resource.contentType.matches('application/msword') ||
+-             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+-    }
+-
+-    function isValidVideoFile() {
+-      return request.resource.contentType.matches('video/.*');
+-    }
+-
+-    function isValidAudioFile() {
+-      return request.resource.contentType.matches('audio/.*');
+-    }
+-
+-    function isUnderSizeLimit(maxSizeMB) {
+-      return request.resource.size < maxSizeMB * 1024 * 1024;
+-    }
+-
+-    // User avatars - max 5MB
+-    match /avatars/{userId}/{fileName} {
+-      allow read: if true; // Public read
+-      allow write: if isOwner(userId) &&
+-                      isValidImageFile() &&
+-                      isUnderSizeLimit(5);
+-    }
+-
+-    // User documents - max 10MB
+-    match /documents/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isValidDocumentFile() &&
+-                      isUnderSizeLimit(10);
+-    }
+-
+-    // Trade screenshots - max 5MB
+-    match /trades/{userId}/{tradeId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isValidImageFile() &&
+-                      isUnderSizeLimit(5);
+-    }
+-
+-    // Video recordings - max 100MB for premium users
+-    match /recordings/video/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isValidVideoFile() &&
+-                      isUnderSizeLimit(100);
+-    }
+-
+-    // Audio recordings - max 50MB
+-    match /recordings/audio/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isValidAudioFile() &&
+-                      isUnderSizeLimit(50);
+-    }
+-
+-    // Portfolio exports - max 5MB
+-    match /exports/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isValidDocumentFile() &&
+-                      isUnderSizeLimit(5);
+-    }
+-
+-    // Backup data - max 50MB
+-    match /backups/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isUnderSizeLimit(50);
+-    }
+-
+-    // Public assets (read-only for all, write for authenticated users)
+-    match /public/{allPaths=**} {
+-      allow read: if true;
+-      allow write: if false; // Only backend/admin can write
+-    }
+-
+-    // Temporary uploads - max 20MB, auto-delete after 24 hours
+-    match /temp/{userId}/{fileName} {
+-      allow read: if isOwner(userId);
+-      allow write: if isOwner(userId) &&
+-                      isUnderSizeLimit(20);
+-      allow delete: if isOwner(userId);
+-    }
+-
+-    // Default deny
+-    match /{allPaths=**} {
+-      allow read, write: if false;
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/ios/Runner/AppDelegate.swift b/example/flutter_app/ios/Runner/AppDelegate.swift
+deleted file mode 100644
+index cfef586..0000000
+--- a/example/flutter_app/ios/Runner/AppDelegate.swift
++++ /dev/null
+@@ -1,181 +0,0 @@
+-import UIKit
+-import Flutter
+-
+-@UIApplicationMain
+-@objc class AppDelegate: FlutterAppDelegate {
+-    override func application(
+-        _ application: UIApplication,
+-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+-    ) -> Bool {
+-        let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+-        let nativeChannel = FlutterMethodChannel(name: "com.babel.binance/native",
+-                                                  binaryMessenger: controller.binaryMessenger)
+-
+-        nativeChannel.setMethodCallHandler({
+-            [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+-            guard let self = self else { return }
+-
+-            switch call.method {
+-            case "getBatteryLevel":
+-                self.getBatteryLevel(result: result)
+-            case "getDeviceInfo":
+-                self.getDeviceInfo(result: result)
+-            case "hapticFeedback":
+-                if let args = call.arguments as? [String: Any],
+-                   let type = args["type"] as? String {
+-                    self.triggerHapticFeedback(type: type)
+-                }
+-                result(nil)
+-            case "shareContent":
+-                if let args = call.arguments as? [String: Any],
+-                   let text = args["text"] as? String {
+-                    let subject = args["subject"] as? String
+-                    self.shareContent(text: text, subject: subject, controller: controller)
+-                }
+-                result(true)
+-            case "openSettings":
+-                if let args = call.arguments as? [String: Any],
+-                   let section = args["section"] as? String {
+-                    self.openSettings(section: section)
+-                }
+-                result(nil)
+-            case "isAppInBackground":
+-                result(UIApplication.shared.applicationState == .background)
+-            case "getScreenBrightness":
+-                result(UIScreen.main.brightness)
+-            case "setScreenBrightness":
+-                if let args = call.arguments as? [String: Any],
+-                   let brightness = args["brightness"] as? Double {
+-                    UIScreen.main.brightness = CGFloat(brightness)
+-                }
+-                result(nil)
+-            case "copyToClipboard":
+-                if let args = call.arguments as? [String: Any],
+-                   let text = args["text"] as? String {
+-                    UIPasteboard.general.string = text
+-                }
+-                result(nil)
+-            case "getClipboardContent":
+-                result(UIPasteboard.general.string)
+-            case "isDeviceRooted":
+-                result(self.isDeviceJailbroken())
+-            case "getAppVersion":
+-                result(self.getAppVersion())
+-            default:
+-                result(FlutterMethodNotImplemented)
+-            }
+-        })
+-
+-        GeneratedPluginRegistrant.register(with: self)
+-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+-    }
+-
+-    private func getBatteryLevel(result: FlutterResult) {
+-        UIDevice.current.isBatteryMonitoringEnabled = true
+-        let batteryLevel = UIDevice.current.batteryLevel
+-        if batteryLevel < 0 {
+-            result(FlutterError(code: "UNAVAILABLE",
+-                              message: "Battery level not available",
+-                              details: nil))
+-        } else {
+-            result(Int(batteryLevel * 100))
+-        }
+-    }
+-
+-    private func getDeviceInfo(result: FlutterResult) {
+-        let device = UIDevice.current
+-        let deviceInfo: [String: Any] = [
+-            "model": device.model,
+-            "systemName": device.systemName,
+-            "systemVersion": device.systemVersion,
+-            "name": device.name,
+-            "identifierForVendor": device.identifierForVendor?.uuidString ?? "unknown"
+-        ]
+-        result(deviceInfo)
+-    }
+-
+-    private func triggerHapticFeedback(type: String) {
+-        switch type {
+-        case "light":
+-            let generator = UIImpactFeedbackGenerator(style: .light)
+-            generator.impactOccurred()
+-        case "medium":
+-            let generator = UIImpactFeedbackGenerator(style: .medium)
+-            generator.impactOccurred()
+-        case "heavy":
+-            let generator = UIImpactFeedbackGenerator(style: .heavy)
+-            generator.impactOccurred()
+-        case "success":
+-            let generator = UINotificationFeedbackGenerator()
+-            generator.notificationOccurred(.success)
+-        case "warning":
+-            let generator = UINotificationFeedbackGenerator()
+-            generator.notificationOccurred(.warning)
+-        case "error":
+-            let generator = UINotificationFeedbackGenerator()
+-            generator.notificationOccurred(.error)
+-        default:
+-            let generator = UIImpactFeedbackGenerator(style: .light)
+-            generator.impactOccurred()
+-        }
+-    }
+-
+-    private func shareContent(text: String, subject: String?, controller: UIViewController) {
+-        var itemsToShare: [Any] = [text]
+-        if let subject = subject {
+-            itemsToShare.insert(subject, at: 0)
+-        }
+-
+-        let activityViewController = UIActivityViewController(
+-            activityItems: itemsToShare,
+-            applicationActivities: nil
+-        )
+-
+-        controller.present(activityViewController, animated: true, completion: nil)
+-    }
+-
+-    private func openSettings(section: String?) {
+-        if let url = URL(string: UIApplication.openSettingsURLString) {
+-            UIApplication.shared.open(url)
+-        }
+-    }
+-
+-    private func isDeviceJailbroken() -> Bool {
+-        #if targetEnvironment(simulator)
+-        return false
+-        #else
+-        let fileManager = FileManager.default
+-        let paths = [
+-            "/Applications/Cydia.app",
+-            "/Library/MobileSubstrate/MobileSubstrate.dylib",
+-            "/bin/bash",
+-            "/usr/sbin/sshd",
+-            "/etc/apt",
+-            "/private/var/lib/apt/"
+-        ]
+-
+-        for path in paths {
+-            if fileManager.fileExists(atPath: path) {
+-                return true
+-            }
+-        }
+-
+-        // Try to write to system directory
+-        let testPath = "/private/jailbreak_test.txt"
+-        do {
+-            try "test".write(toFile: testPath, atomically: true, encoding: .utf8)
+-            try fileManager.removeItem(atPath: testPath)
+-            return true
+-        } catch {
+-            return false
+-        }
+-        #endif
+-    }
+-
+-    private func getAppVersion() -> String {
+-        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+-            return version
+-        }
+-        return "1.0.0"
+-    }
+-}
+diff --git a/example/flutter_app/lib/main.dart b/example/flutter_app/lib/main.dart
+deleted file mode 100644
+index a0ba225..0000000
+--- a/example/flutter_app/lib/main.dart
++++ /dev/null
+@@ -1,96 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:firebase_core/firebase_core.dart';
+-import 'package:flutter_localizations/flutter_localizations.dart';
+-import 'package:flutter_screenutil/flutter_screenutil.dart';
+-import 'package:sentry_flutter/sentry_flutter.dart';
+-
+-import 'src/config/app_config.dart';
+-import 'src/config/theme_config.dart';
+-import 'src/services/analytics_service.dart';
+-import 'src/services/auth_service.dart';
+-import 'src/screens/splash_screen.dart';
+-import 'src/i18n/app_localizations.dart';
+-
+-void main() async {
+-  WidgetsFlutterBinding.ensureInitialized();
+-
+-  // Initialize Firebase
+-  await Firebase.initializeApp();
+-
+-  // Initialize Sentry for error tracking
+-  await SentryFlutter.init(
+-    (options) {
+-      options.dsn = AppConfig.sentryDsn;
+-      options.tracesSampleRate = 1.0;
+-      options.enableAutoPerformanceTracing = true;
+-    },
+-    appRunner: () => runApp(
+-      const ProviderScope(
+-        child: BabelBinanceApp(),
+-      ),
+-    ),
+-  );
+-}
+-
+-class BabelBinanceApp extends ConsumerStatefulWidget {
+-  const BabelBinanceApp({super.key});
+-
+-  @override
+-  ConsumerState<BabelBinanceApp> createState() => _BabelBinanceAppState();
+-}
+-
+-class _BabelBinanceAppState extends ConsumerState<BabelBinanceApp> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    _initializeApp();
+-  }
+-
+-  Future<void> _initializeApp() async {
+-    // Initialize analytics
+-    await ref.read(analyticsServiceProvider).initialize();
+-
+-    // Initialize auth
+-    await ref.read(authServiceProvider).initialize();
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return ScreenUtilInit(
+-      designSize: const Size(375, 812),
+-      minTextAdapt: true,
+-      splitScreenMode: true,
+-      builder: (context, child) {
+-        return MaterialApp(
+-          title: 'Babel Binance',
+-          debugShowCheckedModeBanner: false,
+-          theme: ThemeConfig.lightTheme,
+-          darkTheme: ThemeConfig.darkTheme,
+-          themeMode: ThemeMode.system,
+-
+-          // Internationalization
+-          localizationsDelegates: const [
+-            AppLocalizations.delegate,
+-            GlobalMaterialLocalizations.delegate,
+-            GlobalWidgetsLocalizations.delegate,
+-            GlobalCupertinoLocalizations.delegate,
+-          ],
+-          supportedLocales: AppLocalizations.supportedLocales,
+-
+-          // Accessibility
+-          builder: (context, child) {
+-            return MediaQuery(
+-              data: MediaQuery.of(context).copyWith(
+-                textScaleFactor: MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.5),
+-              ),
+-              child: child!,
+-            );
+-          },
+-
+-          home: const SplashScreen(),
+-        );
+-      },
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/config/app_config.dart b/example/flutter_app/lib/src/config/app_config.dart
+deleted file mode 100644
+index 344e97d..0000000
+--- a/example/flutter_app/lib/src/config/app_config.dart
++++ /dev/null
+@@ -1,44 +0,0 @@
+-class AppConfig {
+-  // Firebase Configuration
+-  static const String firebaseProjectId = 'babel-binance-app';
+-
+-  // Sentry Configuration
+-  static const String sentryDsn = 'YOUR_SENTRY_DSN_HERE';
+-
+-  // RevenueCat Configuration
+-  static const String revenueCatApiKey = 'YOUR_REVENUECAT_API_KEY';
+-  static const String revenueCatAppleKey = 'YOUR_APPLE_KEY';
+-  static const String revenueCatGoogleKey = 'YOUR_GOOGLE_KEY';
+-
+-  // Stripe Configuration
+-  static const String stripePublishableKey = 'YOUR_STRIPE_PUBLISHABLE_KEY';
+-
+-  // Mixpanel Configuration
+-  static const String mixpanelToken = 'YOUR_MIXPANEL_TOKEN';
+-
+-  // AI Configuration
+-  static const String geminiApiKey = 'YOUR_GEMINI_API_KEY';
+-
+-  // White Label Configuration
+-  static const String appName = 'Babel Binance';
+-  static const String appLogo = 'assets/images/logo.png';
+-  static const String primaryColor = '#1E88E5';
+-  static const String accentColor = '#FFC107';
+-
+-  // Feature Flags
+-  static const bool enableSubscriptions = true;
+-  static const bool enableBiometrics = true;
+-  static const bool enableGeofencing = true;
+-  static const bool enableAIChat = true;
+-  static const bool enableVideoRecording = true;
+-  static const bool enableAnalytics = true;
+-
+-  // API Configuration
+-  static const String binanceApiKey = '';
+-  static const String binanceApiSecret = '';
+-
+-  // Performance Configuration
+-  static const int cacheExpirationMinutes = 30;
+-  static const int maxCachedItems = 100;
+-  static const int apiTimeoutSeconds = 30;
+-}
+diff --git a/example/flutter_app/lib/src/config/theme_config.dart b/example/flutter_app/lib/src/config/theme_config.dart
+deleted file mode 100644
+index e6e588d..0000000
+--- a/example/flutter_app/lib/src/config/theme_config.dart
++++ /dev/null
+@@ -1,71 +0,0 @@
+-import 'package:flutter/material.dart';
+-
+-class ThemeConfig {
+-  static ThemeData get lightTheme {
+-    return ThemeData(
+-      useMaterial3: true,
+-      colorScheme: ColorScheme.fromSeed(
+-        seedColor: const Color(0xFF1E88E5),
+-        brightness: Brightness.light,
+-      ),
+-      appBarTheme: const AppBarTheme(
+-        centerTitle: true,
+-        elevation: 0,
+-      ),
+-      cardTheme: CardTheme(
+-        elevation: 2,
+-        shape: RoundedRectangleBorder(
+-          borderRadius: BorderRadius.circular(12),
+-        ),
+-      ),
+-      elevatedButtonTheme: ElevatedButtonThemeData(
+-        style: ElevatedButton.styleFrom(
+-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+-          shape: RoundedRectangleBorder(
+-            borderRadius: BorderRadius.circular(8),
+-          ),
+-        ),
+-      ),
+-      inputDecorationTheme: InputDecorationTheme(
+-        border: OutlineInputBorder(
+-          borderRadius: BorderRadius.circular(8),
+-        ),
+-        filled: true,
+-      ),
+-    );
+-  }
+-
+-  static ThemeData get darkTheme {
+-    return ThemeData(
+-      useMaterial3: true,
+-      colorScheme: ColorScheme.fromSeed(
+-        seedColor: const Color(0xFF1E88E5),
+-        brightness: Brightness.dark,
+-      ),
+-      appBarTheme: const AppBarTheme(
+-        centerTitle: true,
+-        elevation: 0,
+-      ),
+-      cardTheme: CardTheme(
+-        elevation: 2,
+-        shape: RoundedRectangleBorder(
+-          borderRadius: BorderRadius.circular(12),
+-        ),
+-      ),
+-      elevatedButtonTheme: ElevatedButtonThemeData(
+-        style: ElevatedButton.styleFrom(
+-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+-          shape: RoundedRectangleBorder(
+-            borderRadius: BorderRadius.circular(8),
+-          ),
+-        ),
+-      ),
+-      inputDecorationTheme: InputDecorationTheme(
+-        border: OutlineInputBorder(
+-          borderRadius: BorderRadius.circular(8),
+-        ),
+-        filled: true,
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/i18n/app_localizations.dart b/example/flutter_app/lib/src/i18n/app_localizations.dart
+deleted file mode 100644
+index f0b8622..0000000
+--- a/example/flutter_app/lib/src/i18n/app_localizations.dart
++++ /dev/null
+@@ -1,40 +0,0 @@
+-import 'package:flutter/material.dart';
+-
+-class AppLocalizations {
+-  static const delegate = _AppLocalizationsDelegate();
+-
+-  static const List<Locale> supportedLocales = [
+-    Locale('en', 'US'),
+-    Locale('es', 'ES'),
+-    Locale('fr', 'FR'),
+-    Locale('de', 'DE'),
+-    Locale('zh', 'CN'),
+-    Locale('ja', 'JP'),
+-  ];
+-
+-  static AppLocalizations of(BuildContext context) {
+-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+-  }
+-
+-  String get appTitle => 'Babel Binance';
+-  String get welcome => 'Welcome';
+-  String get dashboard => 'Dashboard';
+-  String get settings => 'Settings';
+-}
+-
+-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+-  const _AppLocalizationsDelegate();
+-
+-  @override
+-  bool isSupported(Locale locale) {
+-    return AppLocalizations.supportedLocales.contains(locale);
+-  }
+-
+-  @override
+-  Future<AppLocalizations> load(Locale locale) async {
+-    return AppLocalizations();
+-  }
+-
+-  @override
+-  bool shouldReload(_AppLocalizationsDelegate old) => false;
+-}
+diff --git a/example/flutter_app/lib/src/models/database_structure.dart b/example/flutter_app/lib/src/models/database_structure.dart
+deleted file mode 100644
+index 150847d..0000000
+--- a/example/flutter_app/lib/src/models/database_structure.dart
++++ /dev/null
+@@ -1,234 +0,0 @@
+-class DatabaseStructure {
+-  static Map<String, dynamic> getDefaultStructure() {
+-    return {
+-      'databaseId': 'babel_binance_db',
+-      'name': 'Babel Binance Database',
+-      'collections': [
+-        {
+-          'collectionId': 'users',
+-          'name': 'Users',
+-          'attributes': [
+-            {
+-              'key': 'displayName',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'bio',
+-              'type': 'string',
+-              'size': 1000,
+-              'required': false,
+-            },
+-            {
+-              'key': 'avatar',
+-              'type': 'string',
+-              'size': 500,
+-              'required': false,
+-            },
+-            {
+-              'key': 'preferences',
+-              'type': 'string',
+-              'size': 5000,
+-              'required': false,
+-              'default': '{}',
+-            },
+-            {
+-              'key': 'subscriptionTier',
+-              'type': 'string',
+-              'size': 50,
+-              'required': false,
+-              'default': 'free',
+-            },
+-            {
+-              'key': 'isActive',
+-              'type': 'boolean',
+-              'required': true,
+-              'default': true,
+-            },
+-          ],
+-        },
+-        {
+-          'collectionId': 'trades',
+-          'name': 'Trades',
+-          'attributes': [
+-            {
+-              'key': 'userId',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'symbol',
+-              'type': 'string',
+-              'size': 20,
+-              'required': true,
+-            },
+-            {
+-              'key': 'side',
+-              'type': 'string',
+-              'size': 10,
+-              'required': true,
+-            },
+-            {
+-              'key': 'type',
+-              'type': 'string',
+-              'size': 20,
+-              'required': true,
+-            },
+-            {
+-              'key': 'quantity',
+-              'type': 'string',
+-              'size': 50,
+-              'required': true,
+-            },
+-            {
+-              'key': 'price',
+-              'type': 'string',
+-              'size': 50,
+-              'required': true,
+-            },
+-            {
+-              'key': 'status',
+-              'type': 'string',
+-              'size': 20,
+-              'required': true,
+-            },
+-            {
+-              'key': 'orderId',
+-              'type': 'string',
+-              'size': 100,
+-              'required': false,
+-            },
+-            {
+-              'key': 'executedAt',
+-              'type': 'datetime',
+-              'required': false,
+-            },
+-          ],
+-        },
+-        {
+-          'collectionId': 'portfolios',
+-          'name': 'Portfolios',
+-          'attributes': [
+-            {
+-              'key': 'userId',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'name',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'description',
+-              'type': 'string',
+-              'size': 1000,
+-              'required': false,
+-            },
+-            {
+-              'key': 'assets',
+-              'type': 'string',
+-              'size': 10000,
+-              'required': false,
+-              'default': '[]',
+-            },
+-            {
+-              'key': 'totalValue',
+-              'type': 'string',
+-              'size': 50,
+-              'required': false,
+-              'default': '0',
+-            },
+-            {
+-              'key': 'isDefault',
+-              'type': 'boolean',
+-              'required': false,
+-              'default': false,
+-            },
+-          ],
+-        },
+-        {
+-          'collectionId': 'watchlist',
+-          'name': 'Watchlist',
+-          'attributes': [
+-            {
+-              'key': 'userId',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'symbol',
+-              'type': 'string',
+-              'size': 20,
+-              'required': true,
+-            },
+-            {
+-              'key': 'notes',
+-              'type': 'string',
+-              'size': 1000,
+-              'required': false,
+-            },
+-            {
+-              'key': 'priceAlert',
+-              'type': 'string',
+-              'size': 50,
+-              'required': false,
+-            },
+-            {
+-              'key': 'addedAt',
+-              'type': 'datetime',
+-              'required': true,
+-            },
+-          ],
+-        },
+-        {
+-          'collectionId': 'analytics',
+-          'name': 'Analytics',
+-          'attributes': [
+-            {
+-              'key': 'userId',
+-              'type': 'string',
+-              'size': 255,
+-              'required': true,
+-            },
+-            {
+-              'key': 'eventType',
+-              'type': 'string',
+-              'size': 100,
+-              'required': true,
+-            },
+-            {
+-              'key': 'eventData',
+-              'type': 'string',
+-              'size': 5000,
+-              'required': false,
+-              'default': '{}',
+-            },
+-            {
+-              'key': 'timestamp',
+-              'type': 'datetime',
+-              'required': true,
+-            },
+-          ],
+-        },
+-      ],
+-    };
+-  }
+-
+-  static Map<String, dynamic> getCustomStructure({
+-    required String databaseId,
+-    required String databaseName,
+-    required List<Map<String, dynamic>> collections,
+-  }) {
+-    return {
+-      'databaseId': databaseId,
+-      'name': databaseName,
+-      'collections': collections,
+-    };
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/platform_channels/native_bridge.dart b/example/flutter_app/lib/src/platform_channels/native_bridge.dart
+deleted file mode 100644
+index 5cd4e3e..0000000
+--- a/example/flutter_app/lib/src/platform_channels/native_bridge.dart
++++ /dev/null
+@@ -1,184 +0,0 @@
+-import 'package:flutter/services.dart';
+-
+-class NativeBridge {
+-  static const MethodChannel _channel = MethodChannel('com.babel.binance/native');
+-
+-  // Battery Level Example
+-  static Future<int?> getBatteryLevel() async {
+-    try {
+-      final int batteryLevel = await _channel.invokeMethod('getBatteryLevel');
+-      return batteryLevel;
+-    } on PlatformException catch (e) {
+-      print("Failed to get battery level: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  // Device Info
+-  static Future<Map<String, dynamic>?> getDeviceInfo() async {
+-    try {
+-      final Map<dynamic, dynamic> deviceInfo = await _channel.invokeMethod('getDeviceInfo');
+-      return Map<String, dynamic>.from(deviceInfo);
+-    } on PlatformException catch (e) {
+-      print("Failed to get device info: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  // Haptic Feedback
+-  static Future<void> triggerHapticFeedback({String type = 'light'}) async {
+-    try {
+-      await _channel.invokeMethod('hapticFeedback', {'type': type});
+-    } on PlatformException catch (e) {
+-      print("Failed to trigger haptic feedback: '${e.message}'.");
+-    }
+-  }
+-
+-  // Share Content
+-  static Future<bool> shareContent(String text, {String? subject}) async {
+-    try {
+-      final bool result = await _channel.invokeMethod('shareContent', {
+-        'text': text,
+-        'subject': subject,
+-      });
+-      return result;
+-    } on PlatformException catch (e) {
+-      print("Failed to share content: '${e.message}'.");
+-      return false;
+-    }
+-  }
+-
+-  // Open Native Settings
+-  static Future<void> openSettings({String? section}) async {
+-    try {
+-      await _channel.invokeMethod('openSettings', {'section': section});
+-    } on PlatformException catch (e) {
+-      print("Failed to open settings: '${e.message}'.");
+-    }
+-  }
+-
+-  // Secure Storage (Native Keychain/KeyStore)
+-  static Future<bool> saveSecureData(String key, String value) async {
+-    try {
+-      final bool result = await _channel.invokeMethod('saveSecureData', {
+-        'key': key,
+-        'value': value,
+-      });
+-      return result;
+-    } on PlatformException catch (e) {
+-      print("Failed to save secure data: '${e.message}'.");
+-      return false;
+-    }
+-  }
+-
+-  static Future<String?> getSecureData(String key) async {
+-    try {
+-      final String? value = await _channel.invokeMethod('getSecureData', {'key': key});
+-      return value;
+-    } on PlatformException catch (e) {
+-      print("Failed to get secure data: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  static Future<bool> deleteSecureData(String key) async {
+-    try {
+-      final bool result = await _channel.invokeMethod('deleteSecureData', {'key': key});
+-      return result;
+-    } on PlatformException catch (e) {
+-      print("Failed to delete secure data: '${e.message}'.");
+-      return false;
+-    }
+-  }
+-
+-  // Check if App is in Background
+-  static Future<bool> isAppInBackground() async {
+-    try {
+-      final bool result = await _channel.invokeMethod('isAppInBackground');
+-      return result;
+-    } on PlatformException catch (e) {
+-      print("Failed to check app state: '${e.message}'.");
+-      return false;
+-    }
+-  }
+-
+-  // Lock Screen
+-  static Future<void> lockScreen() async {
+-    try {
+-      await _channel.invokeMethod('lockScreen');
+-    } on PlatformException catch (e) {
+-      print("Failed to lock screen: '${e.message}'.");
+-    }
+-  }
+-
+-  // Screen Brightness
+-  static Future<double?> getScreenBrightness() async {
+-    try {
+-      final double brightness = await _channel.invokeMethod('getScreenBrightness');
+-      return brightness;
+-    } on PlatformException catch (e) {
+-      print("Failed to get screen brightness: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  static Future<void> setScreenBrightness(double brightness) async {
+-    try {
+-      await _channel.invokeMethod('setScreenBrightness', {'brightness': brightness});
+-    } on PlatformException catch (e) {
+-      print("Failed to set screen brightness: '${e.message}'.");
+-    }
+-  }
+-
+-  // Network Info
+-  static Future<Map<String, dynamic>?> getNetworkInfo() async {
+-    try {
+-      final Map<dynamic, dynamic> networkInfo = await _channel.invokeMethod('getNetworkInfo');
+-      return Map<String, dynamic>.from(networkInfo);
+-    } on PlatformException catch (e) {
+-      print("Failed to get network info: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  // Clipboard
+-  static Future<void> copyToClipboard(String text) async {
+-    try {
+-      await _channel.invokeMethod('copyToClipboard', {'text': text});
+-    } on PlatformException catch (e) {
+-      print("Failed to copy to clipboard: '${e.message}'.");
+-    }
+-  }
+-
+-  static Future<String?> getClipboardContent() async {
+-    try {
+-      final String? content = await _channel.invokeMethod('getClipboardContent');
+-      return content;
+-    } on PlatformException catch (e) {
+-      print("Failed to get clipboard content: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-
+-  // Check Root/Jailbreak Status
+-  static Future<bool> isDeviceRooted() async {
+-    try {
+-      final bool isRooted = await _channel.invokeMethod('isDeviceRooted');
+-      return isRooted;
+-    } on PlatformException catch (e) {
+-      print("Failed to check root status: '${e.message}'.");
+-      return false;
+-    }
+-  }
+-
+-  // App Version
+-  static Future<String?> getAppVersion() async {
+-    try {
+-      final String version = await _channel.invokeMethod('getAppVersion');
+-      return version;
+-    } on PlatformException catch (e) {
+-      print("Failed to get app version: '${e.message}'.");
+-      return null;
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/ai/ai_chat_screen.dart b/example/flutter_app/lib/src/screens/ai/ai_chat_screen.dart
+deleted file mode 100644
+index cb7b558..0000000
+--- a/example/flutter_app/lib/src/screens/ai/ai_chat_screen.dart
++++ /dev/null
+@@ -1,222 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:google_generative_ai/google_generative_ai.dart';
+-import '../../config/app_config.dart';
+-
+-class AIChatScreen extends ConsumerStatefulWidget {
+-  const AIChatScreen({super.key});
+-
+-  @override
+-  ConsumerState<AIChatScreen> createState() => _AIChatScreenState();
+-}
+-
+-class _AIChatScreenState extends ConsumerState<AIChatScreen> {
+-  final TextEditingController _messageController = TextEditingController();
+-  final List<ChatMessage> _messages = [];
+-  final ScrollController _scrollController = ScrollController();
+-  GenerativeModel? _model;
+-  bool _isLoading = false;
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _initializeAI();
+-    _addWelcomeMessage();
+-  }
+-
+-  void _initializeAI() {
+-    if (AppConfig.geminiApiKey.isNotEmpty) {
+-      _model = GenerativeModel(
+-        model: 'gemini-pro',
+-        apiKey: AppConfig.geminiApiKey,
+-      );
+-    }
+-  }
+-
+-  void _addWelcomeMessage() {
+-    _messages.add(
+-      ChatMessage(
+-        text: 'Hello! I\'m your AI trading assistant. Ask me about cryptocurrency trading, market analysis, or any questions about Binance.',
+-        isUser: false,
+-      ),
+-    );
+-  }
+-
+-  Future<void> _sendMessage() async {
+-    if (_messageController.text.trim().isEmpty || _model == null) return;
+-
+-    final userMessage = _messageController.text.trim();
+-    _messageController.clear();
+-
+-    setState(() {
+-      _messages.add(ChatMessage(text: userMessage, isUser: true));
+-      _isLoading = true;
+-    });
+-
+-    _scrollToBottom();
+-
+-    try {
+-      final content = [Content.text(userMessage)];
+-      final response = await _model!.generateContent(content);
+-
+-      setState(() {
+-        _messages.add(
+-          ChatMessage(
+-            text: response.text ?? 'Sorry, I couldn\'t generate a response.',
+-            isUser: false,
+-          ),
+-        );
+-        _isLoading = false;
+-      });
+-    } catch (e) {
+-      setState(() {
+-        _messages.add(
+-          ChatMessage(
+-            text: 'Error: ${e.toString()}',
+-            isUser: false,
+-          ),
+-        );
+-        _isLoading = false;
+-      });
+-    }
+-
+-    _scrollToBottom();
+-  }
+-
+-  void _scrollToBottom() {
+-    Future.delayed(const Duration(milliseconds: 100), () {
+-      if (_scrollController.hasClients) {
+-        _scrollController.animateTo(
+-          _scrollController.position.maxScrollExtent,
+-          duration: const Duration(milliseconds: 300),
+-          curve: Curves.easeOut,
+-        );
+-      }
+-    });
+-  }
+-
+-  @override
+-  void dispose() {
+-    _messageController.dispose();
+-    _scrollController.dispose();
+-    super.dispose();
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('AI Trading Assistant'),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.delete_outline),
+-            onPressed: () {
+-              setState(() {
+-                _messages.clear();
+-                _addWelcomeMessage();
+-              });
+-            },
+-          ),
+-        ],
+-      ),
+-      body: Column(
+-        children: [
+-          Expanded(
+-            child: ListView.builder(
+-              controller: _scrollController,
+-              padding: const EdgeInsets.all(16),
+-              itemCount: _messages.length,
+-              itemBuilder: (context, index) {
+-                return _buildMessageBubble(_messages[index]);
+-              },
+-            ),
+-          ),
+-          if (_isLoading)
+-            const Padding(
+-              padding: EdgeInsets.all(8.0),
+-              child: CircularProgressIndicator(),
+-            ),
+-          _buildInputField(),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildMessageBubble(ChatMessage message) {
+-    return Align(
+-      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
+-      child: Container(
+-        margin: const EdgeInsets.only(bottom: 12),
+-        padding: const EdgeInsets.all(12),
+-        constraints: BoxConstraints(
+-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+-        ),
+-        decoration: BoxDecoration(
+-          color: message.isUser
+-              ? Theme.of(context).colorScheme.primary
+-              : Theme.of(context).colorScheme.surfaceVariant,
+-          borderRadius: BorderRadius.circular(12),
+-        ),
+-        child: Text(
+-          message.text,
+-          style: TextStyle(
+-            color: message.isUser
+-                ? Theme.of(context).colorScheme.onPrimary
+-                : Theme.of(context).colorScheme.onSurfaceVariant,
+-          ),
+-        ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildInputField() {
+-    return Container(
+-      padding: const EdgeInsets.all(16),
+-      decoration: BoxDecoration(
+-        color: Theme.of(context).colorScheme.surface,
+-        boxShadow: [
+-          BoxShadow(
+-            color: Colors.black.withOpacity(0.1),
+-            blurRadius: 4,
+-            offset: const Offset(0, -2),
+-          ),
+-        ],
+-      ),
+-      child: Row(
+-        children: [
+-          Expanded(
+-            child: TextField(
+-              controller: _messageController,
+-              decoration: InputDecoration(
+-                hintText: 'Ask me anything...',
+-                border: OutlineInputBorder(
+-                  borderRadius: BorderRadius.circular(24),
+-                ),
+-                contentPadding: const EdgeInsets.symmetric(
+-                  horizontal: 16,
+-                  vertical: 12,
+-                ),
+-              ),
+-              maxLines: null,
+-              textInputAction: TextInputAction.send,
+-              onSubmitted: (_) => _sendMessage(),
+-            ),
+-          ),
+-          const SizedBox(width: 8),
+-          FloatingActionButton(
+-            onPressed: _sendMessage,
+-            mini: true,
+-            child: const Icon(Icons.send),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-}
+-
+-class ChatMessage {
+-  final String text;
+-  final bool isUser;
+-
+-  ChatMessage({required this.text, required this.isUser});
+-}
+diff --git a/example/flutter_app/lib/src/screens/biometric/biometric_setup_wizard.dart b/example/flutter_app/lib/src/screens/biometric/biometric_setup_wizard.dart
+deleted file mode 100644
+index 3e566a3..0000000
+--- a/example/flutter_app/lib/src/screens/biometric/biometric_setup_wizard.dart
++++ /dev/null
+@@ -1,359 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:local_auth/local_auth.dart';
+-import 'package:shared_preferences/shared_preferences.dart';
+-import '../../services/auth_service.dart';
+-
+-class BiometricSetupWizard extends ConsumerStatefulWidget {
+-  const BiometricSetupWizard({super.key});
+-
+-  @override
+-  ConsumerState<BiometricSetupWizard> createState() => _BiometricSetupWizardState();
+-}
+-
+-class _BiometricSetupWizardState extends ConsumerState<BiometricSetupWizard> {
+-  int _currentStep = 0;
+-  bool _isAvailable = false;
+-  List<BiometricType> _availableBiometrics = [];
+-  bool _isLoading = false;
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _checkBiometricAvailability();
+-  }
+-
+-  Future<void> _checkBiometricAvailability() async {
+-    setState(() => _isLoading = true);
+-
+-    final authService = ref.read(authServiceProvider);
+-    final available = await authService.isBiometricsAvailable();
+-    final biometrics = await authService.getAvailableBiometrics();
+-
+-    setState(() {
+-      _isAvailable = available;
+-      _availableBiometrics = biometrics;
+-      _isLoading = false;
+-    });
+-  }
+-
+-  Future<void> _enableBiometric() async {
+-    setState(() => _isLoading = true);
+-
+-    try {
+-      final authService = ref.read(authServiceProvider);
+-      final authenticated = await authService.authenticateWithBiometrics();
+-
+-      if (authenticated) {
+-        final prefs = await SharedPreferences.getInstance();
+-        await prefs.setBool('biometric_enabled', true);
+-
+-        if (mounted) {
+-          Navigator.of(context).pop(true);
+-          ScaffoldMessenger.of(context).showSnackBar(
+-            const SnackBar(
+-              content: Text('Biometric authentication enabled!'),
+-            ),
+-          );
+-        }
+-      } else {
+-        if (mounted) {
+-          ScaffoldMessenger.of(context).showSnackBar(
+-            const SnackBar(
+-              content: Text('Authentication failed. Please try again.'),
+-            ),
+-          );
+-        }
+-      }
+-    } catch (e) {
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(content: Text('Error: $e')),
+-        );
+-      }
+-    } finally {
+-      setState(() => _isLoading = false);
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Biometric Setup'),
+-      ),
+-      body: _isLoading
+-          ? const Center(child: CircularProgressIndicator())
+-          : Stepper(
+-              currentStep: _currentStep,
+-              onStepContinue: _currentStep < 2 ? _nextStep : null,
+-              onStepCancel: _currentStep > 0 ? _previousStep : null,
+-              steps: [
+-                Step(
+-                  title: const Text('Welcome'),
+-                  content: _buildWelcomeStep(),
+-                  isActive: _currentStep >= 0,
+-                ),
+-                Step(
+-                  title: const Text('Check Availability'),
+-                  content: _buildAvailabilityStep(),
+-                  isActive: _currentStep >= 1,
+-                ),
+-                Step(
+-                  title: const Text('Enable Biometric'),
+-                  content: _buildEnableStep(),
+-                  isActive: _currentStep >= 2,
+-                ),
+-              ],
+-            ),
+-    );
+-  }
+-
+-  void _nextStep() {
+-    if (_currentStep < 2) {
+-      setState(() => _currentStep++);
+-    }
+-  }
+-
+-  void _previousStep() {
+-    if (_currentStep > 0) {
+-      setState(() => _currentStep--);
+-    }
+-  }
+-
+-  Widget _buildWelcomeStep() {
+-    return Column(
+-      children: [
+-        Icon(
+-          Icons.fingerprint,
+-          size: 100,
+-          color: Theme.of(context).colorScheme.primary,
+-        ),
+-        const SizedBox(height: 24),
+-        Text(
+-          'Secure Your Account',
+-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                fontWeight: FontWeight.bold,
+-              ),
+-        ),
+-        const SizedBox(height: 16),
+-        const Text(
+-          'Use your fingerprint, face, or other biometric features to quickly and securely access your account.',
+-          textAlign: TextAlign.center,
+-        ),
+-        const SizedBox(height: 24),
+-        Card(
+-          child: Padding(
+-            padding: const EdgeInsets.all(16.0),
+-            child: Column(
+-              crossAxisAlignment: CrossAxisAlignment.start,
+-              children: [
+-                _buildBenefitItem('Quick and easy login'),
+-                _buildBenefitItem('Enhanced security'),
+-                _buildBenefitItem('No need to remember passwords'),
+-                _buildBenefitItem('Works with your device security'),
+-              ],
+-            ),
+-          ),
+-        ),
+-      ],
+-    );
+-  }
+-
+-  Widget _buildBenefitItem(String text) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+-      child: Row(
+-        children: [
+-          Icon(
+-            Icons.check_circle,
+-            size: 20,
+-            color: Theme.of(context).colorScheme.primary,
+-          ),
+-          const SizedBox(width: 12),
+-          Expanded(child: Text(text)),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildAvailabilityStep() {
+-    return Column(
+-      children: [
+-        if (_isAvailable) ...[
+-          Icon(
+-            Icons.check_circle,
+-            size: 100,
+-            color: Colors.green,
+-          ),
+-          const SizedBox(height: 24),
+-          Text(
+-            'Biometric Available!',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                  color: Colors.green,
+-                ),
+-          ),
+-          const SizedBox(height: 16),
+-          const Text(
+-            'Your device supports biometric authentication.',
+-            textAlign: TextAlign.center,
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Text(
+-                    'Available Methods',
+-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                  ),
+-                  const SizedBox(height: 12),
+-                  ..._availableBiometrics.map(
+-                    (type) => Padding(
+-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+-                      child: Row(
+-                        children: [
+-                          Icon(_getBiometricIcon(type)),
+-                          const SizedBox(width: 12),
+-                          Text(_getBiometricName(type)),
+-                        ],
+-                      ),
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-        ] else ...[
+-          Icon(
+-            Icons.error,
+-            size: 100,
+-            color: Theme.of(context).colorScheme.error,
+-          ),
+-          const SizedBox(height: 24),
+-          Text(
+-            'Not Available',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                  color: Theme.of(context).colorScheme.error,
+-                ),
+-          ),
+-          const SizedBox(height: 16),
+-          const Text(
+-            'Biometric authentication is not available on this device or not configured.',
+-            textAlign: TextAlign.center,
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            color: Theme.of(context).colorScheme.errorContainer,
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Row(
+-                    children: [
+-                      Icon(
+-                        Icons.info,
+-                        color: Theme.of(context).colorScheme.onErrorContainer,
+-                      ),
+-                      const SizedBox(width: 12),
+-                      Text(
+-                        'What to do',
+-                        style: TextStyle(
+-                          color: Theme.of(context).colorScheme.onErrorContainer,
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                      ),
+-                    ],
+-                  ),
+-                  const SizedBox(height: 8),
+-                  Text(
+-                    '1. Go to your device settings\n'
+-                    '2. Enable fingerprint or face recognition\n'
+-                    '3. Return to this app and try again',
+-                    style: TextStyle(
+-                      color: Theme.of(context).colorScheme.onErrorContainer,
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-        ],
+-      ],
+-    );
+-  }
+-
+-  Widget _buildEnableStep() {
+-    return Column(
+-      children: [
+-        Icon(
+-          Icons.security,
+-          size: 100,
+-          color: Theme.of(context).colorScheme.primary,
+-        ),
+-        const SizedBox(height: 24),
+-        Text(
+-          'Enable Now',
+-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                fontWeight: FontWeight.bold,
+-              ),
+-        ),
+-        const SizedBox(height: 16),
+-        const Text(
+-          'Tap the button below to authenticate and enable biometric login.',
+-          textAlign: TextAlign.center,
+-        ),
+-        const SizedBox(height: 32),
+-        SizedBox(
+-          width: double.infinity,
+-          child: ElevatedButton.icon(
+-            onPressed: _isAvailable ? _enableBiometric : null,
+-            icon: const Icon(Icons.fingerprint),
+-            label: const Text('Enable Biometric Authentication'),
+-            style: ElevatedButton.styleFrom(
+-              padding: const EdgeInsets.all(16),
+-            ),
+-          ),
+-        ),
+-        const SizedBox(height: 16),
+-        TextButton(
+-          onPressed: () => Navigator.of(context).pop(false),
+-          child: const Text('Skip for Now'),
+-        ),
+-      ],
+-    );
+-  }
+-
+-  IconData _getBiometricIcon(BiometricType type) {
+-    switch (type) {
+-      case BiometricType.face:
+-        return Icons.face;
+-      case BiometricType.fingerprint:
+-        return Icons.fingerprint;
+-      case BiometricType.iris:
+-        return Icons.remove_red_eye;
+-      default:
+-        return Icons.security;
+-    }
+-  }
+-
+-  String _getBiometricName(BiometricType type) {
+-    switch (type) {
+-      case BiometricType.face:
+-        return 'Face Recognition';
+-      case BiometricType.fingerprint:
+-        return 'Fingerprint';
+-      case BiometricType.iris:
+-        return 'Iris Scan';
+-      default:
+-        return 'Biometric';
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/home_screen.dart b/example/flutter_app/lib/src/screens/home_screen.dart
+deleted file mode 100644
+index b8b62d6..0000000
+--- a/example/flutter_app/lib/src/screens/home_screen.dart
++++ /dev/null
+@@ -1,168 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import '../services/appwrite_service.dart';
+-import '../services/auth_service.dart';
+-
+-class HomeScreen extends ConsumerStatefulWidget {
+-  const HomeScreen({super.key});
+-
+-  @override
+-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+-}
+-
+-class _HomeScreenState extends ConsumerState<HomeScreen> {
+-  int _selectedIndex = 0;
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Babel Binance'),
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.settings),
+-            onPressed: () {
+-              // Navigate to settings
+-            },
+-          ),
+-        ],
+-      ),
+-      body: IndexedStack(
+-        index: _selectedIndex,
+-        children: [
+-          _buildDashboard(),
+-          _buildTrades(),
+-          _buildPortfolio(),
+-          _buildProfile(),
+-        ],
+-      ),
+-      bottomNavigationBar: NavigationBar(
+-        selectedIndex: _selectedIndex,
+-        onDestinationSelected: (index) {
+-          setState(() => _selectedIndex = index);
+-        },
+-        destinations: const [
+-          NavigationDestination(
+-            icon: Icon(Icons.dashboard),
+-            label: 'Dashboard',
+-          ),
+-          NavigationDestination(
+-            icon: Icon(Icons.trending_up),
+-            label: 'Trades',
+-          ),
+-          NavigationDestination(
+-            icon: Icon(Icons.pie_chart),
+-            label: 'Portfolio',
+-          ),
+-          NavigationDestination(
+-            icon: Icon(Icons.person),
+-            label: 'Profile',
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildDashboard() {
+-    return Center(
+-      child: Padding(
+-        padding: const EdgeInsets.all(24.0),
+-        child: Column(
+-          mainAxisAlignment: MainAxisAlignment.center,
+-          children: [
+-            Icon(
+-              Icons.check_circle,
+-              size: 100,
+-              color: Theme.of(context).colorScheme.primary,
+-            ),
+-            const SizedBox(height: 24),
+-            Text(
+-              'Setup Complete!',
+-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                    fontWeight: FontWeight.bold,
+-                  ),
+-            ),
+-            const SizedBox(height: 16),
+-            Text(
+-              'Your Appwrite backend is configured and ready to use.',
+-              style: Theme.of(context).textTheme.bodyLarge,
+-              textAlign: TextAlign.center,
+-            ),
+-            const SizedBox(height: 32),
+-            Card(
+-              child: Padding(
+-                padding: const EdgeInsets.all(16.0),
+-                child: Column(
+-                  children: [
+-                    _buildStatusItem(
+-                      'Appwrite Connection',
+-                      'Connected',
+-                      Icons.check_circle,
+-                      Colors.green,
+-                    ),
+-                    const Divider(),
+-                    _buildStatusItem(
+-                      'Database',
+-                      'Configured',
+-                      Icons.storage,
+-                      Colors.blue,
+-                    ),
+-                    const Divider(),
+-                    _buildStatusItem(
+-                      'Authentication',
+-                      'Active',
+-                      Icons.security,
+-                      Colors.orange,
+-                    ),
+-                  ],
+-                ),
+-              ),
+-            ),
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildStatusItem(
+-    String title,
+-    String status,
+-    IconData icon,
+-    Color color,
+-  ) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+-      child: Row(
+-        children: [
+-          Icon(icon, color: color),
+-          const SizedBox(width: 16),
+-          Expanded(
+-            child: Text(
+-              title,
+-              style: const TextStyle(fontWeight: FontWeight.bold),
+-            ),
+-          ),
+-          Text(status),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildTrades() {
+-    return const Center(
+-      child: Text('Trades View - Coming Soon'),
+-    );
+-  }
+-
+-  Widget _buildPortfolio() {
+-    return const Center(
+-      child: Text('Portfolio View - Coming Soon'),
+-    );
+-  }
+-
+-  Widget _buildProfile() {
+-    return const Center(
+-      child: Text('Profile View - Coming Soon'),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/media/audio_recording_screen.dart b/example/flutter_app/lib/src/screens/media/audio_recording_screen.dart
+deleted file mode 100644
+index 6fd8bf8..0000000
+--- a/example/flutter_app/lib/src/screens/media/audio_recording_screen.dart
++++ /dev/null
+@@ -1,126 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:record/record.dart';
+-import 'package:path_provider/path_provider.dart';
+-import 'dart:io';
+-
+-class AudioRecordingScreen extends ConsumerStatefulWidget {
+-  const AudioRecordingScreen({super.key});
+-
+-  @override
+-  ConsumerState<AudioRecordingScreen> createState() =>
+-      _AudioRecordingScreenState();
+-}
+-
+-class _AudioRecordingScreenState extends ConsumerState<AudioRecordingScreen> {
+-  final _audioRecorder = AudioRecorder();
+-  bool _isRecording = false;
+-  String? _recordingPath;
+-  Duration _recordingDuration = Duration.zero;
+-
+-  @override
+-  void dispose() {
+-    _audioRecorder.dispose();
+-    super.dispose();
+-  }
+-
+-  Future<void> _startRecording() async {
+-    if (await _audioRecorder.hasPermission()) {
+-      final directory = await getApplicationDocumentsDirectory();
+-      final path = '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+-
+-      await _audioRecorder.start(
+-        const RecordConfig(
+-          encoder: AudioEncoder.aacLc,
+-          bitRate: 128000,
+-          sampleRate: 44100,
+-        ),
+-        path: path,
+-      );
+-
+-      setState(() {
+-        _isRecording = true;
+-        _recordingPath = path;
+-      });
+-
+-      _startTimer();
+-    }
+-  }
+-
+-  Future<void> _stopRecording() async {
+-    final path = await _audioRecorder.stop();
+-
+-    setState(() {
+-      _isRecording = false;
+-      _recordingDuration = Duration.zero;
+-    });
+-
+-    if (path != null && mounted) {
+-      ScaffoldMessenger.of(context).showSnackBar(
+-        SnackBar(content: Text('Recording saved: $path')),
+-      );
+-    }
+-  }
+-
+-  void _startTimer() {
+-    Future.delayed(const Duration(seconds: 1), () {
+-      if (_isRecording) {
+-        setState(() {
+-          _recordingDuration += const Duration(seconds: 1);
+-        });
+-        _startTimer();
+-      }
+-    });
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Audio Recording'),
+-      ),
+-      body: Center(
+-        child: Column(
+-          mainAxisAlignment: MainAxisAlignment.center,
+-          children: [
+-            Icon(
+-              _isRecording ? Icons.mic : Icons.mic_none,
+-              size: 120,
+-              color: _isRecording
+-                  ? Colors.red
+-                  : Theme.of(context).colorScheme.primary,
+-            ),
+-            const SizedBox(height: 32),
+-            Text(
+-              _formatDuration(_recordingDuration),
+-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+-                    fontWeight: FontWeight.bold,
+-                  ),
+-            ),
+-            const SizedBox(height: 48),
+-            FloatingActionButton.large(
+-              onPressed: _isRecording ? _stopRecording : _startRecording,
+-              backgroundColor: _isRecording ? Colors.red : null,
+-              child: Icon(
+-                _isRecording ? Icons.stop : Icons.fiber_manual_record,
+-                size: 32,
+-              ),
+-            ),
+-            const SizedBox(height: 16),
+-            Text(
+-              _isRecording ? 'Tap to stop recording' : 'Tap to start recording',
+-              style: Theme.of(context).textTheme.bodyLarge,
+-            ),
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-
+-  String _formatDuration(Duration duration) {
+-    String twoDigits(int n) => n.toString().padLeft(2, '0');
+-    final minutes = twoDigits(duration.inMinutes.remainder(60));
+-    final seconds = twoDigits(duration.inSeconds.remainder(60));
+-    return '$minutes:$seconds';
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/media/video_recording_screen.dart b/example/flutter_app/lib/src/screens/media/video_recording_screen.dart
+deleted file mode 100644
+index 25c7326..0000000
+--- a/example/flutter_app/lib/src/screens/media/video_recording_screen.dart
++++ /dev/null
+@@ -1,172 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:camera/camera.dart';
+-import 'package:path_provider/path_provider.dart';
+-import 'dart:io';
+-
+-class VideoRecordingScreen extends ConsumerStatefulWidget {
+-  const VideoRecordingScreen({super.key});
+-
+-  @override
+-  ConsumerState<VideoRecordingScreen> createState() =>
+-      _VideoRecordingScreenState();
+-}
+-
+-class _VideoRecordingScreenState extends ConsumerState<VideoRecordingScreen> {
+-  CameraController? _controller;
+-  List<CameraDescription> _cameras = [];
+-  bool _isRecording = false;
+-  bool _isInitialized = false;
+-  int _selectedCameraIndex = 0;
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _initializeCamera();
+-  }
+-
+-  Future<void> _initializeCamera() async {
+-    try {
+-      _cameras = await availableCameras();
+-      if (_cameras.isEmpty) return;
+-
+-      await _setupCamera(_selectedCameraIndex);
+-    } catch (e) {
+-      print('Error initializing camera: $e');
+-    }
+-  }
+-
+-  Future<void> _setupCamera(int cameraIndex) async {
+-    if (_controller != null) {
+-      await _controller!.dispose();
+-    }
+-
+-    _controller = CameraController(
+-      _cameras[cameraIndex],
+-      ResolutionPreset.high,
+-      enableAudio: true,
+-    );
+-
+-    try {
+-      await _controller!.initialize();
+-      setState(() => _isInitialized = true);
+-    } catch (e) {
+-      print('Error setting up camera: $e');
+-    }
+-  }
+-
+-  Future<void> _startRecording() async {
+-    if (_controller == null || !_controller!.value.isInitialized) return;
+-
+-    try {
+-      await _controller!.startVideoRecording();
+-      setState(() => _isRecording = true);
+-    } catch (e) {
+-      print('Error starting recording: $e');
+-    }
+-  }
+-
+-  Future<void> _stopRecording() async {
+-    if (_controller == null || !_controller!.value.isRecordingVideo) return;
+-
+-    try {
+-      final file = await _controller!.stopVideoRecording();
+-      setState(() => _isRecording = false);
+-
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(content: Text('Video saved: ${file.path}')),
+-        );
+-      }
+-    } catch (e) {
+-      print('Error stopping recording: $e');
+-    }
+-  }
+-
+-  void _switchCamera() {
+-    if (_cameras.length < 2) return;
+-
+-    _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras.length;
+-    _setupCamera(_selectedCameraIndex);
+-  }
+-
+-  @override
+-  void dispose() {
+-    _controller?.dispose();
+-    super.dispose();
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Video Recording'),
+-        actions: [
+-          if (_cameras.length > 1)
+-            IconButton(
+-              icon: const Icon(Icons.flip_camera_ios),
+-              onPressed: _switchCamera,
+-            ),
+-        ],
+-      ),
+-      body: _buildBody(),
+-    );
+-  }
+-
+-  Widget _buildBody() {
+-    if (!_isInitialized || _controller == null) {
+-      return const Center(
+-        child: CircularProgressIndicator(),
+-      );
+-    }
+-
+-    return Stack(
+-      children: [
+-        SizedBox.expand(
+-          child: CameraPreview(_controller!),
+-        ),
+-        Positioned(
+-          bottom: 32,
+-          left: 0,
+-          right: 0,
+-          child: Center(
+-            child: FloatingActionButton.large(
+-              onPressed: _isRecording ? _stopRecording : _startRecording,
+-              backgroundColor: _isRecording ? Colors.red : Colors.white,
+-              child: Icon(
+-                _isRecording ? Icons.stop : Icons.fiber_manual_record,
+-                color: _isRecording ? Colors.white : Colors.red,
+-                size: 32,
+-              ),
+-            ),
+-          ),
+-        ),
+-        if (_isRecording)
+-          Positioned(
+-            top: 16,
+-            left: 16,
+-            child: Container(
+-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+-              decoration: BoxDecoration(
+-                color: Colors.red,
+-                borderRadius: BorderRadius.circular(4),
+-              ),
+-              child: Row(
+-                children: const [
+-                  Icon(Icons.fiber_manual_record, color: Colors.white, size: 12),
+-                  SizedBox(width: 4),
+-                  Text(
+-                    'REC',
+-                    style: TextStyle(
+-                      color: Colors.white,
+-                      fontWeight: FontWeight.bold,
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-      ],
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/privacy/privacy_dashboard.dart b/example/flutter_app/lib/src/screens/privacy/privacy_dashboard.dart
+deleted file mode 100644
+index 2cf7560..0000000
+--- a/example/flutter_app/lib/src/screens/privacy/privacy_dashboard.dart
++++ /dev/null
+@@ -1,305 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:shared_preferences/shared_preferences.dart';
+-
+-class PrivacyDashboard extends ConsumerStatefulWidget {
+-  const PrivacyDashboard({super.key});
+-
+-  @override
+-  ConsumerState<PrivacyDashboard> createState() => _PrivacyDashboardState();
+-}
+-
+-class _PrivacyDashboardState extends ConsumerState<PrivacyDashboard> {
+-  bool _analyticsEnabled = true;
+-  bool _crashReportingEnabled = true;
+-  bool _personalizedAdsEnabled = false;
+-  bool _locationTrackingEnabled = false;
+-  bool _biometricEnabled = false;
+-  bool _dataSharingEnabled = false;
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _loadPreferences();
+-  }
+-
+-  Future<void> _loadPreferences() async {
+-    final prefs = await SharedPreferences.getInstance();
+-    setState(() {
+-      _analyticsEnabled = prefs.getBool('analytics_enabled') ?? true;
+-      _crashReportingEnabled = prefs.getBool('crash_reporting_enabled') ?? true;
+-      _personalizedAdsEnabled = prefs.getBool('personalized_ads_enabled') ?? false;
+-      _locationTrackingEnabled = prefs.getBool('location_tracking_enabled') ?? false;
+-      _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
+-      _dataSharingEnabled = prefs.getBool('data_sharing_enabled') ?? false;
+-    });
+-  }
+-
+-  Future<void> _savePreference(String key, bool value) async {
+-    final prefs = await SharedPreferences.getInstance();
+-    await prefs.setBool(key, value);
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Privacy & Security'),
+-      ),
+-      body: ListView(
+-        padding: const EdgeInsets.all(16.0),
+-        children: [
+-          Text(
+-            'Control Your Data',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                ),
+-          ),
+-          const SizedBox(height: 8),
+-          Text(
+-            'Manage how your data is collected and used',
+-            style: Theme.of(context).textTheme.bodyLarge,
+-          ),
+-          const SizedBox(height: 24),
+-          _buildPrivacySection(
+-            title: 'Data Collection',
+-            children: [
+-              _buildSwitchTile(
+-                title: 'Analytics',
+-                subtitle: 'Help us improve by sharing usage data',
+-                value: _analyticsEnabled,
+-                onChanged: (value) {
+-                  setState(() => _analyticsEnabled = value);
+-                  _savePreference('analytics_enabled', value);
+-                },
+-                icon: Icons.analytics,
+-              ),
+-              _buildSwitchTile(
+-                title: 'Crash Reporting',
+-                subtitle: 'Automatically send crash reports',
+-                value: _crashReportingEnabled,
+-                onChanged: (value) {
+-                  setState(() => _crashReportingEnabled = value);
+-                  _savePreference('crash_reporting_enabled', value);
+-                },
+-                icon: Icons.bug_report,
+-              ),
+-            ],
+-          ),
+-          const SizedBox(height: 24),
+-          _buildPrivacySection(
+-            title: 'Personalization',
+-            children: [
+-              _buildSwitchTile(
+-                title: 'Personalized Ads',
+-                subtitle: 'Show ads based on your interests',
+-                value: _personalizedAdsEnabled,
+-                onChanged: (value) {
+-                  setState(() => _personalizedAdsEnabled = value);
+-                  _savePreference('personalized_ads_enabled', value);
+-                },
+-                icon: Icons.ads_click,
+-              ),
+-              _buildSwitchTile(
+-                title: 'Location Tracking',
+-                subtitle: 'Use location for relevant features',
+-                value: _locationTrackingEnabled,
+-                onChanged: (value) {
+-                  setState(() => _locationTrackingEnabled = value);
+-                  _savePreference('location_tracking_enabled', value);
+-                },
+-                icon: Icons.location_on,
+-              ),
+-            ],
+-          ),
+-          const SizedBox(height: 24),
+-          _buildPrivacySection(
+-            title: 'Security',
+-            children: [
+-              _buildSwitchTile(
+-                title: 'Biometric Authentication',
+-                subtitle: 'Use fingerprint or face ID',
+-                value: _biometricEnabled,
+-                onChanged: (value) {
+-                  setState(() => _biometricEnabled = value);
+-                  _savePreference('biometric_enabled', value);
+-                },
+-                icon: Icons.fingerprint,
+-              ),
+-            ],
+-          ),
+-          const SizedBox(height: 24),
+-          _buildPrivacySection(
+-            title: 'Data Sharing',
+-            children: [
+-              _buildSwitchTile(
+-                title: 'Share Data with Partners',
+-                subtitle: 'Share anonymized data with third parties',
+-                value: _dataSharingEnabled,
+-                onChanged: (value) {
+-                  setState(() => _dataSharingEnabled = value);
+-                  _savePreference('data_sharing_enabled', value);
+-                },
+-                icon: Icons.share,
+-              ),
+-            ],
+-          ),
+-          const SizedBox(height: 32),
+-          _buildActionButtons(),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildPrivacySection({
+-    required String title,
+-    required List<Widget> children,
+-  }) {
+-    return Card(
+-      child: Padding(
+-        padding: const EdgeInsets.all(16.0),
+-        child: Column(
+-          crossAxisAlignment: CrossAxisAlignment.start,
+-          children: [
+-            Text(
+-              title,
+-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                    fontWeight: FontWeight.bold,
+-                  ),
+-            ),
+-            const SizedBox(height: 12),
+-            ...children,
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildSwitchTile({
+-    required String title,
+-    required String subtitle,
+-    required bool value,
+-    required ValueChanged<bool> onChanged,
+-    required IconData icon,
+-  }) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+-      child: Row(
+-        children: [
+-          Icon(icon, color: Theme.of(context).colorScheme.primary),
+-          const SizedBox(width: 16),
+-          Expanded(
+-            child: Column(
+-              crossAxisAlignment: CrossAxisAlignment.start,
+-              children: [
+-                Text(
+-                  title,
+-                  style: const TextStyle(fontWeight: FontWeight.w500),
+-                ),
+-                Text(
+-                  subtitle,
+-                  style: Theme.of(context).textTheme.bodySmall,
+-                ),
+-              ],
+-            ),
+-          ),
+-          Switch(
+-            value: value,
+-            onChanged: onChanged,
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildActionButtons() {
+-    return Column(
+-      children: [
+-        SizedBox(
+-          width: double.infinity,
+-          child: OutlinedButton.icon(
+-            onPressed: () => _showDataExportDialog(),
+-            icon: const Icon(Icons.download),
+-            label: const Text('Export My Data'),
+-          ),
+-        ),
+-        const SizedBox(height: 12),
+-        SizedBox(
+-          width: double.infinity,
+-          child: OutlinedButton.icon(
+-            onPressed: () => _showDeleteDataDialog(),
+-            icon: const Icon(Icons.delete_forever),
+-            label: const Text('Delete My Data'),
+-            style: OutlinedButton.styleFrom(
+-              foregroundColor: Theme.of(context).colorScheme.error,
+-            ),
+-          ),
+-        ),
+-        const SizedBox(height: 12),
+-        TextButton(
+-          onPressed: () {
+-            // Navigate to privacy policy
+-          },
+-          child: const Text('View Privacy Policy'),
+-        ),
+-      ],
+-    );
+-  }
+-
+-  void _showDataExportDialog() {
+-    showDialog(
+-      context: context,
+-      builder: (context) => AlertDialog(
+-        title: const Text('Export Your Data'),
+-        content: const Text(
+-          'We\'ll prepare a copy of your data and send it to your registered email address within 48 hours.',
+-        ),
+-        actions: [
+-          TextButton(
+-            onPressed: () => Navigator.pop(context),
+-            child: const Text('Cancel'),
+-          ),
+-          ElevatedButton(
+-            onPressed: () {
+-              Navigator.pop(context);
+-              ScaffoldMessenger.of(context).showSnackBar(
+-                const SnackBar(
+-                  content: Text('Data export requested. Check your email in 48 hours.'),
+-                ),
+-              );
+-            },
+-            child: const Text('Request Export'),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  void _showDeleteDataDialog() {
+-    showDialog(
+-      context: context,
+-      builder: (context) => AlertDialog(
+-        title: const Text('Delete Your Data'),
+-        content: const Text(
+-          'This will permanently delete all your data. This action cannot be undone.',
+-        ),
+-        actions: [
+-          TextButton(
+-            onPressed: () => Navigator.pop(context),
+-            child: const Text('Cancel'),
+-          ),
+-          ElevatedButton(
+-            onPressed: () {
+-              Navigator.pop(context);
+-              // Implement data deletion
+-            },
+-            style: ElevatedButton.styleFrom(
+-              backgroundColor: Theme.of(context).colorScheme.error,
+-            ),
+-            child: const Text('Delete'),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/settings/settings_page.dart b/example/flutter_app/lib/src/screens/settings/settings_page.dart
+deleted file mode 100644
+index 8ae6c9c..0000000
+--- a/example/flutter_app/lib/src/screens/settings/settings_page.dart
++++ /dev/null
+@@ -1,313 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:shared_preferences/shared_preferences.dart';
+-import '../../services/auth_service.dart';
+-import '../../services/appwrite_service.dart';
+-import '../privacy/privacy_dashboard.dart';
+-import '../biometric/biometric_setup_wizard.dart';
+-import '../subscription/subscription_screen.dart';
+-
+-class SettingsPage extends ConsumerStatefulWidget {
+-  const SettingsPage({super.key});
+-
+-  @override
+-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+-}
+-
+-class _SettingsPageState extends ConsumerState<SettingsPage> {
+-  bool _notificationsEnabled = true;
+-  bool _darkModeEnabled = false;
+-  String _selectedLanguage = 'English';
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _loadSettings();
+-  }
+-
+-  Future<void> _loadSettings() async {
+-    final prefs = await SharedPreferences.getInstance();
+-    setState(() {
+-      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+-      _darkModeEnabled = prefs.getBool('dark_mode_enabled') ?? false;
+-      _selectedLanguage = prefs.getString('selected_language') ?? 'English';
+-    });
+-  }
+-
+-  Future<void> _saveSetting(String key, dynamic value) async {
+-    final prefs = await SharedPreferences.getInstance();
+-    if (value is bool) {
+-      await prefs.setBool(key, value);
+-    } else if (value is String) {
+-      await prefs.setString(key, value);
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Settings'),
+-      ),
+-      body: ListView(
+-        children: [
+-          _buildSection('Account'),
+-          _buildAccountSettings(),
+-          const Divider(),
+-          _buildSection('Preferences'),
+-          _buildPreferencesSettings(),
+-          const Divider(),
+-          _buildSection('Security'),
+-          _buildSecuritySettings(),
+-          const Divider(),
+-          _buildSection('About'),
+-          _buildAboutSettings(),
+-          const SizedBox(height: 32),
+-          _buildLogoutButton(),
+-          const SizedBox(height: 32),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildSection(String title) {
+-    return Padding(
+-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+-      child: Text(
+-        title,
+-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+-              color: Theme.of(context).colorScheme.primary,
+-              fontWeight: FontWeight.bold,
+-            ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildAccountSettings() {
+-    return Column(
+-      children: [
+-        ListTile(
+-          leading: const Icon(Icons.person),
+-          title: const Text('Profile'),
+-          subtitle: const Text('Edit your profile information'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to profile page
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.card_membership),
+-          title: const Text('Subscription'),
+-          subtitle: const Text('Manage your subscription'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            Navigator.push(
+-              context,
+-              MaterialPageRoute(
+-                builder: (_) => const SubscriptionScreen(),
+-              ),
+-            );
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.key),
+-          title: const Text('API Keys'),
+-          subtitle: const Text('Manage Binance API keys'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to API keys page
+-          },
+-        ),
+-      ],
+-    );
+-  }
+-
+-  Widget _buildPreferencesSettings() {
+-    return Column(
+-      children: [
+-        SwitchListTile(
+-          secondary: const Icon(Icons.notifications),
+-          title: const Text('Notifications'),
+-          subtitle: const Text('Enable push notifications'),
+-          value: _notificationsEnabled,
+-          onChanged: (value) {
+-            setState(() => _notificationsEnabled = value);
+-            _saveSetting('notifications_enabled', value);
+-          },
+-        ),
+-        SwitchListTile(
+-          secondary: const Icon(Icons.dark_mode),
+-          title: const Text('Dark Mode'),
+-          subtitle: const Text('Use dark theme'),
+-          value: _darkModeEnabled,
+-          onChanged: (value) {
+-            setState(() => _darkModeEnabled = value);
+-            _saveSetting('dark_mode_enabled', value);
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.language),
+-          title: const Text('Language'),
+-          subtitle: Text(_selectedLanguage),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () => _showLanguagePicker(),
+-        ),
+-      ],
+-    );
+-  }
+-
+-  Widget _buildSecuritySettings() {
+-    return Column(
+-      children: [
+-        ListTile(
+-          leading: const Icon(Icons.fingerprint),
+-          title: const Text('Biometric Authentication'),
+-          subtitle: const Text('Use fingerprint or face ID'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            Navigator.push(
+-              context,
+-              MaterialPageRoute(
+-                builder: (_) => const BiometricSetupWizard(),
+-              ),
+-            );
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.privacy_tip),
+-          title: const Text('Privacy'),
+-          subtitle: const Text('Control your data'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            Navigator.push(
+-              context,
+-              MaterialPageRoute(
+-                builder: (_) => const PrivacyDashboard(),
+-              ),
+-            );
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.lock),
+-          title: const Text('Change Password'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to change password page
+-          },
+-        ),
+-      ],
+-    );
+-  }
+-
+-  Widget _buildAboutSettings() {
+-    return Column(
+-      children: [
+-        ListTile(
+-          leading: const Icon(Icons.info),
+-          title: const Text('Version'),
+-          subtitle: const Text('1.0.0'),
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.description),
+-          title: const Text('Terms of Service'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to terms
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.policy),
+-          title: const Text('Privacy Policy'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to privacy policy
+-          },
+-        ),
+-        ListTile(
+-          leading: const Icon(Icons.help),
+-          title: const Text('Help & Support'),
+-          trailing: const Icon(Icons.chevron_right),
+-          onTap: () {
+-            // Navigate to support
+-          },
+-        ),
+-      ],
+-    );
+-  }
+-
+-  Widget _buildLogoutButton() {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(horizontal: 16),
+-      child: OutlinedButton.icon(
+-        onPressed: () => _showLogoutDialog(),
+-        icon: const Icon(Icons.logout),
+-        label: const Text('Logout'),
+-        style: OutlinedButton.styleFrom(
+-          foregroundColor: Theme.of(context).colorScheme.error,
+-          padding: const EdgeInsets.all(16),
+-        ),
+-      ),
+-    );
+-  }
+-
+-  void _showLanguagePicker() {
+-    final languages = [
+-      'English',
+-      'Español',
+-      'Français',
+-      'Deutsch',
+-      '中文',
+-      '日本語'
+-    ];
+-
+-    showModalBottomSheet(
+-      context: context,
+-      builder: (context) => Column(
+-        mainAxisSize: MainAxisSize.min,
+-        children: languages.map((language) {
+-          return ListTile(
+-            title: Text(language),
+-            trailing: _selectedLanguage == language
+-                ? const Icon(Icons.check)
+-                : null,
+-            onTap: () {
+-              setState(() => _selectedLanguage = language);
+-              _saveSetting('selected_language', language);
+-              Navigator.pop(context);
+-            },
+-          );
+-        }).toList(),
+-      ),
+-    );
+-  }
+-
+-  void _showLogoutDialog() {
+-    showDialog(
+-      context: context,
+-      builder: (context) => AlertDialog(
+-        title: const Text('Logout'),
+-        content: const Text('Are you sure you want to logout?'),
+-        actions: [
+-          TextButton(
+-            onPressed: () => Navigator.pop(context),
+-            child: const Text('Cancel'),
+-          ),
+-          ElevatedButton(
+-            onPressed: () async {
+-              final authService = ref.read(authServiceProvider);
+-              await authService.signOut();
+-
+-              if (mounted) {
+-                Navigator.of(context).popUntil((route) => route.isFirst);
+-              }
+-            },
+-            style: ElevatedButton.styleFrom(
+-              backgroundColor: Theme.of(context).colorScheme.error,
+-            ),
+-            child: const Text('Logout'),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/setup/appwrite_setup_wizard.dart b/example/flutter_app/lib/src/screens/setup/appwrite_setup_wizard.dart
+deleted file mode 100644
+index dd9e8b2..0000000
+--- a/example/flutter_app/lib/src/screens/setup/appwrite_setup_wizard.dart
++++ /dev/null
+@@ -1,643 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import '../../services/appwrite_service.dart';
+-import '../../models/database_structure.dart';
+-import '../home_screen.dart';
+-
+-class AppwriteSetupWizard extends ConsumerStatefulWidget {
+-  const AppwriteSetupWizard({super.key});
+-
+-  @override
+-  ConsumerState<AppwriteSetupWizard> createState() => _AppwriteSetupWizardState();
+-}
+-
+-class _AppwriteSetupWizardState extends ConsumerState<AppwriteSetupWizard> {
+-  final PageController _pageController = PageController();
+-  int _currentStep = 0;
+-
+-  // Configuration data
+-  final _endpointController = TextEditingController(text: 'https://cloud.appwrite.io/v1');
+-  final _projectIdController = TextEditingController();
+-  final _apiKeyController = TextEditingController();
+-
+-  // User data
+-  final _userNameController = TextEditingController();
+-  final _userEmailController = TextEditingController();
+-  final _userPasswordController = TextEditingController();
+-
+-  bool _isLoading = false;
+-  String? _errorMessage;
+-
+-  @override
+-  void dispose() {
+-    _pageController.dispose();
+-    _endpointController.dispose();
+-    _projectIdController.dispose();
+-    _apiKeyController.dispose();
+-    _userNameController.dispose();
+-    _userEmailController.dispose();
+-    _userPasswordController.dispose();
+-    super.dispose();
+-  }
+-
+-  void _nextStep() {
+-    if (_currentStep < 3) {
+-      setState(() => _currentStep++);
+-      _pageController.animateToPage(
+-        _currentStep,
+-        duration: const Duration(milliseconds: 300),
+-        curve: Curves.easeInOut,
+-      );
+-    }
+-  }
+-
+-  void _previousStep() {
+-    if (_currentStep > 0) {
+-      setState(() => _currentStep--);
+-      _pageController.animateToPage(
+-        _currentStep,
+-        duration: const Duration(milliseconds: 300),
+-        curve: Curves.easeInOut,
+-      );
+-    }
+-  }
+-
+-  Future<void> _configureAppwrite() async {
+-    setState(() {
+-      _isLoading = true;
+-      _errorMessage = null;
+-    });
+-
+-    try {
+-      final appwriteService = ref.read(appwriteServiceProvider);
+-      await appwriteService.configure(
+-        endpoint: _endpointController.text.trim(),
+-        projectId: _projectIdController.text.trim(),
+-        apiKey: _apiKeyController.text.trim().isEmpty
+-            ? null
+-            : _apiKeyController.text.trim(),
+-      );
+-
+-      _nextStep();
+-    } catch (e) {
+-      setState(() => _errorMessage = e.toString());
+-    } finally {
+-      setState(() => _isLoading = false);
+-    }
+-  }
+-
+-  Future<void> _createUser() async {
+-    setState(() {
+-      _isLoading = true;
+-      _errorMessage = null;
+-    });
+-
+-    try {
+-      final appwriteService = ref.read(appwriteServiceProvider);
+-      await appwriteService.createUser(
+-        email: _userEmailController.text.trim(),
+-        password: _userPasswordController.text,
+-        name: _userNameController.text.trim(),
+-      );
+-
+-      // Create session
+-      await appwriteService.createEmailSession(
+-        email: _userEmailController.text.trim(),
+-        password: _userPasswordController.text,
+-      );
+-
+-      _nextStep();
+-    } catch (e) {
+-      setState(() => _errorMessage = e.toString());
+-    } finally {
+-      setState(() => _isLoading = false);
+-    }
+-  }
+-
+-  Future<void> _setupDatabase() async {
+-    setState(() {
+-      _isLoading = true;
+-      _errorMessage = null;
+-    });
+-
+-    try {
+-      final appwriteService = ref.read(appwriteServiceProvider);
+-
+-      // Push the default database structure
+-      await appwriteService.pushDatabaseStructure(
+-        structure: DatabaseStructure.getDefaultStructure(),
+-      );
+-
+-      // Navigate to home screen
+-      if (mounted) {
+-        Navigator.of(context).pushReplacement(
+-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+-        );
+-      }
+-    } catch (e) {
+-      setState(() => _errorMessage = e.toString());
+-    } finally {
+-      setState(() => _isLoading = false);
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Appwrite Setup'),
+-        leading: _currentStep > 0
+-            ? IconButton(
+-                icon: const Icon(Icons.arrow_back),
+-                onPressed: _isLoading ? null : _previousStep,
+-              )
+-            : null,
+-      ),
+-      body: Column(
+-        children: [
+-          // Progress indicator
+-          LinearProgressIndicator(
+-            value: (_currentStep + 1) / 4,
+-          ),
+-          Padding(
+-            padding: const EdgeInsets.all(16.0),
+-            child: Row(
+-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+-              children: [
+-                Text(
+-                  'Step ${_currentStep + 1} of 4',
+-                  style: Theme.of(context).textTheme.titleSmall,
+-                ),
+-                Text(
+-                  _getStepTitle(),
+-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+-                        fontWeight: FontWeight.bold,
+-                      ),
+-                ),
+-              ],
+-            ),
+-          ),
+-          Expanded(
+-            child: PageView(
+-              controller: _pageController,
+-              physics: const NeverScrollableScrollPhysics(),
+-              children: [
+-                _buildWelcomeStep(),
+-                _buildConfigurationStep(),
+-                _buildUserCreationStep(),
+-                _buildDatabaseSetupStep(),
+-              ],
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  String _getStepTitle() {
+-    switch (_currentStep) {
+-      case 0:
+-        return 'Welcome';
+-      case 1:
+-        return 'Configuration';
+-      case 2:
+-        return 'Create User';
+-      case 3:
+-        return 'Database Setup';
+-      default:
+-        return '';
+-    }
+-  }
+-
+-  Widget _buildWelcomeStep() {
+-    return Padding(
+-      padding: const EdgeInsets.all(24.0),
+-      child: Column(
+-        mainAxisAlignment: MainAxisAlignment.center,
+-        children: [
+-          Icon(
+-            Icons.settings_applications,
+-            size: 120,
+-            color: Theme.of(context).colorScheme.primary,
+-          ),
+-          const SizedBox(height: 32),
+-          Text(
+-            'Welcome to Babel Binance',
+-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                ),
+-            textAlign: TextAlign.center,
+-          ),
+-          const SizedBox(height: 16),
+-          Text(
+-            'This wizard will help you set up your Appwrite backend in just a few steps.',
+-            style: Theme.of(context).textTheme.bodyLarge,
+-            textAlign: TextAlign.center,
+-          ),
+-          const SizedBox(height: 48),
+-          Card(
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Text(
+-                    'What you\'ll need:',
+-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                  ),
+-                  const SizedBox(height: 12),
+-                  _buildRequirementItem('Appwrite endpoint URL'),
+-                  _buildRequirementItem('Project ID from Appwrite Console'),
+-                  _buildRequirementItem('API Key (optional, for admin access)'),
+-                  _buildRequirementItem('Email and password for your account'),
+-                ],
+-              ),
+-            ),
+-          ),
+-          const Spacer(),
+-          SizedBox(
+-            width: double.infinity,
+-            child: ElevatedButton(
+-              onPressed: _nextStep,
+-              child: const Text('Get Started'),
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildRequirementItem(String text) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+-      child: Row(
+-        children: [
+-          Icon(
+-            Icons.check_circle,
+-            size: 20,
+-            color: Theme.of(context).colorScheme.primary,
+-          ),
+-          const SizedBox(width: 8),
+-          Expanded(child: Text(text)),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildConfigurationStep() {
+-    return SingleChildScrollView(
+-      padding: const EdgeInsets.all(24.0),
+-      child: Column(
+-        crossAxisAlignment: CrossAxisAlignment.start,
+-        children: [
+-          Text(
+-            'Configure Appwrite Connection',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                ),
+-          ),
+-          const SizedBox(height: 24),
+-          TextField(
+-            controller: _endpointController,
+-            decoration: const InputDecoration(
+-              labelText: 'Appwrite Endpoint',
+-              hintText: 'https://cloud.appwrite.io/v1',
+-              prefixIcon: Icon(Icons.link),
+-            ),
+-            keyboardType: TextInputType.url,
+-          ),
+-          const SizedBox(height: 16),
+-          TextField(
+-            controller: _projectIdController,
+-            decoration: const InputDecoration(
+-              labelText: 'Project ID',
+-              hintText: 'Enter your Appwrite project ID',
+-              prefixIcon: Icon(Icons.folder),
+-            ),
+-          ),
+-          const SizedBox(height: 16),
+-          TextField(
+-            controller: _apiKeyController,
+-            decoration: const InputDecoration(
+-              labelText: 'API Key (Optional)',
+-              hintText: 'For admin operations',
+-              prefixIcon: Icon(Icons.key),
+-            ),
+-            obscureText: true,
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            color: Theme.of(context).colorScheme.primaryContainer,
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Row(
+-                children: [
+-                  Icon(
+-                    Icons.info_outline,
+-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                  ),
+-                  const SizedBox(width: 12),
+-                  Expanded(
+-                    child: Text(
+-                      'You can find your Project ID in the Appwrite Console under Settings.',
+-                      style: TextStyle(
+-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                      ),
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-          if (_errorMessage != null) ...[
+-            const SizedBox(height: 16),
+-            Card(
+-              color: Theme.of(context).colorScheme.errorContainer,
+-              child: Padding(
+-                padding: const EdgeInsets.all(16.0),
+-                child: Text(
+-                  _errorMessage!,
+-                  style: TextStyle(
+-                    color: Theme.of(context).colorScheme.onErrorContainer,
+-                  ),
+-                ),
+-              ),
+-            ),
+-          ],
+-          const SizedBox(height: 32),
+-          SizedBox(
+-            width: double.infinity,
+-            child: ElevatedButton(
+-              onPressed: _isLoading ? null : _configureAppwrite,
+-              child: _isLoading
+-                  ? const SizedBox(
+-                      height: 20,
+-                      width: 20,
+-                      child: CircularProgressIndicator(strokeWidth: 2),
+-                    )
+-                  : const Text('Connect to Appwrite'),
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildUserCreationStep() {
+-    return SingleChildScrollView(
+-      padding: const EdgeInsets.all(24.0),
+-      child: Column(
+-        crossAxisAlignment: CrossAxisAlignment.start,
+-        children: [
+-          Text(
+-            'Create Your Account',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                ),
+-          ),
+-          const SizedBox(height: 24),
+-          TextField(
+-            controller: _userNameController,
+-            decoration: const InputDecoration(
+-              labelText: 'Full Name',
+-              hintText: 'Enter your full name',
+-              prefixIcon: Icon(Icons.person),
+-            ),
+-            textCapitalization: TextCapitalization.words,
+-          ),
+-          const SizedBox(height: 16),
+-          TextField(
+-            controller: _userEmailController,
+-            decoration: const InputDecoration(
+-              labelText: 'Email',
+-              hintText: 'Enter your email address',
+-              prefixIcon: Icon(Icons.email),
+-            ),
+-            keyboardType: TextInputType.emailAddress,
+-          ),
+-          const SizedBox(height: 16),
+-          TextField(
+-            controller: _userPasswordController,
+-            decoration: const InputDecoration(
+-              labelText: 'Password',
+-              hintText: 'Create a secure password',
+-              prefixIcon: Icon(Icons.lock),
+-            ),
+-            obscureText: true,
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            color: Theme.of(context).colorScheme.primaryContainer,
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Row(
+-                    children: [
+-                      Icon(
+-                        Icons.security,
+-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                      ),
+-                      const SizedBox(width: 12),
+-                      Text(
+-                        'Password Requirements',
+-                        style: TextStyle(
+-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                      ),
+-                    ],
+-                  ),
+-                  const SizedBox(height: 8),
+-                  Text(
+-                    '• At least 8 characters\n• Mix of letters and numbers recommended',
+-                    style: TextStyle(
+-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-          if (_errorMessage != null) ...[
+-            const SizedBox(height: 16),
+-            Card(
+-              color: Theme.of(context).colorScheme.errorContainer,
+-              child: Padding(
+-                padding: const EdgeInsets.all(16.0),
+-                child: Text(
+-                  _errorMessage!,
+-                  style: TextStyle(
+-                    color: Theme.of(context).colorScheme.onErrorContainer,
+-                  ),
+-                ),
+-              ),
+-            ),
+-          ],
+-          const SizedBox(height: 32),
+-          SizedBox(
+-            width: double.infinity,
+-            child: ElevatedButton(
+-              onPressed: _isLoading ? null : _createUser,
+-              child: _isLoading
+-                  ? const SizedBox(
+-                      height: 20,
+-                      width: 20,
+-                      child: CircularProgressIndicator(strokeWidth: 2),
+-                    )
+-                  : const Text('Create Account'),
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildDatabaseSetupStep() {
+-    return SingleChildScrollView(
+-      padding: const EdgeInsets.all(24.0),
+-      child: Column(
+-        crossAxisAlignment: CrossAxisAlignment.start,
+-        children: [
+-          Text(
+-            'Database Setup',
+-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                  fontWeight: FontWeight.bold,
+-                ),
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Row(
+-                    children: [
+-                      Icon(
+-                        Icons.storage,
+-                        color: Theme.of(context).colorScheme.primary,
+-                      ),
+-                      const SizedBox(width: 12),
+-                      Text(
+-                        'Default Structure',
+-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                              fontWeight: FontWeight.bold,
+-                            ),
+-                      ),
+-                    ],
+-                  ),
+-                  const SizedBox(height: 12),
+-                  const Text(
+-                    'The following database structure will be created:',
+-                  ),
+-                  const SizedBox(height: 12),
+-                  _buildStructureItem('Users Collection', 'Store user profiles and preferences'),
+-                  _buildStructureItem('Trades Collection', 'Track cryptocurrency trades'),
+-                  _buildStructureItem('Portfolios Collection', 'Manage investment portfolios'),
+-                  _buildStructureItem('Watchlist Collection', 'Save favorite trading pairs'),
+-                  _buildStructureItem('Analytics Collection', 'Store trading analytics'),
+-                ],
+-              ),
+-            ),
+-          ),
+-          const SizedBox(height: 24),
+-          Card(
+-            color: Theme.of(context).colorScheme.secondaryContainer,
+-            child: Padding(
+-              padding: const EdgeInsets.all(16.0),
+-              child: Row(
+-                children: [
+-                  Icon(
+-                    Icons.timer,
+-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+-                  ),
+-                  const SizedBox(width: 12),
+-                  Expanded(
+-                    child: Text(
+-                      'This may take a minute. Please wait while we set up your database.',
+-                      style: TextStyle(
+-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+-                      ),
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-          if (_errorMessage != null) ...[
+-            const SizedBox(height: 16),
+-            Card(
+-              color: Theme.of(context).colorScheme.errorContainer,
+-              child: Padding(
+-                padding: const EdgeInsets.all(16.0),
+-                child: Text(
+-                  _errorMessage!,
+-                  style: TextStyle(
+-                    color: Theme.of(context).colorScheme.onErrorContainer,
+-                  ),
+-                ),
+-              ),
+-            ),
+-          ],
+-          const SizedBox(height: 32),
+-          SizedBox(
+-            width: double.infinity,
+-            child: ElevatedButton(
+-              onPressed: _isLoading ? null : _setupDatabase,
+-              child: _isLoading
+-                  ? const Row(
+-                      mainAxisAlignment: MainAxisAlignment.center,
+-                      children: [
+-                        SizedBox(
+-                          height: 20,
+-                          width: 20,
+-                          child: CircularProgressIndicator(strokeWidth: 2),
+-                        ),
+-                        SizedBox(width: 12),
+-                        Text('Setting up database...'),
+-                      ],
+-                    )
+-                  : const Text('Complete Setup'),
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Widget _buildStructureItem(String title, String description) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+-      child: Row(
+-        crossAxisAlignment: CrossAxisAlignment.start,
+-        children: [
+-          Icon(
+-            Icons.check_circle_outline,
+-            size: 20,
+-            color: Theme.of(context).colorScheme.primary,
+-          ),
+-          const SizedBox(width: 12),
+-          Expanded(
+-            child: Column(
+-              crossAxisAlignment: CrossAxisAlignment.start,
+-              children: [
+-                Text(
+-                  title,
+-                  style: const TextStyle(fontWeight: FontWeight.bold),
+-                ),
+-                Text(
+-                  description,
+-                  style: Theme.of(context).textTheme.bodySmall,
+-                ),
+-              ],
+-            ),
+-          ),
+-        ],
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/splash_screen.dart b/example/flutter_app/lib/src/screens/splash_screen.dart
+deleted file mode 100644
+index 03efa2f..0000000
+--- a/example/flutter_app/lib/src/screens/splash_screen.dart
++++ /dev/null
+@@ -1,66 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import '../services/appwrite_service.dart';
+-import 'setup/appwrite_setup_wizard.dart';
+-import 'home_screen.dart';
+-
+-class SplashScreen extends ConsumerStatefulWidget {
+-  const SplashScreen({super.key});
+-
+-  @override
+-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+-}
+-
+-class _SplashScreenState extends ConsumerState<SplashScreen> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    _checkConfiguration();
+-  }
+-
+-  Future<void> _checkConfiguration() async {
+-    await Future.delayed(const Duration(seconds: 2));
+-
+-    final appwriteService = ref.read(appwriteServiceProvider);
+-    final isConfigured = await appwriteService.initialize();
+-
+-    if (mounted) {
+-      if (isConfigured) {
+-        Navigator.of(context).pushReplacement(
+-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+-        );
+-      } else {
+-        Navigator.of(context).pushReplacement(
+-          MaterialPageRoute(builder: (_) => const AppwriteSetupWizard()),
+-        );
+-      }
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      body: Center(
+-        child: Column(
+-          mainAxisAlignment: MainAxisAlignment.center,
+-          children: [
+-            Icon(
+-              Icons.rocket_launch,
+-              size: 100,
+-              color: Theme.of(context).colorScheme.primary,
+-            ),
+-            const SizedBox(height: 24),
+-            Text(
+-              'Babel Binance',
+-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                    fontWeight: FontWeight.bold,
+-                  ),
+-            ),
+-            const SizedBox(height: 48),
+-            const CircularProgressIndicator(),
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/screens/subscription/subscription_screen.dart b/example/flutter_app/lib/src/screens/subscription/subscription_screen.dart
+deleted file mode 100644
+index 0d28d33..0000000
+--- a/example/flutter_app/lib/src/screens/subscription/subscription_screen.dart
++++ /dev/null
+@@ -1,389 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:purchases_flutter/purchases_flutter.dart';
+-import '../../services/subscription_service.dart';
+-import '../../services/analytics_service.dart';
+-
+-class SubscriptionScreen extends ConsumerStatefulWidget {
+-  const SubscriptionScreen({super.key});
+-
+-  @override
+-  ConsumerState<SubscriptionScreen> createState() => _SubscriptionScreenState();
+-}
+-
+-class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
+-  Offerings? _offerings;
+-  bool _isLoading = true;
+-  CustomerInfo? _customerInfo;
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    _loadOfferings();
+-  }
+-
+-  Future<void> _loadOfferings() async {
+-    setState(() => _isLoading = true);
+-
+-    try {
+-      final subscriptionService = ref.read(subscriptionServiceProvider);
+-      final offerings = await subscriptionService.getOfferings();
+-      final customerInfo = await subscriptionService.getCustomerInfo();
+-
+-      setState(() {
+-        _offerings = offerings;
+-        _customerInfo = customerInfo;
+-        _isLoading = false;
+-      });
+-    } catch (e) {
+-      setState(() => _isLoading = false);
+-    }
+-  }
+-
+-  Future<void> _purchasePackage(Package package) async {
+-    try {
+-      final subscriptionService = ref.read(subscriptionServiceProvider);
+-      final customerInfo = await subscriptionService.purchasePackage(package);
+-
+-      // Log purchase event
+-      await ref.read(analyticsServiceProvider).logPurchase(
+-            value: package.storeProduct.price,
+-            currency: package.storeProduct.currencyCode,
+-            itemId: package.identifier,
+-          );
+-
+-      setState(() => _customerInfo = customerInfo);
+-
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          const SnackBar(content: Text('Subscription activated!')),
+-        );
+-        Navigator.of(context).pop();
+-      }
+-    } catch (e) {
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(content: Text('Purchase failed: $e')),
+-        );
+-      }
+-    }
+-  }
+-
+-  Future<void> _restorePurchases() async {
+-    try {
+-      final subscriptionService = ref.read(subscriptionServiceProvider);
+-      final customerInfo = await subscriptionService.restorePurchases();
+-
+-      setState(() => _customerInfo = customerInfo);
+-
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          const SnackBar(content: Text('Purchases restored!')),
+-        );
+-      }
+-    } catch (e) {
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          SnackBar(content: Text('Restore failed: $e')),
+-        );
+-      }
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Subscription Plans'),
+-        actions: [
+-          TextButton(
+-            onPressed: _restorePurchases,
+-            child: const Text('Restore'),
+-          ),
+-        ],
+-      ),
+-      body: _isLoading
+-          ? const Center(child: CircularProgressIndicator())
+-          : _offerings == null
+-              ? const Center(child: Text('No subscription plans available'))
+-              : SingleChildScrollView(
+-                  padding: const EdgeInsets.all(16.0),
+-                  child: Column(
+-                    crossAxisAlignment: CrossAxisAlignment.start,
+-                    children: [
+-                      if (_customerInfo?.entitlements.active.isNotEmpty ?? false)
+-                        _buildActiveSubscriptionBanner(),
+-                      const SizedBox(height: 24),
+-                      Text(
+-                        'Choose Your Plan',
+-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                              fontWeight: FontWeight.bold,
+-                            ),
+-                      ),
+-                      const SizedBox(height: 8),
+-                      Text(
+-                        'Unlock premium features and enhanced trading capabilities',
+-                        style: Theme.of(context).textTheme.bodyLarge,
+-                      ),
+-                      const SizedBox(height: 24),
+-                      _buildFeaturesList(),
+-                      const SizedBox(height: 32),
+-                      ..._buildSubscriptionPlans(),
+-                    ],
+-                  ),
+-                ),
+-    );
+-  }
+-
+-  Widget _buildActiveSubscriptionBanner() {
+-    return Card(
+-      color: Theme.of(context).colorScheme.primaryContainer,
+-      child: Padding(
+-        padding: const EdgeInsets.all(16.0),
+-        child: Row(
+-          children: [
+-            Icon(
+-              Icons.check_circle,
+-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+-              size: 32,
+-            ),
+-            const SizedBox(width: 16),
+-            Expanded(
+-              child: Column(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Text(
+-                    'Active Subscription',
+-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                  ),
+-                  Text(
+-                    'You have access to all premium features',
+-                    style: TextStyle(
+-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildFeaturesList() {
+-    return Card(
+-      child: Padding(
+-        padding: const EdgeInsets.all(16.0),
+-        child: Column(
+-          crossAxisAlignment: CrossAxisAlignment.start,
+-          children: [
+-            Text(
+-              'Premium Features',
+-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+-                    fontWeight: FontWeight.bold,
+-                  ),
+-            ),
+-            const SizedBox(height: 12),
+-            _buildFeatureItem('Unlimited API calls'),
+-            _buildFeatureItem('Advanced analytics and insights'),
+-            _buildFeatureItem('Real-time price alerts'),
+-            _buildFeatureItem('Portfolio tracking'),
+-            _buildFeatureItem('AI-powered trading suggestions'),
+-            _buildFeatureItem('Priority customer support'),
+-            _buildFeatureItem('Ad-free experience'),
+-          ],
+-        ),
+-      ),
+-    );
+-  }
+-
+-  Widget _buildFeatureItem(String text) {
+-    return Padding(
+-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+-      child: Row(
+-        children: [
+-          Icon(
+-            Icons.check,
+-            size: 20,
+-            color: Theme.of(context).colorScheme.primary,
+-          ),
+-          const SizedBox(width: 12),
+-          Expanded(child: Text(text)),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  List<Widget> _buildSubscriptionPlans() {
+-    if (_offerings?.current == null) return [];
+-
+-    final packages = _offerings!.current!.availablePackages;
+-
+-    return packages.map((package) {
+-      final isPopular = package.packageType == PackageType.annual;
+-
+-      return Padding(
+-        padding: const EdgeInsets.only(bottom: 16.0),
+-        child: _buildPlanCard(
+-          title: _getPackageTitle(package.packageType),
+-          price: package.storeProduct.priceString,
+-          period: _getPackagePeriod(package.packageType),
+-          features: _getPackageFeatures(package.packageType),
+-          isPopular: isPopular,
+-          onTap: () => _purchasePackage(package),
+-        ),
+-      );
+-    }).toList();
+-  }
+-
+-  String _getPackageTitle(PackageType type) {
+-    switch (type) {
+-      case PackageType.monthly:
+-        return 'Monthly';
+-      case PackageType.annual:
+-        return 'Annual';
+-      case PackageType.lifetime:
+-        return 'Lifetime';
+-      default:
+-        return 'Premium';
+-    }
+-  }
+-
+-  String _getPackagePeriod(PackageType type) {
+-    switch (type) {
+-      case PackageType.monthly:
+-        return 'per month';
+-      case PackageType.annual:
+-        return 'per year';
+-      case PackageType.lifetime:
+-        return 'one-time payment';
+-      default:
+-        return '';
+-    }
+-  }
+-
+-  List<String> _getPackageFeatures(PackageType type) {
+-    final baseFeatures = [
+-      'All premium features',
+-      'Unlimited API access',
+-      'Advanced analytics',
+-    ];
+-
+-    if (type == PackageType.annual) {
+-      return [...baseFeatures, 'Save 20% vs monthly', 'Priority support'];
+-    } else if (type == PackageType.lifetime) {
+-      return [...baseFeatures, 'One-time payment', 'Lifetime updates'];
+-    }
+-
+-    return baseFeatures;
+-  }
+-
+-  Widget _buildPlanCard({
+-    required String title,
+-    required String price,
+-    required String period,
+-    required List<String> features,
+-    required bool isPopular,
+-    required VoidCallback onTap,
+-  }) {
+-    return Card(
+-      elevation: isPopular ? 8 : 2,
+-      shape: RoundedRectangleBorder(
+-        borderRadius: BorderRadius.circular(12),
+-        side: isPopular
+-            ? BorderSide(
+-                color: Theme.of(context).colorScheme.primary,
+-                width: 2,
+-              )
+-            : BorderSide.none,
+-      ),
+-      child: InkWell(
+-        onTap: onTap,
+-        borderRadius: BorderRadius.circular(12),
+-        child: Padding(
+-          padding: const EdgeInsets.all(20.0),
+-          child: Column(
+-            crossAxisAlignment: CrossAxisAlignment.start,
+-            children: [
+-              if (isPopular)
+-                Container(
+-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+-                  decoration: BoxDecoration(
+-                    color: Theme.of(context).colorScheme.primary,
+-                    borderRadius: BorderRadius.circular(4),
+-                  ),
+-                  child: Text(
+-                    'MOST POPULAR',
+-                    style: TextStyle(
+-                      color: Theme.of(context).colorScheme.onPrimary,
+-                      fontSize: 12,
+-                      fontWeight: FontWeight.bold,
+-                    ),
+-                  ),
+-                ),
+-              if (isPopular) const SizedBox(height: 12),
+-              Text(
+-                title,
+-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+-                      fontWeight: FontWeight.bold,
+-                    ),
+-              ),
+-              const SizedBox(height: 8),
+-              Row(
+-                crossAxisAlignment: CrossAxisAlignment.start,
+-                children: [
+-                  Text(
+-                    price,
+-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                          fontWeight: FontWeight.bold,
+-                          color: Theme.of(context).colorScheme.primary,
+-                        ),
+-                  ),
+-                  const SizedBox(width: 8),
+-                  Padding(
+-                    padding: const EdgeInsets.only(top: 8.0),
+-                    child: Text(period),
+-                  ),
+-                ],
+-              ),
+-              const SizedBox(height: 16),
+-              const Divider(),
+-              const SizedBox(height: 16),
+-              ...features.map((feature) => Padding(
+-                    padding: const EdgeInsets.only(bottom: 8.0),
+-                    child: Row(
+-                      children: [
+-                        Icon(
+-                          Icons.check_circle,
+-                          size: 20,
+-                          color: Theme.of(context).colorScheme.primary,
+-                        ),
+-                        const SizedBox(width: 12),
+-                        Expanded(child: Text(feature)),
+-                      ],
+-                    ),
+-                  )),
+-              const SizedBox(height: 16),
+-              SizedBox(
+-                width: double.infinity,
+-                child: ElevatedButton(
+-                  onPressed: onTap,
+-                  style: ElevatedButton.styleFrom(
+-                    backgroundColor: isPopular
+-                        ? Theme.of(context).colorScheme.primary
+-                        : null,
+-                  ),
+-                  child: Text(isPopular ? 'Get Started' : 'Subscribe'),
+-                ),
+-              ),
+-            ],
+-          ),
+-        ),
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/analytics_service.dart b/example/flutter_app/lib/src/services/analytics_service.dart
+deleted file mode 100644
+index 430b49b..0000000
+--- a/example/flutter_app/lib/src/services/analytics_service.dart
++++ /dev/null
+@@ -1,62 +0,0 @@
+-import 'package:firebase_analytics/firebase_analytics.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
+-import '../config/app_config.dart';
+-
+-final analyticsServiceProvider = Provider((ref) => AnalyticsService());
+-
+-class AnalyticsService {
+-  late FirebaseAnalytics _firebaseAnalytics;
+-  Mixpanel? _mixpanel;
+-
+-  Future<void> initialize() async {
+-    _firebaseAnalytics = FirebaseAnalytics.instance;
+-
+-    if (AppConfig.enableAnalytics) {
+-      _mixpanel = await Mixpanel.init(
+-        AppConfig.mixpanelToken,
+-        trackAutomaticEvents: true,
+-      );
+-    }
+-  }
+-
+-  Future<void> logEvent(String eventName, {Map<String, dynamic>? parameters}) async {
+-    await _firebaseAnalytics.logEvent(
+-      name: eventName,
+-      parameters: parameters,
+-    );
+-
+-    _mixpanel?.track(eventName, properties: parameters);
+-  }
+-
+-  Future<void> setUserId(String userId) async {
+-    await _firebaseAnalytics.setUserId(id: userId);
+-    _mixpanel?.identify(userId);
+-  }
+-
+-  Future<void> setUserProperty(String name, String value) async {
+-    await _firebaseAnalytics.setUserProperty(name: name, value: value);
+-    _mixpanel?.getPeople().set(name, value);
+-  }
+-
+-  Future<void> logScreenView(String screenName) async {
+-    await _firebaseAnalytics.logScreenView(screenName: screenName);
+-    _mixpanel?.track('\$screen_view', properties: {'screen_name': screenName});
+-  }
+-
+-  Future<void> logPurchase({
+-    required double value,
+-    required String currency,
+-    required String itemId,
+-  }) async {
+-    await _firebaseAnalytics.logPurchase(
+-      value: value,
+-      currency: currency,
+-    );
+-
+-    _mixpanel?.getPeople().trackCharge(value, properties: {
+-      'currency': currency,
+-      'item_id': itemId,
+-    });
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/appwrite_service.dart b/example/flutter_app/lib/src/services/appwrite_service.dart
+deleted file mode 100644
+index be04e4d..0000000
+--- a/example/flutter_app/lib/src/services/appwrite_service.dart
++++ /dev/null
+@@ -1,343 +0,0 @@
+-import 'package:appwrite/appwrite.dart';
+-import 'package:appwrite/models.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+-
+-final appwriteServiceProvider = Provider((ref) => AppwriteService());
+-
+-class AppwriteService {
+-  Client? _client;
+-  Account? _account;
+-  Databases? _databases;
+-  Storage? _storage;
+-
+-  final _storage = const FlutterSecureStorage();
+-
+-  // Configuration keys
+-  static const String _endpointKey = 'appwrite_endpoint';
+-  static const String _projectIdKey = 'appwrite_project_id';
+-  static const String _apiKeyKey = 'appwrite_api_key';
+-
+-  bool get isConfigured => _client != null;
+-
+-  Client? get client => _client;
+-  Account? get account => _account;
+-  Databases? get databases => _databases;
+-  Storage? get storage => _storage;
+-
+-  /// Initialize Appwrite with saved configuration
+-  Future<bool> initialize() async {
+-    final endpoint = await _storage.read(key: _endpointKey);
+-    final projectId = await _storage.read(key: _projectIdKey);
+-
+-    if (endpoint != null && projectId != null) {
+-      await configure(endpoint: endpoint, projectId: projectId);
+-      return true;
+-    }
+-
+-    return false;
+-  }
+-
+-  /// Configure Appwrite client
+-  Future<void> configure({
+-    required String endpoint,
+-    required String projectId,
+-    String? apiKey,
+-  }) async {
+-    _client = Client()
+-        .setEndpoint(endpoint)
+-        .setProject(projectId);
+-
+-    if (apiKey != null) {
+-      _client!.setKey(apiKey);
+-    }
+-
+-    _account = Account(_client!);
+-    _databases = Databases(_client!);
+-    _storage = Storage(_client!);
+-
+-    // Save configuration
+-    await _storage.write(key: _endpointKey, value: endpoint);
+-    await _storage.write(key: _projectIdKey, value: projectId);
+-    if (apiKey != null) {
+-      await _storage.write(key: _apiKeyKey, value: apiKey);
+-    }
+-  }
+-
+-  /// Get current configuration
+-  Future<Map<String, String?>> getConfiguration() async {
+-    return {
+-      'endpoint': await _storage.read(key: _endpointKey),
+-      'projectId': await _storage.read(key: _projectIdKey),
+-      'apiKey': await _storage.read(key: _apiKeyKey),
+-    };
+-  }
+-
+-  /// Clear configuration
+-  Future<void> clearConfiguration() async {
+-    await _storage.delete(key: _endpointKey);
+-    await _storage.delete(key: _projectIdKey);
+-    await _storage.delete(key: _apiKeyKey);
+-    _client = null;
+-    _account = null;
+-    _databases = null;
+-    _storage = null;
+-  }
+-
+-  // User Management
+-  Future<User> createUser({
+-    required String email,
+-    required String password,
+-    required String name,
+-  }) async {
+-    if (_account == null) throw Exception('Appwrite not configured');
+-    return await _account!.create(
+-      userId: ID.unique(),
+-      email: email,
+-      password: password,
+-      name: name,
+-    );
+-  }
+-
+-  Future<Session> createEmailSession({
+-    required String email,
+-    required String password,
+-  }) async {
+-    if (_account == null) throw Exception('Appwrite not configured');
+-    return await _account!.createEmailSession(
+-      email: email,
+-      password: password,
+-    );
+-  }
+-
+-  Future<User?> getCurrentUser() async {
+-    if (_account == null) return null;
+-    try {
+-      return await _account!.get();
+-    } catch (e) {
+-      return null;
+-    }
+-  }
+-
+-  Future<void> logout() async {
+-    if (_account == null) throw Exception('Appwrite not configured');
+-    await _account!.deleteSession(sessionId: 'current');
+-  }
+-
+-  // Database Management
+-  Future<Database> createDatabase({
+-    required String databaseId,
+-    required String name,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    return await _databases!.create(
+-      databaseId: databaseId,
+-      name: name,
+-    );
+-  }
+-
+-  Future<Collection> createCollection({
+-    required String databaseId,
+-    required String collectionId,
+-    required String name,
+-    List<String>? permissions,
+-    bool? documentSecurity,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    return await _databases!.createCollection(
+-      databaseId: databaseId,
+-      collectionId: collectionId,
+-      name: name,
+-      permissions: permissions,
+-      documentSecurity: documentSecurity,
+-    );
+-  }
+-
+-  Future<void> createStringAttribute({
+-    required String databaseId,
+-    required String collectionId,
+-    required String key,
+-    required int size,
+-    required bool required,
+-    String? defaultValue,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    await _databases!.createStringAttribute(
+-      databaseId: databaseId,
+-      collectionId: collectionId,
+-      key: key,
+-      size: size,
+-      xrequired: required,
+-      xdefault: defaultValue,
+-    );
+-  }
+-
+-  Future<void> createIntegerAttribute({
+-    required String databaseId,
+-    required String collectionId,
+-    required String key,
+-    required bool required,
+-    int? min,
+-    int? max,
+-    int? defaultValue,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    await _databases!.createIntegerAttribute(
+-      databaseId: databaseId,
+-      collectionId: collectionId,
+-      key: key,
+-      xrequired: required,
+-      min: min,
+-      max: max,
+-      xdefault: defaultValue,
+-    );
+-  }
+-
+-  Future<void> createBooleanAttribute({
+-    required String databaseId,
+-    required String collectionId,
+-    required String key,
+-    required bool required,
+-    bool? defaultValue,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    await _databases!.createBooleanAttribute(
+-      databaseId: databaseId,
+-      collectionId: collectionId,
+-      key: key,
+-      xrequired: required,
+-      xdefault: defaultValue,
+-    );
+-  }
+-
+-  Future<void> createDatetimeAttribute({
+-    required String databaseId,
+-    required String collectionId,
+-    required String key,
+-    required bool required,
+-    String? defaultValue,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-    await _databases!.createDatetimeAttribute(
+-      databaseId: databaseId,
+-      collectionId: collectionId,
+-      key: key,
+-      xrequired: required,
+-      xdefault: defaultValue,
+-    );
+-  }
+-
+-  // Storage Management
+-  Future<Bucket> createBucket({
+-    required String bucketId,
+-    required String name,
+-    List<String>? permissions,
+-    bool? fileSecurity,
+-    bool? enabled,
+-    int? maximumFileSize,
+-    List<String>? allowedFileExtensions,
+-  }) async {
+-    if (_storage == null) throw Exception('Appwrite not configured');
+-    return await _storage!.createBucket(
+-      bucketId: bucketId,
+-      name: name,
+-      permissions: permissions,
+-      fileSecurity: fileSecurity,
+-      enabled: enabled,
+-      maximumFileSize: maximumFileSize,
+-      allowedFileExtensions: allowedFileExtensions,
+-    );
+-  }
+-
+-  // Auto-push database structure
+-  Future<void> pushDatabaseStructure({
+-    required Map<String, dynamic> structure,
+-  }) async {
+-    if (_databases == null) throw Exception('Appwrite not configured');
+-
+-    final databaseId = structure['databaseId'] as String;
+-    final databaseName = structure['name'] as String;
+-    final collections = structure['collections'] as List<dynamic>;
+-
+-    // Create database
+-    try {
+-      await createDatabase(databaseId: databaseId, name: databaseName);
+-    } catch (e) {
+-      // Database might already exist
+-    }
+-
+-    // Create collections and attributes
+-    for (final collection in collections) {
+-      final collectionId = collection['collectionId'] as String;
+-      final collectionName = collection['name'] as String;
+-      final attributes = collection['attributes'] as List<dynamic>?;
+-
+-      try {
+-        await createCollection(
+-          databaseId: databaseId,
+-          collectionId: collectionId,
+-          name: collectionName,
+-          documentSecurity: true,
+-        );
+-
+-        // Wait for collection to be ready
+-        await Future.delayed(const Duration(milliseconds: 500));
+-
+-        // Create attributes
+-        if (attributes != null) {
+-          for (final attr in attributes) {
+-            final type = attr['type'] as String;
+-            final key = attr['key'] as String;
+-            final required = attr['required'] as bool? ?? false;
+-
+-            switch (type) {
+-              case 'string':
+-                await createStringAttribute(
+-                  databaseId: databaseId,
+-                  collectionId: collectionId,
+-                  key: key,
+-                  size: attr['size'] as int? ?? 255,
+-                  required: required,
+-                  defaultValue: attr['default'] as String?,
+-                );
+-                break;
+-              case 'integer':
+-                await createIntegerAttribute(
+-                  databaseId: databaseId,
+-                  collectionId: collectionId,
+-                  key: key,
+-                  required: required,
+-                  defaultValue: attr['default'] as int?,
+-                );
+-                break;
+-              case 'boolean':
+-                await createBooleanAttribute(
+-                  databaseId: databaseId,
+-                  collectionId: collectionId,
+-                  key: key,
+-                  required: required,
+-                  defaultValue: attr['default'] as bool?,
+-                );
+-                break;
+-              case 'datetime':
+-                await createDatetimeAttribute(
+-                  databaseId: databaseId,
+-                  collectionId: collectionId,
+-                  key: key,
+-                  required: required,
+-                  defaultValue: attr['default'] as String?,
+-                );
+-                break;
+-            }
+-
+-            // Wait between attribute creation
+-            await Future.delayed(const Duration(milliseconds: 300));
+-          }
+-        }
+-      } catch (e) {
+-        // Collection might already exist
+-        print('Error creating collection $collectionId: $e');
+-      }
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/auth_service.dart b/example/flutter_app/lib/src/services/auth_service.dart
+deleted file mode 100644
+index 7762b82..0000000
+--- a/example/flutter_app/lib/src/services/auth_service.dart
++++ /dev/null
+@@ -1,75 +0,0 @@
+-import 'package:firebase_auth/firebase_auth.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:local_auth/local_auth.dart';
+-
+-final authServiceProvider = Provider((ref) => AuthService());
+-
+-class AuthService {
+-  final FirebaseAuth _auth = FirebaseAuth.instance;
+-  final LocalAuthentication _localAuth = LocalAuthentication();
+-
+-  Future<void> initialize() async {
+-    // Initialize auth state listeners
+-    _auth.authStateChanges().listen((User? user) {
+-      if (user != null) {
+-        // User is signed in
+-      } else {
+-        // User is signed out
+-      }
+-    });
+-  }
+-
+-  User? get currentUser => _auth.currentUser;
+-  bool get isAuthenticated => _auth.currentUser != null;
+-
+-  Future<UserCredential> signInWithEmailAndPassword(
+-    String email,
+-    String password,
+-  ) async {
+-    return await _auth.signInWithEmailAndPassword(
+-      email: email,
+-      password: password,
+-    );
+-  }
+-
+-  Future<UserCredential> createUserWithEmailAndPassword(
+-    String email,
+-    String password,
+-  ) async {
+-    return await _auth.createUserWithEmailAndPassword(
+-      email: email,
+-      password: password,
+-    );
+-  }
+-
+-  Future<void> signOut() async {
+-    await _auth.signOut();
+-  }
+-
+-  Future<void> resetPassword(String email) async {
+-    await _auth.sendPasswordResetEmail(email: email);
+-  }
+-
+-  // Biometric Authentication
+-  Future<bool> isBiometricsAvailable() async {
+-    return await _localAuth.canCheckBiometrics;
+-  }
+-
+-  Future<bool> authenticateWithBiometrics() async {
+-    try {
+-      return await _localAuth.authenticate(
+-        localizedReason: 'Authenticate to access your account',
+-        options: const AuthenticationOptions(
+-          stickyAuth: true,
+-          biometricOnly: true,
+-        ),
+-      );
+-    } catch (e) {
+-      return false;
+-    }
+-  }
+-
+-  Future<List<BiometricType>> getAvailableBiometrics() async {
+-    return await _localAuth.getAvailableBiometrics();
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/geofencing_service.dart b/example/flutter_app/lib/src/services/geofencing_service.dart
+deleted file mode 100644
+index eed0623..0000000
+--- a/example/flutter_app/lib/src/services/geofencing_service.dart
++++ /dev/null
+@@ -1,78 +0,0 @@
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:geolocator/geolocator.dart';
+-import 'package:geofence_service/geofence_service.dart';
+-
+-final geofencingServiceProvider = Provider((ref) => GeofencingService());
+-
+-class GeofencingService {
+-  final GeofenceService _geofenceService = GeofenceService.instance.setup(
+-    interval: 5000,
+-    accuracy: 100,
+-    loiteringDelayMs: 60000,
+-    statusChangeDelayMs: 10000,
+-    useActivityRecognition: true,
+-    allowMockLocations: false,
+-    printDevLog: true,
+-    geofenceRadiusSortType: GeofenceRadiusSortType.DESC,
+-  );
+-
+-  final List<Geofence> _geofenceList = [];
+-
+-  Future<bool> checkPermissions() async {
+-    LocationPermission permission = await Geolocator.checkPermission();
+-    if (permission == LocationPermission.denied) {
+-      permission = await Geolocator.requestPermission();
+-    }
+-
+-    return permission == LocationPermission.whileInUse ||
+-        permission == LocationPermission.always;
+-  }
+-
+-  Future<Position?> getCurrentLocation() async {
+-    if (!await checkPermissions()) {
+-      return null;
+-    }
+-
+-    return await Geolocator.getCurrentPosition();
+-  }
+-
+-  void addGeofence({
+-    required String id,
+-    required double latitude,
+-    required double longitude,
+-    required double radius,
+-  }) {
+-    _geofenceList.add(
+-      Geofence(
+-        id: id,
+-        latitude: latitude,
+-        longitude: longitude,
+-        radius: [
+-          GeofenceRadius(id: 'radius_$radius', length: radius),
+-        ],
+-      ),
+-    );
+-  }
+-
+-  Future<void> startGeofencing({
+-    required Function(Geofence, GeofenceRadius, GeofenceStatus) onGeofenceStatusChanged,
+-  }) async {
+-    await _geofenceService.addGeofenceStatusChangeListener(onGeofenceStatusChanged);
+-    await _geofenceService.start(_geofenceList).catchError((error) {
+-      return null;
+-    });
+-  }
+-
+-  Future<void> stopGeofencing() async {
+-    await _geofenceService.stop();
+-  }
+-
+-  Stream<Position> get positionStream {
+-    return Geolocator.getPositionStream(
+-      locationSettings: const LocationSettings(
+-        accuracy: LocationAccuracy.high,
+-        distanceFilter: 10,
+-      ),
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/payment_service.dart b/example/flutter_app/lib/src/services/payment_service.dart
+deleted file mode 100644
+index 7e34593..0000000
+--- a/example/flutter_app/lib/src/services/payment_service.dart
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:stripe_flutter/stripe_flutter.dart';
+-import '../config/app_config.dart';
+-
+-final paymentServiceProvider = Provider((ref) => PaymentService());
+-
+-class PaymentService {
+-  Future<void> initialize() async {
+-    Stripe.publishableKey = AppConfig.stripePublishableKey;
+-    await Stripe.instance.applySettings();
+-  }
+-
+-  Future<PaymentIntent?> createPaymentIntent({
+-    required int amount,
+-    required String currency,
+-    Map<String, dynamic>? metadata,
+-  }) async {
+-    try {
+-      // In production, call your backend to create payment intent
+-      // This is just a placeholder
+-      return null;
+-    } catch (e) {
+-      return null;
+-    }
+-  }
+-
+-  Future<bool> processPayment({
+-    required String paymentIntentClientSecret,
+-    required BuildContext context,
+-  }) async {
+-    try {
+-      final paymentIntent = await Stripe.instance.confirmPayment(
+-        paymentIntentClientSecret: paymentIntentClientSecret,
+-      );
+-
+-      return paymentIntent.status == PaymentIntentsStatus.Succeeded;
+-    } catch (e) {
+-      return false;
+-    }
+-  }
+-
+-  Future<void> presentPaymentSheet() async {
+-    try {
+-      await Stripe.instance.presentPaymentSheet();
+-    } catch (e) {
+-      rethrow;
+-    }
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/services/subscription_service.dart b/example/flutter_app/lib/src/services/subscription_service.dart
+deleted file mode 100644
+index e92efd2..0000000
+--- a/example/flutter_app/lib/src/services/subscription_service.dart
++++ /dev/null
+@@ -1,56 +0,0 @@
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:purchases_flutter/purchases_flutter.dart';
+-import '../config/app_config.dart';
+-
+-final subscriptionServiceProvider = Provider((ref) => SubscriptionService());
+-
+-class SubscriptionService {
+-  Future<void> initialize() async {
+-    await Purchases.setLogLevel(LogLevel.debug);
+-
+-    PurchasesConfiguration configuration;
+-    configuration = PurchasesConfiguration(AppConfig.revenueCatApiKey)
+-      ..appUserID = null
+-      ..observerMode = false;
+-
+-    await Purchases.configure(configuration);
+-  }
+-
+-  Future<Offerings?> getOfferings() async {
+-    try {
+-      return await Purchases.getOfferings();
+-    } catch (e) {
+-      return null;
+-    }
+-  }
+-
+-  Future<CustomerInfo> purchasePackage(Package package) async {
+-    try {
+-      final purchaserInfo = await Purchases.purchasePackage(package);
+-      return purchaserInfo.customerInfo;
+-    } catch (e) {
+-      rethrow;
+-    }
+-  }
+-
+-  Future<CustomerInfo> restorePurchases() async {
+-    try {
+-      return await Purchases.restorePurchases();
+-    } catch (e) {
+-      rethrow;
+-    }
+-  }
+-
+-  Future<CustomerInfo> getCustomerInfo() async {
+-    return await Purchases.getCustomerInfo();
+-  }
+-
+-  Future<bool> isSubscriptionActive() async {
+-    final customerInfo = await getCustomerInfo();
+-    return customerInfo.entitlements.active.isNotEmpty;
+-  }
+-
+-  Stream<CustomerInfo> get customerInfoStream {
+-    return Purchases.customerInfoStream;
+-  }
+-}
+diff --git a/example/flutter_app/lib/src/widgets/lock_screen_widget.dart b/example/flutter_app/lib/src/widgets/lock_screen_widget.dart
+deleted file mode 100644
+index 3a2cf7b..0000000
+--- a/example/flutter_app/lib/src/widgets/lock_screen_widget.dart
++++ /dev/null
+@@ -1,204 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:local_auth/local_auth.dart';
+-import '../services/auth_service.dart';
+-
+-class LockScreenWidget extends ConsumerStatefulWidget {
+-  final Widget child;
+-  final bool enabled;
+-
+-  const LockScreenWidget({
+-    super.key,
+-    required this.child,
+-    this.enabled = true,
+-  });
+-
+-  @override
+-  ConsumerState<LockScreenWidget> createState() => _LockScreenWidgetState();
+-}
+-
+-class _LockScreenWidgetState extends ConsumerState<LockScreenWidget>
+-    with WidgetsBindingObserver {
+-  bool _isLocked = false;
+-  final _pinController = TextEditingController();
+-
+-  @override
+-  void initState() {
+-    super.initState();
+-    WidgetsBinding.instance.addObserver(this);
+-    if (widget.enabled) {
+-      _isLocked = true;
+-    }
+-  }
+-
+-  @override
+-  void dispose() {
+-    WidgetsBinding.instance.removeObserver(this);
+-    _pinController.dispose();
+-    super.dispose();
+-  }
+-
+-  @override
+-  void didChangeAppLifecycleState(AppLifecycleState state) {
+-    if (widget.enabled) {
+-      if (state == AppLifecycleState.paused) {
+-        // App went to background
+-        setState(() => _isLocked = true);
+-      }
+-    }
+-  }
+-
+-  Future<void> _authenticateWithBiometrics() async {
+-    final authService = ref.read(authServiceProvider);
+-    final authenticated = await authService.authenticateWithBiometrics();
+-
+-    if (authenticated) {
+-      setState(() => _isLocked = false);
+-    } else {
+-      if (mounted) {
+-        ScaffoldMessenger.of(context).showSnackBar(
+-          const SnackBar(content: Text('Authentication failed')),
+-        );
+-      }
+-    }
+-  }
+-
+-  void _authenticateWithPin() {
+-    // In production, verify PIN against stored hash
+-    if (_pinController.text == '1234') {
+-      // Example PIN
+-      setState(() => _isLocked = false);
+-      _pinController.clear();
+-    } else {
+-      ScaffoldMessenger.of(context).showSnackBar(
+-        const SnackBar(content: Text('Incorrect PIN')),
+-      );
+-      _pinController.clear();
+-    }
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) {
+-    if (!_isLocked) {
+-      return widget.child;
+-    }
+-
+-    return Scaffold(
+-      body: Container(
+-        decoration: BoxDecoration(
+-          gradient: LinearGradient(
+-            begin: Alignment.topLeft,
+-            end: Alignment.bottomRight,
+-            colors: [
+-              Theme.of(context).colorScheme.primary,
+-              Theme.of(context).colorScheme.secondary,
+-            ],
+-          ),
+-        ),
+-        child: SafeArea(
+-          child: Center(
+-            child: Padding(
+-              padding: const EdgeInsets.all(32.0),
+-              child: Column(
+-                mainAxisAlignment: MainAxisAlignment.center,
+-                children: [
+-                  Icon(
+-                    Icons.lock,
+-                    size: 80,
+-                    color: Colors.white,
+-                  ),
+-                  const SizedBox(height: 24),
+-                  Text(
+-                    'App Locked',
+-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+-                          color: Colors.white,
+-                          fontWeight: FontWeight.bold,
+-                        ),
+-                  ),
+-                  const SizedBox(height: 8),
+-                  Text(
+-                    'Unlock to continue',
+-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+-                          color: Colors.white70,
+-                        ),
+-                  ),
+-                  const SizedBox(height: 48),
+-                  SizedBox(
+-                    width: 280,
+-                    child: TextField(
+-                      controller: _pinController,
+-                      decoration: InputDecoration(
+-                        hintText: 'Enter PIN',
+-                        filled: true,
+-                        fillColor: Colors.white,
+-                        border: OutlineInputBorder(
+-                          borderRadius: BorderRadius.circular(12),
+-                          borderSide: BorderSide.none,
+-                        ),
+-                        suffixIcon: IconButton(
+-                          icon: const Icon(Icons.arrow_forward),
+-                          onPressed: _authenticateWithPin,
+-                        ),
+-                      ),
+-                      keyboardType: TextInputType.number,
+-                      obscureText: true,
+-                      maxLength: 4,
+-                      textAlign: TextAlign.center,
+-                      style: const TextStyle(
+-                        fontSize: 24,
+-                        letterSpacing: 8,
+-                      ),
+-                      onSubmitted: (_) => _authenticateWithPin(),
+-                    ),
+-                  ),
+-                  const SizedBox(height: 24),
+-                  Text(
+-                    'OR',
+-                    style: TextStyle(
+-                      color: Colors.white70,
+-                      fontWeight: FontWeight.bold,
+-                    ),
+-                  ),
+-                  const SizedBox(height: 24),
+-                  ElevatedButton.icon(
+-                    onPressed: _authenticateWithBiometrics,
+-                    icon: const Icon(Icons.fingerprint),
+-                    label: const Text('Use Biometrics'),
+-                    style: ElevatedButton.styleFrom(
+-                      backgroundColor: Colors.white,
+-                      foregroundColor: Theme.of(context).colorScheme.primary,
+-                      padding: const EdgeInsets.symmetric(
+-                        horizontal: 32,
+-                        vertical: 16,
+-                      ),
+-                    ),
+-                  ),
+-                ],
+-              ),
+-            ),
+-          ),
+-        ),
+-      ),
+-    );
+-  }
+-}
+-
+-// Usage provider for lock screen state
+-final lockScreenStateProvider = StateProvider<bool>((ref) => false);
+-
+-// Lock screen wrapper widget for easy integration
+-class LockScreenWrapper extends ConsumerWidget {
+-  final Widget child;
+-
+-  const LockScreenWrapper({super.key, required this.child});
+-
+-  @override
+-  Widget build(BuildContext context, WidgetRef ref) {
+-    final isLockEnabled = ref.watch(lockScreenStateProvider);
+-
+-    return LockScreenWidget(
+-      enabled: isLockEnabled,
+-      child: child,
+-    );
+-  }
+-}
+diff --git a/example/flutter_app/pubspec.yaml b/example/flutter_app/pubspec.yaml
+deleted file mode 100644
+index c77f0c3..0000000
+--- a/example/flutter_app/pubspec.yaml
++++ /dev/null
+@@ -1,116 +0,0 @@
+-name: babel_binance_example
+-description: Comprehensive Flutter example app for Babel Binance with subscription, payments, privacy, biometrics, and more
+-version: 1.0.0+1
+-publish_to: none
+-
+-environment:
+-  sdk: '>=3.0.0 <4.0.0'
+-
+-dependencies:
+-  flutter:
+-    sdk: flutter
+-
+-  # Binance API
+-  babel_binance:
+-    path: ../../
+-
+-  # Appwrite Backend
+-  appwrite: ^11.0.0
+-
+-  # State Management
+-  flutter_riverpod: ^2.4.9
+-  riverpod_annotation: ^2.3.3
+-
+-  # Firebase
+-  firebase_core: ^2.24.2
+-  firebase_auth: ^4.15.3
+-  cloud_firestore: ^4.13.6
+-  firebase_storage: ^11.5.6
+-  firebase_analytics: ^10.7.4
+-
+-  # Payments & Subscriptions
+-  purchases_flutter: ^6.21.0
+-  in_app_purchase: ^3.1.11
+-  stripe_flutter: ^10.1.1
+-
+-  # Biometrics & Security
+-  local_auth: ^2.1.8
+-  flutter_secure_storage: ^9.0.0
+-
+-  # Location & Geofencing
+-  geolocator: ^11.0.0
+-  geofence_service: ^5.2.3
+-  permission_handler: ^11.2.0
+-
+-  # Media Recording
+-  camera: ^0.10.5+9
+-  image_picker: ^1.0.7
+-  record: ^5.0.4
+-  path_provider: ^2.1.2
+-
+-  # Internationalization
+-  intl: ^0.19.0
+-  flutter_localizations:
+-    sdk: flutter
+-
+-  # Analytics
+-  mixpanel_flutter: ^2.2.0
+-  sentry_flutter: ^7.14.0
+-
+-  # AI/ML
+-  google_generative_ai: ^0.2.2
+-  flutter_chat_ui: ^1.6.12
+-
+-  # UI Components
+-  flutter_screenutil: ^5.9.0
+-  animations: ^2.0.11
+-  lottie: ^3.0.0
+-  shimmer: ^3.0.0
+-  cached_network_image: ^3.3.1
+-
+-  # Contacts
+-  contacts_service: ^0.6.3
+-  flutter_contacts: ^1.1.7+1
+-
+-  # Utilities
+-  shared_preferences: ^2.2.2
+-  connectivity_plus: ^5.0.2
+-  package_info_plus: ^5.0.1
+-  device_info_plus: ^10.1.0
+-  http: ^1.2.0
+-  dio: ^5.4.0
+-
+-  # Widget Extensions
+-  flutter_widget_from_html: ^0.14.11
+-
+-dev_dependencies:
+-  flutter_test:
+-    sdk: flutter
+-  flutter_lints: ^3.0.1
+-
+-  # Testing
+-  mockito: ^5.4.4
+-  build_runner: ^2.4.8
+-  riverpod_generator: ^2.3.9
+-  integration_test:
+-    sdk: flutter
+-
+-  # Code Generation
+-  json_serializable: ^6.7.1
+-  freezed: ^2.4.6
+-  freezed_annotation: ^2.4.1
+-
+-flutter:
+-  uses-material-design: true
+-
+-  assets:
+-    - assets/images/
+-    - assets/animations/
+-    - assets/translations/
+-
+-  fonts:
+-    - family: Roboto
+-      fonts:
+-        - asset: assets/fonts/Roboto-Regular.ttf
+-        - asset: assets/fonts/Roboto-Bold.ttf
+-          weight: 700
+diff --git a/example/flutter_app/test/models/database_structure_test.dart b/example/flutter_app/test/models/database_structure_test.dart
+deleted file mode 100644
+index 4042f84..0000000
+--- a/example/flutter_app/test/models/database_structure_test.dart
++++ /dev/null
+@@ -1,65 +0,0 @@
+-import 'package:flutter_test/flutter_test.dart';
+-import 'package:babel_binance_example/src/models/database_structure.dart';
+-
+-void main() {
+-  group('DatabaseStructure Tests', () {
+-    test('getDefaultStructure returns valid structure', () {
+-      final structure = DatabaseStructure.getDefaultStructure();
+-
+-      expect(structure['databaseId'], 'babel_binance_db');
+-      expect(structure['name'], 'Babel Binance Database');
+-      expect(structure['collections'], isA<List>());
+-      expect(structure['collections'].length, greaterThan(0));
+-    });
+-
+-    test('default structure contains required collections', () {
+-      final structure = DatabaseStructure.getDefaultStructure();
+-      final collections = structure['collections'] as List;
+-
+-      final collectionIds = collections.map((c) => c['collectionId']).toList();
+-
+-      expect(collectionIds, contains('users'));
+-      expect(collectionIds, contains('trades'));
+-      expect(collectionIds, contains('portfolios'));
+-      expect(collectionIds, contains('watchlist'));
+-      expect(collectionIds, contains('analytics'));
+-    });
+-
+-    test('users collection has required attributes', () {
+-      final structure = DatabaseStructure.getDefaultStructure();
+-      final collections = structure['collections'] as List;
+-      final usersCollection = collections.firstWhere(
+-        (c) => c['collectionId'] == 'users',
+-      );
+-
+-      expect(usersCollection['name'], 'Users');
+-      expect(usersCollection['attributes'], isA<List>());
+-
+-      final attributes = usersCollection['attributes'] as List;
+-      final attributeKeys = attributes.map((a) => a['key']).toList();
+-
+-      expect(attributeKeys, contains('displayName'));
+-      expect(attributeKeys, contains('bio'));
+-      expect(attributeKeys, contains('avatar'));
+-      expect(attributeKeys, contains('preferences'));
+-    });
+-
+-    test('getCustomStructure creates custom structure', () {
+-      final customStructure = DatabaseStructure.getCustomStructure(
+-        databaseId: 'custom_db',
+-        databaseName: 'Custom Database',
+-        collections: [
+-          {
+-            'collectionId': 'custom_collection',
+-            'name': 'Custom Collection',
+-            'attributes': [],
+-          },
+-        ],
+-      );
+-
+-      expect(customStructure['databaseId'], 'custom_db');
+-      expect(customStructure['name'], 'Custom Database');
+-      expect(customStructure['collections'].length, 1);
+-    });
+-  });
+-}
+diff --git a/example/flutter_app/test/platform_channels/native_bridge_test.dart b/example/flutter_app/test/platform_channels/native_bridge_test.dart
+deleted file mode 100644
+index 470a420..0000000
+--- a/example/flutter_app/test/platform_channels/native_bridge_test.dart
++++ /dev/null
+@@ -1,59 +0,0 @@
+-import 'package:flutter/services.dart';
+-import 'package:flutter_test/flutter_test.dart';
+-import 'package:babel_binance_example/src/platform_channels/native_bridge.dart';
+-
+-void main() {
+-  const MethodChannel channel = MethodChannel('com.babel.binance/native');
+-
+-  TestWidgetsFlutterBinding.ensureInitialized();
+-
+-  setUp(() {
+-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+-        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+-      switch (methodCall.method) {
+-        case 'getBatteryLevel':
+-          return 85;
+-        case 'getDeviceInfo':
+-          return {
+-            'model': 'Test Device',
+-            'manufacturer': 'Test Manufacturer',
+-            'version': '1.0',
+-          };
+-        case 'getAppVersion':
+-          return '1.0.0';
+-        case 'isDeviceRooted':
+-          return false;
+-        default:
+-          return null;
+-      }
+-    });
+-  });
+-
+-  tearDown(() {
+-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+-        .setMockMethodCallHandler(channel, null);
+-  });
+-
+-  group('NativeBridge Tests', () {
+-    test('getBatteryLevel returns battery level', () async {
+-      final batteryLevel = await NativeBridge.getBatteryLevel();
+-      expect(batteryLevel, 85);
+-    });
+-
+-    test('getDeviceInfo returns device information', () async {
+-      final deviceInfo = await NativeBridge.getDeviceInfo();
+-      expect(deviceInfo?['model'], 'Test Device');
+-      expect(deviceInfo?['manufacturer'], 'Test Manufacturer');
+-    });
+-
+-    test('getAppVersion returns version string', () async {
+-      final version = await NativeBridge.getAppVersion();
+-      expect(version, '1.0.0');
+-    });
+-
+-    test('isDeviceRooted returns false for non-rooted device', () async {
+-      final isRooted = await NativeBridge.isDeviceRooted();
+-      expect(isRooted, false);
+-    });
+-  });
+-}
+diff --git a/example/flutter_app/test/services/appwrite_service_test.dart b/example/flutter_app/test/services/appwrite_service_test.dart
+deleted file mode 100644
+index 114d2a2..0000000
+--- a/example/flutter_app/test/services/appwrite_service_test.dart
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import 'package:flutter_test/flutter_test.dart';
+-import 'package:babel_binance_example/src/services/appwrite_service.dart';
+-
+-void main() {
+-  group('AppwriteService Tests', () {
+-    late AppwriteService appwriteService;
+-
+-    setUp(() {
+-      appwriteService = AppwriteService();
+-    });
+-
+-    test('should not be configured initially', () {
+-      expect(appwriteService.isConfigured, false);
+-    });
+-
+-    test('should store configuration', () async {
+-      await appwriteService.configure(
+-        endpoint: 'https://test.appwrite.io/v1',
+-        projectId: 'test-project',
+-      );
+-
+-      expect(appwriteService.isConfigured, true);
+-    });
+-
+-    test('should retrieve configuration', () async {
+-      await appwriteService.configure(
+-        endpoint: 'https://test.appwrite.io/v1',
+-        projectId: 'test-project',
+-        apiKey: 'test-api-key',
+-      );
+-
+-      final config = await appwriteService.getConfiguration();
+-
+-      expect(config['endpoint'], 'https://test.appwrite.io/v1');
+-      expect(config['projectId'], 'test-project');
+-      expect(config['apiKey'], 'test-api-key');
+-    });
+-
+-    test('should clear configuration', () async {
+-      await appwriteService.configure(
+-        endpoint: 'https://test.appwrite.io/v1',
+-        projectId: 'test-project',
+-      );
+-
+-      await appwriteService.clearConfiguration();
+-
+-      expect(appwriteService.isConfigured, false);
+-    });
+-  });
+-}
+diff --git a/example/flutter_app/test/services/auth_service_test.dart b/example/flutter_app/test/services/auth_service_test.dart
+deleted file mode 100644
+index f1ff843..0000000
+--- a/example/flutter_app/test/services/auth_service_test.dart
++++ /dev/null
+@@ -1,23 +0,0 @@
+-import 'package:flutter_test/flutter_test.dart';
+-import 'package:babel_binance_example/src/services/auth_service.dart';
+-
+-void main() {
+-  group('AuthService Tests', () {
+-    late AuthService authService;
+-
+-    setUp(() {
+-      authService = AuthService();
+-    });
+-
+-    test('should not be authenticated initially', () {
+-      expect(authService.isAuthenticated, false);
+-    });
+-
+-    test('should return null for current user when not authenticated', () {
+-      expect(authService.currentUser, null);
+-    });
+-
+-    // Note: Full authentication tests would require Firebase emulator
+-    // or mocked Firebase auth instance
+-  });
+-}
+diff --git a/example/flutter_app/test/widget_test.dart b/example/flutter_app/test/widget_test.dart
+deleted file mode 100644
+index 2bf64b7..0000000
+--- a/example/flutter_app/test/widget_test.dart
++++ /dev/null
+@@ -1,32 +0,0 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_test/flutter_test.dart';
+-import 'package:flutter_riverpod/flutter_riverpod.dart';
+-import 'package:babel_binance_example/main.dart';
+-
+-void main() {
+-  testWidgets('App smoke test', (WidgetTester tester) async {
+-    // Build our app and trigger a frame
+-    await tester.pumpWidget(
+-      const ProviderScope(
+-        child: BabelBinanceApp(),
+-      ),
+-    );
+-
+-    // Verify that splash screen is shown
+-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+-    expect(find.text('Babel Binance'), findsOneWidget);
+-  });
+-
+-  testWidgets('App has correct title', (WidgetTester tester) async {
+-    await tester.pumpWidget(
+-      const ProviderScope(
+-        child: BabelBinanceApp(),
+-      ),
+-    );
+-
+-    await tester.pump();
+-
+-    final MaterialApp app = tester.widget(find.byType(MaterialApp));
+-    expect(app.title, 'Babel Binance');
+-  });
+-}
+-- 
+2.43.0
+

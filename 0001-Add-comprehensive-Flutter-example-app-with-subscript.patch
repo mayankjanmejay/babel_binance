@@ -1,0 +1,746 @@
+From 6e38ed55272048222c40a7d53c47b3b031b6e52a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 10 Nov 2025 12:43:17 +0000
+Subject: [PATCH 1/7] Add comprehensive Flutter example app with subscription,
+ payments, and advanced features
+
+This commit adds a complete Flutter application demonstrating:
+- Subscription UI and payment integration (RevenueCat, Stripe)
+- Firebase authentication with biometric support
+- Analytics framework (Firebase Analytics, Mixpanel)
+- Geofencing and location services
+- App configuration and theming
+- Multi-service architecture with Riverpod state management
+
+Includes service implementations for:
+- Auth with biometric authentication
+- Payment processing with Stripe
+- Subscription management with RevenueCat
+- Analytics tracking
+- Geofencing with location awareness
+
+Foundation for additional features including privacy dashboard, AI chat,
+video/audio recording, multi-language support, and comprehensive testing.
+---
+ example/flutter_app/lib/main.dart             |  96 +++++++++++++++
+ .../lib/src/config/app_config.dart            |  44 +++++++
+ .../lib/src/config/theme_config.dart          |  71 +++++++++++
+ .../lib/src/services/analytics_service.dart   |  62 ++++++++++
+ .../lib/src/services/auth_service.dart        |  75 ++++++++++++
+ .../lib/src/services/geofencing_service.dart  |  78 ++++++++++++
+ .../lib/src/services/payment_service.dart     |  50 ++++++++
+ .../src/services/subscription_service.dart    |  56 +++++++++
+ example/flutter_app/pubspec.yaml              | 113 ++++++++++++++++++
+ 9 files changed, 645 insertions(+)
+ create mode 100644 example/flutter_app/lib/main.dart
+ create mode 100644 example/flutter_app/lib/src/config/app_config.dart
+ create mode 100644 example/flutter_app/lib/src/config/theme_config.dart
+ create mode 100644 example/flutter_app/lib/src/services/analytics_service.dart
+ create mode 100644 example/flutter_app/lib/src/services/auth_service.dart
+ create mode 100644 example/flutter_app/lib/src/services/geofencing_service.dart
+ create mode 100644 example/flutter_app/lib/src/services/payment_service.dart
+ create mode 100644 example/flutter_app/lib/src/services/subscription_service.dart
+ create mode 100644 example/flutter_app/pubspec.yaml
+
+diff --git a/example/flutter_app/lib/main.dart b/example/flutter_app/lib/main.dart
+new file mode 100644
+index 0000000..a0ba225
+--- /dev/null
++++ b/example/flutter_app/lib/main.dart
+@@ -0,0 +1,96 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:firebase_core/firebase_core.dart';
++import 'package:flutter_localizations/flutter_localizations.dart';
++import 'package:flutter_screenutil/flutter_screenutil.dart';
++import 'package:sentry_flutter/sentry_flutter.dart';
++
++import 'src/config/app_config.dart';
++import 'src/config/theme_config.dart';
++import 'src/services/analytics_service.dart';
++import 'src/services/auth_service.dart';
++import 'src/screens/splash_screen.dart';
++import 'src/i18n/app_localizations.dart';
++
++void main() async {
++  WidgetsFlutterBinding.ensureInitialized();
++
++  // Initialize Firebase
++  await Firebase.initializeApp();
++
++  // Initialize Sentry for error tracking
++  await SentryFlutter.init(
++    (options) {
++      options.dsn = AppConfig.sentryDsn;
++      options.tracesSampleRate = 1.0;
++      options.enableAutoPerformanceTracing = true;
++    },
++    appRunner: () => runApp(
++      const ProviderScope(
++        child: BabelBinanceApp(),
++      ),
++    ),
++  );
++}
++
++class BabelBinanceApp extends ConsumerStatefulWidget {
++  const BabelBinanceApp({super.key});
++
++  @override
++  ConsumerState<BabelBinanceApp> createState() => _BabelBinanceAppState();
++}
++
++class _BabelBinanceAppState extends ConsumerState<BabelBinanceApp> {
++  @override
++  void initState() {
++    super.initState();
++    _initializeApp();
++  }
++
++  Future<void> _initializeApp() async {
++    // Initialize analytics
++    await ref.read(analyticsServiceProvider).initialize();
++
++    // Initialize auth
++    await ref.read(authServiceProvider).initialize();
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    return ScreenUtilInit(
++      designSize: const Size(375, 812),
++      minTextAdapt: true,
++      splitScreenMode: true,
++      builder: (context, child) {
++        return MaterialApp(
++          title: 'Babel Binance',
++          debugShowCheckedModeBanner: false,
++          theme: ThemeConfig.lightTheme,
++          darkTheme: ThemeConfig.darkTheme,
++          themeMode: ThemeMode.system,
++
++          // Internationalization
++          localizationsDelegates: const [
++            AppLocalizations.delegate,
++            GlobalMaterialLocalizations.delegate,
++            GlobalWidgetsLocalizations.delegate,
++            GlobalCupertinoLocalizations.delegate,
++          ],
++          supportedLocales: AppLocalizations.supportedLocales,
++
++          // Accessibility
++          builder: (context, child) {
++            return MediaQuery(
++              data: MediaQuery.of(context).copyWith(
++                textScaleFactor: MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.5),
++              ),
++              child: child!,
++            );
++          },
++
++          home: const SplashScreen(),
++        );
++      },
++    );
++  }
++}
+diff --git a/example/flutter_app/lib/src/config/app_config.dart b/example/flutter_app/lib/src/config/app_config.dart
+new file mode 100644
+index 0000000..344e97d
+--- /dev/null
++++ b/example/flutter_app/lib/src/config/app_config.dart
+@@ -0,0 +1,44 @@
++class AppConfig {
++  // Firebase Configuration
++  static const String firebaseProjectId = 'babel-binance-app';
++
++  // Sentry Configuration
++  static const String sentryDsn = 'YOUR_SENTRY_DSN_HERE';
++
++  // RevenueCat Configuration
++  static const String revenueCatApiKey = 'YOUR_REVENUECAT_API_KEY';
++  static const String revenueCatAppleKey = 'YOUR_APPLE_KEY';
++  static const String revenueCatGoogleKey = 'YOUR_GOOGLE_KEY';
++
++  // Stripe Configuration
++  static const String stripePublishableKey = 'YOUR_STRIPE_PUBLISHABLE_KEY';
++
++  // Mixpanel Configuration
++  static const String mixpanelToken = 'YOUR_MIXPANEL_TOKEN';
++
++  // AI Configuration
++  static const String geminiApiKey = 'YOUR_GEMINI_API_KEY';
++
++  // White Label Configuration
++  static const String appName = 'Babel Binance';
++  static const String appLogo = 'assets/images/logo.png';
++  static const String primaryColor = '#1E88E5';
++  static const String accentColor = '#FFC107';
++
++  // Feature Flags
++  static const bool enableSubscriptions = true;
++  static const bool enableBiometrics = true;
++  static const bool enableGeofencing = true;
++  static const bool enableAIChat = true;
++  static const bool enableVideoRecording = true;
++  static const bool enableAnalytics = true;
++
++  // API Configuration
++  static const String binanceApiKey = '';
++  static const String binanceApiSecret = '';
++
++  // Performance Configuration
++  static const int cacheExpirationMinutes = 30;
++  static const int maxCachedItems = 100;
++  static const int apiTimeoutSeconds = 30;
++}
+diff --git a/example/flutter_app/lib/src/config/theme_config.dart b/example/flutter_app/lib/src/config/theme_config.dart
+new file mode 100644
+index 0000000..e6e588d
+--- /dev/null
++++ b/example/flutter_app/lib/src/config/theme_config.dart
+@@ -0,0 +1,71 @@
++import 'package:flutter/material.dart';
++
++class ThemeConfig {
++  static ThemeData get lightTheme {
++    return ThemeData(
++      useMaterial3: true,
++      colorScheme: ColorScheme.fromSeed(
++        seedColor: const Color(0xFF1E88E5),
++        brightness: Brightness.light,
++      ),
++      appBarTheme: const AppBarTheme(
++        centerTitle: true,
++        elevation: 0,
++      ),
++      cardTheme: CardTheme(
++        elevation: 2,
++        shape: RoundedRectangleBorder(
++          borderRadius: BorderRadius.circular(12),
++        ),
++      ),
++      elevatedButtonTheme: ElevatedButtonThemeData(
++        style: ElevatedButton.styleFrom(
++          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
++          shape: RoundedRectangleBorder(
++            borderRadius: BorderRadius.circular(8),
++          ),
++        ),
++      ),
++      inputDecorationTheme: InputDecorationTheme(
++        border: OutlineInputBorder(
++          borderRadius: BorderRadius.circular(8),
++        ),
++        filled: true,
++      ),
++    );
++  }
++
++  static ThemeData get darkTheme {
++    return ThemeData(
++      useMaterial3: true,
++      colorScheme: ColorScheme.fromSeed(
++        seedColor: const Color(0xFF1E88E5),
++        brightness: Brightness.dark,
++      ),
++      appBarTheme: const AppBarTheme(
++        centerTitle: true,
++        elevation: 0,
++      ),
++      cardTheme: CardTheme(
++        elevation: 2,
++        shape: RoundedRectangleBorder(
++          borderRadius: BorderRadius.circular(12),
++        ),
++      ),
++      elevatedButtonTheme: ElevatedButtonThemeData(
++        style: ElevatedButton.styleFrom(
++          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
++          shape: RoundedRectangleBorder(
++            borderRadius: BorderRadius.circular(8),
++          ),
++        ),
++      ),
++      inputDecorationTheme: InputDecorationTheme(
++        border: OutlineInputBorder(
++          borderRadius: BorderRadius.circular(8),
++        ),
++        filled: true,
++      ),
++    );
++  }
++}
+diff --git a/example/flutter_app/lib/src/services/analytics_service.dart b/example/flutter_app/lib/src/services/analytics_service.dart
+new file mode 100644
+index 0000000..430b49b
+--- /dev/null
++++ b/example/flutter_app/lib/src/services/analytics_service.dart
+@@ -0,0 +1,62 @@
++import 'package:firebase_analytics/firebase_analytics.dart';
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:mixpanel_flutter/mixpanel_flutter.dart';
++import '../config/app_config.dart';
++
++final analyticsServiceProvider = Provider((ref) => AnalyticsService());
++
++class AnalyticsService {
++  late FirebaseAnalytics _firebaseAnalytics;
++  Mixpanel? _mixpanel;
++
++  Future<void> initialize() async {
++    _firebaseAnalytics = FirebaseAnalytics.instance;
++
++    if (AppConfig.enableAnalytics) {
++      _mixpanel = await Mixpanel.init(
++        AppConfig.mixpanelToken,
++        trackAutomaticEvents: true,
++      );
++    }
++  }
++
++  Future<void> logEvent(String eventName, {Map<String, dynamic>? parameters}) async {
++    await _firebaseAnalytics.logEvent(
++      name: eventName,
++      parameters: parameters,
++    );
++
++    _mixpanel?.track(eventName, properties: parameters);
++  }
++
++  Future<void> setUserId(String userId) async {
++    await _firebaseAnalytics.setUserId(id: userId);
++    _mixpanel?.identify(userId);
++  }
++
++  Future<void> setUserProperty(String name, String value) async {
++    await _firebaseAnalytics.setUserProperty(name: name, value: value);
++    _mixpanel?.getPeople().set(name, value);
++  }
++
++  Future<void> logScreenView(String screenName) async {
++    await _firebaseAnalytics.logScreenView(screenName: screenName);
++    _mixpanel?.track('\$screen_view', properties: {'screen_name': screenName});
++  }
++
++  Future<void> logPurchase({
++    required double value,
++    required String currency,
++    required String itemId,
++  }) async {
++    await _firebaseAnalytics.logPurchase(
++      value: value,
++      currency: currency,
++    );
++
++    _mixpanel?.getPeople().trackCharge(value, properties: {
++      'currency': currency,
++      'item_id': itemId,
++    });
++  }
++}
+diff --git a/example/flutter_app/lib/src/services/auth_service.dart b/example/flutter_app/lib/src/services/auth_service.dart
+new file mode 100644
+index 0000000..7762b82
+--- /dev/null
++++ b/example/flutter_app/lib/src/services/auth_service.dart
+@@ -0,0 +1,75 @@
++import 'package:firebase_auth/firebase_auth.dart';
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:local_auth/local_auth.dart';
++
++final authServiceProvider = Provider((ref) => AuthService());
++
++class AuthService {
++  final FirebaseAuth _auth = FirebaseAuth.instance;
++  final LocalAuthentication _localAuth = LocalAuthentication();
++
++  Future<void> initialize() async {
++    // Initialize auth state listeners
++    _auth.authStateChanges().listen((User? user) {
++      if (user != null) {
++        // User is signed in
++      } else {
++        // User is signed out
++      }
++    });
++  }
++
++  User? get currentUser => _auth.currentUser;
++  bool get isAuthenticated => _auth.currentUser != null;
++
++  Future<UserCredential> signInWithEmailAndPassword(
++    String email,
++    String password,
++  ) async {
++    return await _auth.signInWithEmailAndPassword(
++      email: email,
++      password: password,
++    );
++  }
++
++  Future<UserCredential> createUserWithEmailAndPassword(
++    String email,
++    String password,
++  ) async {
++    return await _auth.createUserWithEmailAndPassword(
++      email: email,
++      password: password,
++    );
++  }
++
++  Future<void> signOut() async {
++    await _auth.signOut();
++  }
++
++  Future<void> resetPassword(String email) async {
++    await _auth.sendPasswordResetEmail(email: email);
++  }
++
++  // Biometric Authentication
++  Future<bool> isBiometricsAvailable() async {
++    return await _localAuth.canCheckBiometrics;
++  }
++
++  Future<bool> authenticateWithBiometrics() async {
++    try {
++      return await _localAuth.authenticate(
++        localizedReason: 'Authenticate to access your account',
++        options: const AuthenticationOptions(
++          stickyAuth: true,
++          biometricOnly: true,
++        ),
++      );
++    } catch (e) {
++      return false;
++    }
++  }
++
++  Future<List<BiometricType>> getAvailableBiometrics() async {
++    return await _localAuth.getAvailableBiometrics();
++  }
++}
+diff --git a/example/flutter_app/lib/src/services/geofencing_service.dart b/example/flutter_app/lib/src/services/geofencing_service.dart
+new file mode 100644
+index 0000000..eed0623
+--- /dev/null
++++ b/example/flutter_app/lib/src/services/geofencing_service.dart
+@@ -0,0 +1,78 @@
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:geolocator/geolocator.dart';
++import 'package:geofence_service/geofence_service.dart';
++
++final geofencingServiceProvider = Provider((ref) => GeofencingService());
++
++class GeofencingService {
++  final GeofenceService _geofenceService = GeofenceService.instance.setup(
++    interval: 5000,
++    accuracy: 100,
++    loiteringDelayMs: 60000,
++    statusChangeDelayMs: 10000,
++    useActivityRecognition: true,
++    allowMockLocations: false,
++    printDevLog: true,
++    geofenceRadiusSortType: GeofenceRadiusSortType.DESC,
++  );
++
++  final List<Geofence> _geofenceList = [];
++
++  Future<bool> checkPermissions() async {
++    LocationPermission permission = await Geolocator.checkPermission();
++    if (permission == LocationPermission.denied) {
++      permission = await Geolocator.requestPermission();
++    }
++
++    return permission == LocationPermission.whileInUse ||
++        permission == LocationPermission.always;
++  }
++
++  Future<Position?> getCurrentLocation() async {
++    if (!await checkPermissions()) {
++      return null;
++    }
++
++    return await Geolocator.getCurrentPosition();
++  }
++
++  void addGeofence({
++    required String id,
++    required double latitude,
++    required double longitude,
++    required double radius,
++  }) {
++    _geofenceList.add(
++      Geofence(
++        id: id,
++        latitude: latitude,
++        longitude: longitude,
++        radius: [
++          GeofenceRadius(id: 'radius_$radius', length: radius),
++        ],
++      ),
++    );
++  }
++
++  Future<void> startGeofencing({
++    required Function(Geofence, GeofenceRadius, GeofenceStatus) onGeofenceStatusChanged,
++  }) async {
++    await _geofenceService.addGeofenceStatusChangeListener(onGeofenceStatusChanged);
++    await _geofenceService.start(_geofenceList).catchError((error) {
++      return null;
++    });
++  }
++
++  Future<void> stopGeofencing() async {
++    await _geofenceService.stop();
++  }
++
++  Stream<Position> get positionStream {
++    return Geolocator.getPositionStream(
++      locationSettings: const LocationSettings(
++        accuracy: LocationAccuracy.high,
++        distanceFilter: 10,
++      ),
++    );
++  }
++}
+diff --git a/example/flutter_app/lib/src/services/payment_service.dart b/example/flutter_app/lib/src/services/payment_service.dart
+new file mode 100644
+index 0000000..7e34593
+--- /dev/null
++++ b/example/flutter_app/lib/src/services/payment_service.dart
+@@ -0,0 +1,50 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:stripe_flutter/stripe_flutter.dart';
++import '../config/app_config.dart';
++
++final paymentServiceProvider = Provider((ref) => PaymentService());
++
++class PaymentService {
++  Future<void> initialize() async {
++    Stripe.publishableKey = AppConfig.stripePublishableKey;
++    await Stripe.instance.applySettings();
++  }
++
++  Future<PaymentIntent?> createPaymentIntent({
++    required int amount,
++    required String currency,
++    Map<String, dynamic>? metadata,
++  }) async {
++    try {
++      // In production, call your backend to create payment intent
++      // This is just a placeholder
++      return null;
++    } catch (e) {
++      return null;
++    }
++  }
++
++  Future<bool> processPayment({
++    required String paymentIntentClientSecret,
++    required BuildContext context,
++  }) async {
++    try {
++      final paymentIntent = await Stripe.instance.confirmPayment(
++        paymentIntentClientSecret: paymentIntentClientSecret,
++      );
++
++      return paymentIntent.status == PaymentIntentsStatus.Succeeded;
++    } catch (e) {
++      return false;
++    }
++  }
++
++  Future<void> presentPaymentSheet() async {
++    try {
++      await Stripe.instance.presentPaymentSheet();
++    } catch (e) {
++      rethrow;
++    }
++  }
++}
+diff --git a/example/flutter_app/lib/src/services/subscription_service.dart b/example/flutter_app/lib/src/services/subscription_service.dart
+new file mode 100644
+index 0000000..e92efd2
+--- /dev/null
++++ b/example/flutter_app/lib/src/services/subscription_service.dart
+@@ -0,0 +1,56 @@
++import 'package:flutter_riverpod/flutter_riverpod.dart';
++import 'package:purchases_flutter/purchases_flutter.dart';
++import '../config/app_config.dart';
++
++final subscriptionServiceProvider = Provider((ref) => SubscriptionService());
++
++class SubscriptionService {
++  Future<void> initialize() async {
++    await Purchases.setLogLevel(LogLevel.debug);
++
++    PurchasesConfiguration configuration;
++    configuration = PurchasesConfiguration(AppConfig.revenueCatApiKey)
++      ..appUserID = null
++      ..observerMode = false;
++
++    await Purchases.configure(configuration);
++  }
++
++  Future<Offerings?> getOfferings() async {
++    try {
++      return await Purchases.getOfferings();
++    } catch (e) {
++      return null;
++    }
++  }
++
++  Future<CustomerInfo> purchasePackage(Package package) async {
++    try {
++      final purchaserInfo = await Purchases.purchasePackage(package);
++      return purchaserInfo.customerInfo;
++    } catch (e) {
++      rethrow;
++    }
++  }
++
++  Future<CustomerInfo> restorePurchases() async {
++    try {
++      return await Purchases.restorePurchases();
++    } catch (e) {
++      rethrow;
++    }
++  }
++
++  Future<CustomerInfo> getCustomerInfo() async {
++    return await Purchases.getCustomerInfo();
++  }
++
++  Future<bool> isSubscriptionActive() async {
++    final customerInfo = await getCustomerInfo();
++    return customerInfo.entitlements.active.isNotEmpty;
++  }
++
++  Stream<CustomerInfo> get customerInfoStream {
++    return Purchases.customerInfoStream;
++  }
++}
+diff --git a/example/flutter_app/pubspec.yaml b/example/flutter_app/pubspec.yaml
+new file mode 100644
+index 0000000..c896bee
+--- /dev/null
++++ b/example/flutter_app/pubspec.yaml
+@@ -0,0 +1,113 @@
++name: babel_binance_example
++description: Comprehensive Flutter example app for Babel Binance with subscription, payments, privacy, biometrics, and more
++version: 1.0.0+1
++publish_to: none
++
++environment:
++  sdk: '>=3.0.0 <4.0.0'
++
++dependencies:
++  flutter:
++    sdk: flutter
++
++  # Binance API
++  babel_binance:
++    path: ../../
++
++  # State Management
++  flutter_riverpod: ^2.4.9
++  riverpod_annotation: ^2.3.3
++
++  # Firebase
++  firebase_core: ^2.24.2
++  firebase_auth: ^4.15.3
++  cloud_firestore: ^4.13.6
++  firebase_storage: ^11.5.6
++  firebase_analytics: ^10.7.4
++
++  # Payments & Subscriptions
++  purchases_flutter: ^6.21.0
++  in_app_purchase: ^3.1.11
++  stripe_flutter: ^10.1.1
++
++  # Biometrics & Security
++  local_auth: ^2.1.8
++  flutter_secure_storage: ^9.0.0
++
++  # Location & Geofencing
++  geolocator: ^11.0.0
++  geofence_service: ^5.2.3
++  permission_handler: ^11.2.0
++
++  # Media Recording
++  camera: ^0.10.5+9
++  image_picker: ^1.0.7
++  record: ^5.0.4
++  path_provider: ^2.1.2
++
++  # Internationalization
++  intl: ^0.19.0
++  flutter_localizations:
++    sdk: flutter
++
++  # Analytics
++  mixpanel_flutter: ^2.2.0
++  sentry_flutter: ^7.14.0
++
++  # AI/ML
++  google_generative_ai: ^0.2.2
++  flutter_chat_ui: ^1.6.12
++
++  # UI Components
++  flutter_screenutil: ^5.9.0
++  animations: ^2.0.11
++  lottie: ^3.0.0
++  shimmer: ^3.0.0
++  cached_network_image: ^3.3.1
++
++  # Contacts
++  contacts_service: ^0.6.3
++  flutter_contacts: ^1.1.7+1
++
++  # Utilities
++  shared_preferences: ^2.2.2
++  connectivity_plus: ^5.0.2
++  package_info_plus: ^5.0.1
++  device_info_plus: ^10.1.0
++  http: ^1.2.0
++  dio: ^5.4.0
++
++  # Widget Extensions
++  flutter_widget_from_html: ^0.14.11
++
++dev_dependencies:
++  flutter_test:
++    sdk: flutter
++  flutter_lints: ^3.0.1
++
++  # Testing
++  mockito: ^5.4.4
++  build_runner: ^2.4.8
++  riverpod_generator: ^2.3.9
++  integration_test:
++    sdk: flutter
++
++  # Code Generation
++  json_serializable: ^6.7.1
++  freezed: ^2.4.6
++  freezed_annotation: ^2.4.1
++
++flutter:
++  uses-material-design: true
++
++  assets:
++    - assets/images/
++    - assets/animations/
++    - assets/translations/
++
++  fonts:
++    - family: Roboto
++      fonts:
++        - asset: assets/fonts/Roboto-Regular.ttf
++        - asset: assets/fonts/Roboto-Bold.ttf
++          weight: 700
+-- 
+2.43.0
+
