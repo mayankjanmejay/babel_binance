@@ -81,11 +81,3 @@ class TokenBucket {
     _lastRefill = DateTime.now();
   }
 }
-
-extension on double {
-  double clamp(num min, num max) {
-    if (this < min) return min.toDouble();
-    if (this > max) return max.toDouble();
-    return this;
-  }
-}

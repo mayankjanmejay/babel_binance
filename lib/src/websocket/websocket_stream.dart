@@ -59,6 +59,9 @@ class BinanceWebSocketStream {
     return DateTime.now().difference(_connectedAt!);
   }
 
+  /// Last time a pong was received (for connection health monitoring)
+  DateTime? get lastPongTime => _lastPongReceived;
+
   /// Connect to WebSocket
   Future<void> connect() async {
     if (_isDisposed) throw StateError('Stream is disposed');
