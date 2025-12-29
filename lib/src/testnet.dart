@@ -1,7 +1,6 @@
 import 'binance_base.dart';
 import 'websocket/websocket_client.dart';
 import 'websocket/websocket_config.dart';
-import 'websocket/stream_types.dart';
 
 /// Binance Testnet integration for realistic testing without real money
 ///
