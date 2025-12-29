@@ -131,6 +131,14 @@ class BinanceBase {
       }
     }
 
+    // Testnet Spot API endpoints with failover
+    if (host == 'testnet.binance.vision') {
+      return [
+        '$scheme://testnet.binance.vision$port$path',
+        '$scheme://api1.testnet.binance.vision$port$path',
+      ];
+    }
+
     // For non-Binance domains or unrecognized patterns, return original URL
     return [baseUrl];
   }
