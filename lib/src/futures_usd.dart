@@ -60,31 +60,57 @@ class FuturesTrading extends BinanceBase {
           baseUrl: 'https://fapi.binance.com',
         );
 
+  /// Place a new futures order
+  ///
+  /// [symbol] Trading pair (e.g., 'BTCUSDT')
+  /// [side] Order side: 'BUY' or 'SELL'
+  /// [type] Order type: 'LIMIT', 'MARKET', 'STOP', 'STOP_MARKET', etc.
+  /// [quantity] Order quantity as string for precision (e.g., '0.001')
+  /// [price] Limit price as string (required for LIMIT orders)
+  /// [timeInForce] 'GTC', 'IOC', 'FOK', 'GTX'
+  /// [positionSide] 'BOTH', 'LONG', 'SHORT' (for hedge mode)
+  /// [stopPrice] Stop price as string for stop orders
   Future<Map<String, dynamic>> placeOrder({
     required String symbol,
     required String side,
     required String type,
-    required double quantity,
-    double? price,
+    required String quantity,
+    String? price,
     String? timeInForce,
     String? positionSide,
-    double? stopPrice,
+    String? stopPrice,
     int? recvWindow,
   }) {
+    // Validate side
+    final normalizedSide = side.toUpperCase();
+    if (!['BUY', 'SELL'].contains(normalizedSide)) {
+      throw ArgumentError('side must be BUY or SELL, got: $side');
+    }
+
+    // Validate type
+    final normalizedType = type.toUpperCase();
+    const validTypes = [
+      'LIMIT', 'MARKET', 'STOP', 'STOP_MARKET', 'TAKE_PROFIT',
+      'TAKE_PROFIT_MARKET', 'TRAILING_STOP_MARKET'
+    ];
+    if (!validTypes.contains(normalizedType)) {
+      throw ArgumentError('type must be one of $validTypes, got: $type');
+    }
+
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': normalizedSide,
+      'type': normalizedType,
       'quantity': quantity,
     };
 
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
-    if (positionSide != null) params['positionSide'] = positionSide;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
     if (stopPrice != null) params['stopPrice'] = stopPrice;
     if (recvWindow != null) params['recvWindow'] = recvWindow;
 
-    return sendRequest('POST', '/fapi/v1/order', params: params);
+    return sendRequest('POST', '/fapi/v1/order', params: params, isOrder: true);
   }
 
   Future<Map<String, dynamic>> getOrderStatus({
@@ -100,19 +126,23 @@ class FuturesTrading extends BinanceBase {
     return sendRequest('GET', '/fapi/v1/order', params: params);
   }
 
+  /// Change position margin
+  ///
+  /// [type] '1' for Add position margin, '2' for Reduce position margin
+  /// [amount] Amount as string for precision (e.g., '100.0')
   Future<Map<String, dynamic>> changePositionMargin({
     required String symbol,
-    required String type, // 1: Add position margin, 2: Reduce position margin
-    required double amount,
+    required String type,
+    required String amount,
     String? positionSide,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
+      'symbol': symbol.toUpperCase(),
       'type': type,
       'amount': amount,
     };
-    if (positionSide != null) params['positionSide'] = positionSide;
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
     if (recvWindow != null) params['recvWindow'] = recvWindow;
     return sendRequest('POST', '/fapi/v1/positionMargin', params: params);
   }

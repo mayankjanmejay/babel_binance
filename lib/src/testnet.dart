@@ -300,13 +300,13 @@ class TestnetTrading extends BinanceBase {
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? quoteOrderQty,
-    double? price,
+    String? quantity,
+    String? quoteOrderQty,
+    String? price,
     String? newClientOrderId,
-    double? stopPrice,
-    double? trailingDelta,
-    double? icebergQty,
+    String? stopPrice,
+    String? trailingDelta,
+    String? icebergQty,
     String? newOrderRespType,
     String? timeInForce,
     String? selfTradePreventionMode,
@@ -314,10 +314,16 @@ class TestnetTrading extends BinanceBase {
     int? strategyType,
     int? recvWindow,
   }) {
+    // Validate side
+    final normalizedSide = side.toUpperCase();
+    if (!['BUY', 'SELL'].contains(normalizedSide)) {
+      throw ArgumentError('side must be BUY or SELL, got: $side');
+    }
+
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': normalizedSide,
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
@@ -328,7 +334,7 @@ class TestnetTrading extends BinanceBase {
     if (trailingDelta != null) params['trailingDelta'] = trailingDelta;
     if (icebergQty != null) params['icebergQty'] = icebergQty;
     if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (selfTradePreventionMode != null) {
       params['selfTradePreventionMode'] = selfTradePreventionMode;
     }
@@ -346,22 +352,22 @@ class TestnetTrading extends BinanceBase {
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? quoteOrderQty,
-    double? price,
+    String? quantity,
+    String? quoteOrderQty,
+    String? price,
     String? newClientOrderId,
-    double? stopPrice,
-    double? trailingDelta,
-    double? icebergQty,
+    String? stopPrice,
+    String? trailingDelta,
+    String? icebergQty,
     String? timeInForce,
     String? selfTradePreventionMode,
     bool? computeCommissionRates,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
@@ -371,7 +377,7 @@ class TestnetTrading extends BinanceBase {
     if (stopPrice != null) params['stopPrice'] = stopPrice;
     if (trailingDelta != null) params['trailingDelta'] = trailingDelta;
     if (icebergQty != null) params['icebergQty'] = icebergQty;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (selfTradePreventionMode != null) {
       params['selfTradePreventionMode'] = selfTradePreventionMode;
     }
@@ -450,31 +456,31 @@ class TestnetTrading extends BinanceBase {
     required String type,
     required String cancelReplaceMode,
     String? timeInForce,
-    double? quantity,
-    double? quoteOrderQty,
-    double? price,
+    String? quantity,
+    String? quoteOrderQty,
+    String? price,
     String? cancelNewClientOrderId,
     String? cancelOrigClientOrderId,
     int? cancelOrderId,
     String? newClientOrderId,
     int? strategyId,
     int? strategyType,
-    double? stopPrice,
-    double? trailingDelta,
-    double? icebergQty,
+    String? stopPrice,
+    String? trailingDelta,
+    String? icebergQty,
     String? newOrderRespType,
     String? selfTradePreventionMode,
     String? cancelRestrictions,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
       'cancelReplaceMode': cancelReplaceMode,
     };
 
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (quantity != null) params['quantity'] = quantity;
     if (quoteOrderQty != null) params['quoteOrderQty'] = quoteOrderQty;
     if (price != null) params['price'] = price;
@@ -513,18 +519,18 @@ class TestnetTrading extends BinanceBase {
   Future<Map<String, dynamic>> placeOcoOrder({
     required String symbol,
     required String side,
-    required double quantity,
-    required double price,
-    required double stopPrice,
+    required String quantity,
+    required String price,
+    required String stopPrice,
     String? listClientOrderId,
     String? limitClientOrderId,
-    double? limitIcebergQty,
-    double? limitStrategyId,
+    String? limitIcebergQty,
+    int? limitStrategyId,
     int? limitStrategyType,
-    double? stopLimitPrice,
+    String? stopLimitPrice,
     String? stopClientOrderId,
-    double? stopIcebergQty,
-    double? stopStrategyId,
+    String? stopIcebergQty,
+    int? stopStrategyId,
     int? stopStrategyType,
     String? stopLimitTimeInForce,
     String? newOrderRespType,
@@ -532,8 +538,8 @@ class TestnetTrading extends BinanceBase {
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
       'quantity': quantity,
       'price': price,
       'stopPrice': stopPrice,
@@ -558,7 +564,7 @@ class TestnetTrading extends BinanceBase {
     if (stopStrategyId != null) params['stopStrategyId'] = stopStrategyId;
     if (stopStrategyType != null) params['stopStrategyType'] = stopStrategyType;
     if (stopLimitTimeInForce != null) {
-      params['stopLimitTimeInForce'] = stopLimitTimeInForce;
+      params['stopLimitTimeInForce'] = stopLimitTimeInForce.toUpperCase();
     }
     if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
     if (selfTradePreventionMode != null) {
@@ -646,22 +652,22 @@ class TestnetTrading extends BinanceBase {
     required String symbol,
     required String workingType,
     required String workingSide,
-    required double workingPrice,
-    required double workingQuantity,
+    required String workingPrice,
+    required String workingQuantity,
     required String pendingType,
     required String pendingSide,
-    required double pendingQuantity,
+    required String pendingQuantity,
     String? listClientOrderId,
     String? workingClientOrderId,
-    double? workingIcebergQty,
+    String? workingIcebergQty,
     String? workingTimeInForce,
     int? workingStrategyId,
     int? workingStrategyType,
     String? pendingClientOrderId,
-    double? pendingPrice,
-    double? pendingStopPrice,
-    double? pendingTrailingDelta,
-    double? pendingIcebergQty,
+    String? pendingPrice,
+    String? pendingStopPrice,
+    String? pendingTrailingDelta,
+    String? pendingIcebergQty,
     String? pendingTimeInForce,
     int? pendingStrategyId,
     int? pendingStrategyType,
@@ -670,13 +676,13 @@ class TestnetTrading extends BinanceBase {
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'workingType': workingType,
-      'workingSide': workingSide,
+      'symbol': symbol.toUpperCase(),
+      'workingType': workingType.toUpperCase(),
+      'workingSide': workingSide.toUpperCase(),
       'workingPrice': workingPrice,
       'workingQuantity': workingQuantity,
-      'pendingType': pendingType,
-      'pendingSide': pendingSide,
+      'pendingType': pendingType.toUpperCase(),
+      'pendingSide': pendingSide.toUpperCase(),
       'pendingQuantity': pendingQuantity,
     };
 
@@ -690,7 +696,7 @@ class TestnetTrading extends BinanceBase {
       params['workingIcebergQty'] = workingIcebergQty;
     }
     if (workingTimeInForce != null) {
-      params['workingTimeInForce'] = workingTimeInForce;
+      params['workingTimeInForce'] = workingTimeInForce.toUpperCase();
     }
     if (workingStrategyId != null) {
       params['workingStrategyId'] = workingStrategyId;
@@ -710,7 +716,7 @@ class TestnetTrading extends BinanceBase {
       params['pendingIcebergQty'] = pendingIcebergQty;
     }
     if (pendingTimeInForce != null) {
-      params['pendingTimeInForce'] = pendingTimeInForce;
+      params['pendingTimeInForce'] = pendingTimeInForce.toUpperCase();
     }
     if (pendingStrategyId != null) {
       params['pendingStrategyId'] = pendingStrategyId;
@@ -738,31 +744,31 @@ class TestnetTrading extends BinanceBase {
     required String symbol,
     required String workingType,
     required String workingSide,
-    required double workingPrice,
-    required double workingQuantity,
+    required String workingPrice,
+    required String workingQuantity,
     required String pendingSide,
-    required double pendingQuantity,
-    required double pendingAbovePrice,
-    required double pendingBelowPrice,
+    required String pendingQuantity,
+    required String pendingAbovePrice,
+    required String pendingBelowPrice,
     String? listClientOrderId,
     String? workingClientOrderId,
-    double? workingIcebergQty,
+    String? workingIcebergQty,
     String? workingTimeInForce,
     int? workingStrategyId,
     int? workingStrategyType,
     String? pendingAboveType,
     String? pendingAboveClientOrderId,
-    double? pendingAboveStopPrice,
-    double? pendingAboveTrailingDelta,
-    double? pendingAboveIcebergQty,
+    String? pendingAboveStopPrice,
+    String? pendingAboveTrailingDelta,
+    String? pendingAboveIcebergQty,
     String? pendingAboveTimeInForce,
     int? pendingAboveStrategyId,
     int? pendingAboveStrategyType,
     String? pendingBelowType,
     String? pendingBelowClientOrderId,
-    double? pendingBelowStopPrice,
-    double? pendingBelowTrailingDelta,
-    double? pendingBelowIcebergQty,
+    String? pendingBelowStopPrice,
+    String? pendingBelowTrailingDelta,
+    String? pendingBelowIcebergQty,
     String? pendingBelowTimeInForce,
     int? pendingBelowStrategyId,
     int? pendingBelowStrategyType,
@@ -771,12 +777,12 @@ class TestnetTrading extends BinanceBase {
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'workingType': workingType,
-      'workingSide': workingSide,
+      'symbol': symbol.toUpperCase(),
+      'workingType': workingType.toUpperCase(),
+      'workingSide': workingSide.toUpperCase(),
       'workingPrice': workingPrice,
       'workingQuantity': workingQuantity,
-      'pendingSide': pendingSide,
+      'pendingSide': pendingSide.toUpperCase(),
       'pendingQuantity': pendingQuantity,
       'pendingAbovePrice': pendingAbovePrice,
       'pendingBelowPrice': pendingBelowPrice,
@@ -792,7 +798,7 @@ class TestnetTrading extends BinanceBase {
       params['workingIcebergQty'] = workingIcebergQty;
     }
     if (workingTimeInForce != null) {
-      params['workingTimeInForce'] = workingTimeInForce;
+      params['workingTimeInForce'] = workingTimeInForce.toUpperCase();
     }
     if (workingStrategyId != null) {
       params['workingStrategyId'] = workingStrategyId;
@@ -800,7 +806,7 @@ class TestnetTrading extends BinanceBase {
     if (workingStrategyType != null) {
       params['workingStrategyType'] = workingStrategyType;
     }
-    if (pendingAboveType != null) params['pendingAboveType'] = pendingAboveType;
+    if (pendingAboveType != null) params['pendingAboveType'] = pendingAboveType.toUpperCase();
     if (pendingAboveClientOrderId != null) {
       params['pendingAboveClientOrderId'] = pendingAboveClientOrderId;
     }
@@ -814,7 +820,7 @@ class TestnetTrading extends BinanceBase {
       params['pendingAboveIcebergQty'] = pendingAboveIcebergQty;
     }
     if (pendingAboveTimeInForce != null) {
-      params['pendingAboveTimeInForce'] = pendingAboveTimeInForce;
+      params['pendingAboveTimeInForce'] = pendingAboveTimeInForce.toUpperCase();
     }
     if (pendingAboveStrategyId != null) {
       params['pendingAboveStrategyId'] = pendingAboveStrategyId;
@@ -822,7 +828,7 @@ class TestnetTrading extends BinanceBase {
     if (pendingAboveStrategyType != null) {
       params['pendingAboveStrategyType'] = pendingAboveStrategyType;
     }
-    if (pendingBelowType != null) params['pendingBelowType'] = pendingBelowType;
+    if (pendingBelowType != null) params['pendingBelowType'] = pendingBelowType.toUpperCase();
     if (pendingBelowClientOrderId != null) {
       params['pendingBelowClientOrderId'] = pendingBelowClientOrderId;
     }
@@ -836,7 +842,7 @@ class TestnetTrading extends BinanceBase {
       params['pendingBelowIcebergQty'] = pendingBelowIcebergQty;
     }
     if (pendingBelowTimeInForce != null) {
-      params['pendingBelowTimeInForce'] = pendingBelowTimeInForce;
+      params['pendingBelowTimeInForce'] = pendingBelowTimeInForce.toUpperCase();
     }
     if (pendingBelowStrategyId != null) {
       params['pendingBelowStrategyId'] = pendingBelowStrategyId;
@@ -1109,37 +1115,39 @@ class TestnetFuturesUsdTrading extends BinanceBase {
         );
 
   /// Place a new futures order on testnet
+  ///
+  /// All financial values use String type for precision
   Future<Map<String, dynamic>> placeOrder({
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? price,
+    String? quantity,
+    String? price,
     String? timeInForce,
     String? positionSide,
-    double? stopPrice,
+    String? stopPrice,
     String? workingType,
     bool? priceProtect,
     String? newOrderRespType,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
-    if (positionSide != null) params['positionSide'] = positionSide;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
     if (stopPrice != null) params['stopPrice'] = stopPrice;
     if (workingType != null) params['workingType'] = workingType;
     if (priceProtect != null) params['priceProtect'] = priceProtect;
     if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
     if (recvWindow != null) params['recvWindow'] = recvWindow;
 
-    return sendRequest('POST', '/fapi/v1/order', params: params);
+    return sendRequest('POST', '/fapi/v1/order', params: params, isOrder: true);
   }
 
   /// Get testnet futures account information
@@ -1300,23 +1308,25 @@ class DemoTrading extends BinanceBase {
         );
 
   /// Place a new order
+  ///
+  /// All financial values use String type for precision
   Future<Map<String, dynamic>> placeOrder({
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? quoteOrderQty,
-    double? price,
+    String? quantity,
+    String? quoteOrderQty,
+    String? price,
     String? newClientOrderId,
-    double? stopPrice,
+    String? stopPrice,
     String? timeInForce,
     String? newOrderRespType,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
@@ -1324,7 +1334,7 @@ class DemoTrading extends BinanceBase {
     if (price != null) params['price'] = price;
     if (newClientOrderId != null) params['newClientOrderId'] = newClientOrderId;
     if (stopPrice != null) params['stopPrice'] = stopPrice;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
     if (recvWindow != null) params['recvWindow'] = recvWindow;
 
@@ -1336,20 +1346,20 @@ class DemoTrading extends BinanceBase {
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? price,
+    String? quantity,
+    String? price,
     String? timeInForce,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (recvWindow != null) params['recvWindow'] = recvWindow;
 
     return sendRequest('POST', '/api/v3/order/test', params: params);
@@ -1572,29 +1582,31 @@ class DemoFuturesUsdTrading extends BinanceBase {
         );
 
   /// Place a new futures order
+  ///
+  /// All financial values use String type for precision
   Future<Map<String, dynamic>> placeOrder({
     required String symbol,
     required String side,
     required String type,
-    double? quantity,
-    double? price,
+    String? quantity,
+    String? price,
     String? timeInForce,
     String? positionSide,
-    double? stopPrice,
+    String? stopPrice,
     String? workingType,
     String? newOrderRespType,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
     if (quantity != null) params['quantity'] = quantity;
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
-    if (positionSide != null) params['positionSide'] = positionSide;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
     if (stopPrice != null) params['stopPrice'] = stopPrice;
     if (workingType != null) params['workingType'] = workingType;
     if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
@@ -1912,6 +1924,7 @@ class TestnetFuturesCoinMTrading extends BinanceBase {
 
   /// Place a new COIN-M futures order on testnet (Weight: 1)
   ///
+  /// All financial values use String type for precision
   /// [type] LIMIT, MARKET, STOP, STOP_MARKET, TAKE_PROFIT, TAKE_PROFIT_MARKET,
   ///        TRAILING_STOP_MARKET
   /// [side] BUY or SELL
@@ -1922,26 +1935,26 @@ class TestnetFuturesCoinMTrading extends BinanceBase {
     required String type,
     String? positionSide,
     String? timeInForce,
-    double? quantity,
+    String? quantity,
     bool? reduceOnly,
-    double? price,
+    String? price,
     String? newClientOrderId,
-    double? stopPrice,
-    double? activationPrice,
-    double? callbackRate,
+    String? stopPrice,
+    String? activationPrice,
+    String? callbackRate,
     String? workingType,
     bool? priceProtect,
     String? newOrderRespType,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': side.toUpperCase(),
+      'type': type.toUpperCase(),
     };
 
-    if (positionSide != null) params['positionSide'] = positionSide;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (quantity != null) params['quantity'] = quantity;
     if (reduceOnly != null) params['reduceOnly'] = reduceOnly;
     if (price != null) params['price'] = price;
