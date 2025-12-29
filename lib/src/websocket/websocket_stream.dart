@@ -19,6 +19,9 @@ class BinanceWebSocketStream {
   final WebSocketConfig config;
   final void Function(String)? onDebug;
 
+  /// Maximum buffer size to prevent memory issues during high-frequency updates
+  static const int maxBufferSize = 10000;
+
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   Timer? _pingTimer;
@@ -32,6 +35,10 @@ class BinanceWebSocketStream {
 
   final _messageController = StreamController<dynamic>.broadcast();
   final _stateController = StreamController<ConnectionState>.broadcast();
+
+  /// Track buffered messages to prevent memory overflow
+  int _bufferedMessages = 0;
+  int _droppedMessages = 0;
 
   bool _isDisposed = false;
 
@@ -145,7 +152,10 @@ class BinanceWebSocketStream {
     _debug('Sent: $data');
   }
 
-  /// Handle incoming message
+  /// Get count of dropped messages due to buffer overflow
+  int get droppedMessages => _droppedMessages;
+
+  /// Handle incoming message with buffer overflow protection
   void _handleMessage(dynamic message) {
     _debug('Received: $message');
 
@@ -158,9 +168,28 @@ class BinanceWebSocketStream {
         return;
       }
 
+      // Check buffer limit to prevent memory overflow
+      if (_bufferedMessages >= maxBufferSize) {
+        _droppedMessages++;
+        if (_droppedMessages % 100 == 1) {
+          // Log warning periodically, not for every dropped message
+          _debug('WARNING: Message buffer overflow - dropping messages. '
+              'Total dropped: $_droppedMessages. Consumer is too slow.');
+        }
+        return;
+      }
+
       // Emit message to subscribers
+      _bufferedMessages++;
       _messageController.add(data);
 
+      // Reset buffer count when stream has caught up
+      // (simplified approach - reset periodically)
+      if (_bufferedMessages > 0) {
+        Future.delayed(Duration(milliseconds: 10), () {
+          if (_bufferedMessages > 0) _bufferedMessages--;
+        });
+      }
     } catch (e) {
       _debug('Error parsing message: $e');
       _messageController.addError(e);

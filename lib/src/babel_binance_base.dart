@@ -110,17 +110,41 @@ class Binance {
     );
   }
 
-  /// Dispose and clean up resources
+  /// Dispose and clean up all resources
+  ///
+  /// Call this when you're done using the Binance client to properly
+  /// close all HTTP connections, WebSocket connections, and release resources.
   Future<void> dispose() async {
+    // Dispose spot trading resources
     spot.market.dispose();
-    futuresUsd.dispose();
-    margin.dispose();
-    await testnetSpot.dispose();
-    await demoSpot.dispose();
-  }
-}
+    spot.trading.dispose();
+    spot.userDataStream.dispose();
 
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
+    // Dispose simulated convert
+    simulatedConvert.dispose();
+
+    // Dispose futures resources
+    futuresUsd.dispose();
+
+    // Dispose margin resources
+    margin.dispose();
+
+    // Dispose testnet resources (async due to WebSocket)
+    await testnetSpot.dispose();
+
+    // Dispose testnet futures
+    testnetFutures.market.dispose();
+    testnetFutures.trading.dispose();
+
+    // Dispose testnet COIN-M futures
+    testnetFuturesCoinM.market.dispose();
+    testnetFuturesCoinM.trading.dispose();
+
+    // Dispose demo resources (async due to WebSocket)
+    await demoSpot.dispose();
+
+    // Dispose demo futures
+    demoFutures.market.dispose();
+    demoFutures.trading.dispose();
+  }
 }

@@ -12,8 +12,9 @@ import 'exceptions/network_exception.dart';
 import 'exceptions/validation_exception.dart';
 
 class BinanceBase {
-  final String? apiKey;
-  final String? apiSecret;
+  // Private credentials for security
+  final String? _apiKey;
+  final String? _apiSecret;
   final String baseUrl;
   final BinanceConfig config;
   final BinanceLogger logger;
@@ -27,16 +28,26 @@ class BinanceBase {
   int _serverTimeOffset = 0;
   DateTime? _lastServerTimeSync;
 
+  // Lock for server time sync to prevent race conditions
+  Completer<void>? _serverTimeSyncLock;
+
+  /// Returns true if API credentials are configured
+  bool get hasCredentials => _apiKey != null && _apiSecret != null;
+
+  /// Returns the API key (for headers) - null if not configured
+  String? get apiKey => _apiKey;
+
   BinanceBase({
-    this.apiKey,
-    this.apiSecret,
+    String? apiKey,
+    String? apiSecret,
     required this.baseUrl,
     BinanceConfig? config,
     BinanceLogger? logger,
-  }) : config = config ?? BinanceConfig.defaultConfig,
-       logger = logger ?? const NoOpLogger(),
-       _endpoints = _generateEndpoints(baseUrl) {
-
+  })  : _apiKey = apiKey,
+        _apiSecret = apiSecret,
+        config = config ?? BinanceConfig.defaultConfig,
+        logger = logger ?? const NoOpLogger(),
+        _endpoints = _generateEndpoints(baseUrl) {
     rateLimiter = RateLimiter(
       config: this.config.rateLimitConfig,
     );
@@ -44,13 +55,21 @@ class BinanceBase {
     _httpClient = BinanceHttpClient(config: this.config);
 
     // Sync server time if enabled
-    if (this.config.syncServerTime && apiSecret != null) {
+    if (this.config.syncServerTime && _apiSecret != null) {
       _initServerTimeSync();
     }
   }
 
-  /// Initialize server time synchronization
+  /// Initialize server time synchronization with locking
   Future<void> _initServerTimeSync() async {
+    // If sync already in progress, wait for it
+    if (_serverTimeSyncLock != null) {
+      await _serverTimeSyncLock!.future;
+      return;
+    }
+
+    _serverTimeSyncLock = Completer<void>();
+
     try {
       final serverTimeData = await _getServerTimeInternal();
       final serverTime = serverTimeData['serverTime'] as int;
@@ -63,6 +82,9 @@ class BinanceBase {
     } catch (e) {
       logger.warn('Failed to sync server time', error: e);
       // Continue anyway, server time sync is optional
+    } finally {
+      _serverTimeSyncLock?.complete();
+      _serverTimeSyncLock = null;
     }
   }
 
@@ -85,7 +107,7 @@ class BinanceBase {
 
   /// Re-sync server time if needed (every 30 minutes)
   Future<void> _resyncServerTimeIfNeeded() async {
-    if (!config.syncServerTime || apiSecret == null) return;
+    if (!config.syncServerTime || _apiSecret == null) return;
 
     if (_lastServerTimeSync == null ||
         DateTime.now().difference(_lastServerTimeSync!) >
@@ -194,14 +216,17 @@ class BinanceBase {
       params ??= {};
 
       // Add signature if authenticated
-      if (apiSecret != null) {
+      if (_apiSecret != null) {
         params['timestamp'] = _getSyncedTimestamp();
         params['recvWindow'] = config.recvWindow;
 
-        final query = Uri(queryParameters: params.map((key, value) =>
-            MapEntry(key, value.toString()))).query;
-        final signature = Hmac(sha256, utf8.encode(apiSecret!))
-            .convert(utf8.encode(query)).toString();
+        final query = Uri(
+                queryParameters:
+                    params.map((key, value) => MapEntry(key, value.toString())))
+            .query;
+        final signature = Hmac(sha256, utf8.encode(_apiSecret!))
+            .convert(utf8.encode(query))
+            .toString();
         params['signature'] = signature;
       }
 
@@ -285,12 +310,49 @@ class BinanceBase {
               _resetToPrimaryEndpoint();
             }
 
-            return json.decode(response.body);
+            // Parse response JSON safely
+            dynamic responseData;
+            try {
+              responseData = json.decode(response.body);
+            } on FormatException catch (e) {
+              throw BinanceApiException(
+                statusCode: response.statusCode,
+                errorMessage: 'Invalid JSON response: ${e.message}',
+                responseBody: {'raw_body': response.body.length > 500
+                    ? '${response.body.substring(0, 500)}...'
+                    : response.body},
+              );
+            }
+            return responseData;
           } else {
-            // Parse error response
-            final errorBody = json.decode(response.body) as Map<String, dynamic>?;
-            final errorCode = errorBody?['code'] as int?;
-            final errorMsg = errorBody?['msg'] as String?;
+            // Parse error response safely
+            Map<String, dynamic>? errorBody;
+            int? errorCode;
+            String? errorMsg;
+
+            try {
+              final decoded = json.decode(response.body);
+              if (decoded is Map<String, dynamic>) {
+                errorBody = decoded;
+                // Handle both int and string error codes
+                final rawCode = errorBody['code'];
+                errorCode = rawCode is int
+                    ? rawCode
+                    : (rawCode is String ? int.tryParse(rawCode) : null);
+                errorMsg = errorBody['msg']?.toString();
+              }
+            } on FormatException {
+              // Non-JSON response (WAF, Cloudflare, HTML error pages)
+              errorMsg = 'HTTP ${response.statusCode}: Non-JSON response';
+              if (response.body.trimLeft().startsWith('<')) {
+                errorMsg = 'Blocked by WAF/CDN (${response.statusCode})';
+              }
+              errorBody = {
+                'raw_body': response.body.length > 500
+                    ? '${response.body.substring(0, 500)}...'
+                    : response.body
+              };
+            }
 
             // Log error response
             logger.logResponse(

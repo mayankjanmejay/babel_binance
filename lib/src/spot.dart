@@ -73,25 +73,75 @@ class Trading extends BinanceBase {
           baseUrl: 'https://api.binance.com',
         );
 
+  /// Place a new order
+  ///
+  /// [symbol] Trading pair (e.g., 'BTCUSDT')
+  /// [side] Order side: 'BUY' or 'SELL'
+  /// [type] Order type: 'LIMIT', 'MARKET', 'STOP_LOSS', 'STOP_LOSS_LIMIT',
+  ///        'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT', 'LIMIT_MAKER'
+  /// [quantity] Order quantity as string for precision (e.g., '0.001')
+  /// [price] Limit price as string (required for LIMIT orders)
+  /// [timeInForce] 'GTC', 'IOC', 'FOK' (required for LIMIT orders)
+  /// [stopPrice] Stop price for stop orders
+  /// [newClientOrderId] Client order ID for idempotency
   Future<Map<String, dynamic>> placeOrder({
     required String symbol,
     required String side,
     required String type,
-    required double quantity,
-    double? price,
+    required String quantity,
+    String? price,
     String? timeInForce,
+    String? stopPrice,
+    String? newClientOrderId,
   }) {
+    // Validate side
+    final normalizedSide = side.toUpperCase();
+    if (!['BUY', 'SELL'].contains(normalizedSide)) {
+      throw ArgumentError('side must be BUY or SELL, got: $side');
+    }
+
+    // Validate type
+    final normalizedType = type.toUpperCase();
+    const validTypes = [
+      'LIMIT', 'MARKET', 'STOP_LOSS', 'STOP_LOSS_LIMIT',
+      'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT', 'LIMIT_MAKER'
+    ];
+    if (!validTypes.contains(normalizedType)) {
+      throw ArgumentError('type must be one of $validTypes, got: $type');
+    }
+
+    // Validate LIMIT orders require price and timeInForce
+    if (normalizedType == 'LIMIT' ||
+        normalizedType == 'STOP_LOSS_LIMIT' ||
+        normalizedType == 'TAKE_PROFIT_LIMIT') {
+      if (price == null) {
+        throw ArgumentError('price is required for $normalizedType orders');
+      }
+      if (timeInForce == null) {
+        throw ArgumentError('timeInForce is required for LIMIT orders');
+      }
+    }
+
+    // Validate stop orders require stopPrice
+    if (normalizedType.contains('STOP') || normalizedType.contains('TAKE_PROFIT')) {
+      if (stopPrice == null && normalizedType != 'LIMIT_MAKER') {
+        throw ArgumentError('stopPrice is required for $normalizedType orders');
+      }
+    }
+
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': normalizedSide,
+      'type': normalizedType,
       'quantity': quantity,
     };
 
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
+    if (stopPrice != null) params['stopPrice'] = stopPrice;
+    if (newClientOrderId != null) params['newClientOrderId'] = newClientOrderId;
 
-    return sendRequest('POST', '/api/v3/order', params: params);
+    return sendRequest('POST', '/api/v3/order', params: params, isOrder: true);
   }
 
   Future<Map<String, dynamic>> cancelOrder({
