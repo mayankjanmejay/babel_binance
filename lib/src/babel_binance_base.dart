@@ -42,6 +42,7 @@ class Binance {
   final Margin margin;
   final TestnetSpot testnetSpot;
   final TestnetFuturesUsd testnetFutures;
+  final TestnetFuturesCoinM testnetFuturesCoinM;
   final DemoSpot demoSpot;
   final DemoFuturesUsd demoFutures;
   final BinanceConfig config;
@@ -61,6 +62,7 @@ class Binance {
         margin = Margin(apiKey: apiKey, apiSecret: apiSecret),
         testnetSpot = TestnetSpot(apiKey: apiKey, apiSecret: apiSecret),
         testnetFutures = TestnetFuturesUsd(apiKey: apiKey, apiSecret: apiSecret),
+        testnetFuturesCoinM = TestnetFuturesCoinM(apiKey: apiKey, apiSecret: apiSecret),
         demoSpot = DemoSpot(apiKey: apiKey, apiSecret: apiSecret),
         demoFutures = DemoFuturesUsd(apiKey: apiKey, apiSecret: apiSecret);
 

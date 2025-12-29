@@ -1622,3 +1622,750 @@ class DemoFuturesUsdTrading extends BinanceBase {
     return response as List<dynamic>;
   }
 }
+
+// ============================================================================
+// COIN-M Futures Testnet API
+// ============================================================================
+
+/// Binance COIN-M Futures Testnet
+///
+/// COIN-M Futures are margined and settled in cryptocurrency (e.g., BTC, ETH)
+/// rather than USDT. This is useful for holders who want exposure without
+/// converting to stablecoins.
+///
+/// Base URL: https://testnet.binancefuture.com (same as USD-M but /dapi/ path)
+/// WebSocket: wss://dstream.binancefuture.com
+///
+/// Key differences from USD-M:
+/// - Settled in cryptocurrency (BTC, ETH, etc.)
+/// - Uses /dapi/ endpoints instead of /fapi/
+/// - Contract sizes are in USD value
+/// - Inverse contracts (profit/loss in base currency)
+class TestnetFuturesCoinM {
+  final TestnetFuturesCoinMMarket market;
+  final TestnetFuturesCoinMTrading trading;
+
+  TestnetFuturesCoinM({String? apiKey, String? apiSecret})
+      : market = TestnetFuturesCoinMMarket(apiKey: apiKey, apiSecret: apiSecret),
+        trading =
+            TestnetFuturesCoinMTrading(apiKey: apiKey, apiSecret: apiSecret);
+}
+
+/// COIN-M Futures Market data for testnet
+///
+/// Provides market data endpoints for COIN-margined delivery futures.
+class TestnetFuturesCoinMMarket extends BinanceBase {
+  TestnetFuturesCoinMMarket({String? apiKey, String? apiSecret})
+      : super(
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+          baseUrl: 'https://testnet.binancefuture.com',
+        );
+
+  /// Test connectivity (Weight: 1)
+  Future<Map<String, dynamic>> ping() {
+    return sendRequest('GET', '/dapi/v1/ping', weight: 1);
+  }
+
+  /// Get COIN-M testnet server time (Weight: 1)
+  Future<Map<String, dynamic>> getServerTime() {
+    return sendRequest('GET', '/dapi/v1/time', weight: 1);
+  }
+
+  /// Get COIN-M testnet exchange information (Weight: 1)
+  ///
+  /// Returns current exchange trading rules and symbol information
+  Future<Map<String, dynamic>> getExchangeInfo() {
+    return sendRequest('GET', '/dapi/v1/exchangeInfo', weight: 1);
+  }
+
+  /// Get COIN-M testnet order book (Weight: 5-20 depending on limit)
+  ///
+  /// [limit] Valid limits: 5, 10, 20, 50, 100, 500, 1000
+  Future<Map<String, dynamic>> getOrderBook(String symbol, {int limit = 100}) {
+    final weight = limit <= 50 ? 5 : (limit <= 100 ? 10 : 20);
+    return sendRequest('GET', '/dapi/v1/depth',
+        params: {'symbol': symbol, 'limit': limit}, weight: weight);
+  }
+
+  /// Get COIN-M testnet recent trades (Weight: 5)
+  Future<List<dynamic>> getRecentTrades(String symbol, {int limit = 500}) async {
+    final response = await sendRequest('GET', '/dapi/v1/trades',
+        params: {'symbol': symbol, 'limit': limit}, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet historical trades (Weight: 20)
+  Future<List<dynamic>> getHistoricalTrades(String symbol,
+      {int limit = 500, int? fromId}) async {
+    final params = <String, dynamic>{'symbol': symbol, 'limit': limit};
+    if (fromId != null) params['fromId'] = fromId;
+
+    final response = await sendRequest('GET', '/dapi/v1/historicalTrades',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet aggregate trades (Weight: 20)
+  Future<List<dynamic>> getAggTrades(
+    String symbol, {
+    int? fromId,
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+  }) async {
+    final params = <String, dynamic>{'symbol': symbol, 'limit': limit};
+    if (fromId != null) params['fromId'] = fromId;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/dapi/v1/aggTrades',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet index price and mark price (Weight: 1)
+  Future<dynamic> getPremiumIndex([String? symbol]) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+
+    return sendRequest('GET', '/dapi/v1/premiumIndex', params: params, weight: 1);
+  }
+
+  /// Get COIN-M testnet funding rate history (Weight: 1)
+  Future<List<dynamic>> getFundingRate({
+    String? symbol,
+    int? startTime,
+    int? endTime,
+    int limit = 100,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (symbol != null) params['symbol'] = symbol;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/dapi/v1/fundingRate',
+        params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet klines/candlestick data (Weight: 5)
+  ///
+  /// [interval] Valid intervals: 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+  Future<List<dynamic>> getKlines(
+    String symbol,
+    String interval, {
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+  }) async {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'interval': interval,
+      'limit': limit,
+    };
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response =
+        await sendRequest('GET', '/dapi/v1/klines', params: params, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet continuous contract klines (Weight: 5)
+  ///
+  /// [contractType] PERPETUAL, CURRENT_QUARTER, NEXT_QUARTER
+  Future<List<dynamic>> getContinuousKlines(
+    String pair,
+    String contractType,
+    String interval, {
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+  }) async {
+    final params = <String, dynamic>{
+      'pair': pair,
+      'contractType': contractType,
+      'interval': interval,
+      'limit': limit,
+    };
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/dapi/v1/continuousKlines',
+        params: params, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet index price klines (Weight: 5)
+  Future<List<dynamic>> getIndexPriceKlines(
+    String pair,
+    String interval, {
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+  }) async {
+    final params = <String, dynamic>{
+      'pair': pair,
+      'interval': interval,
+      'limit': limit,
+    };
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/dapi/v1/indexPriceKlines',
+        params: params, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet mark price klines (Weight: 5)
+  Future<List<dynamic>> getMarkPriceKlines(
+    String symbol,
+    String interval, {
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+  }) async {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'interval': interval,
+      'limit': limit,
+    };
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/dapi/v1/markPriceKlines',
+        params: params, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet 24hr ticker (Weight: 1-40)
+  Future<dynamic> get24HrTicker([String? symbol]) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+
+    final weight = symbol != null ? 1 : 40;
+    return sendRequest('GET', '/dapi/v1/ticker/24hr',
+        params: params, weight: weight);
+  }
+
+  /// Get COIN-M testnet price ticker (Weight: 1-2)
+  Future<dynamic> getTickerPrice([String? symbol]) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+
+    final weight = symbol != null ? 1 : 2;
+    return sendRequest('GET', '/dapi/v1/ticker/price',
+        params: params, weight: weight);
+  }
+
+  /// Get COIN-M testnet book ticker (Weight: 1-2)
+  Future<dynamic> getBookTicker([String? symbol]) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+
+    final weight = symbol != null ? 1 : 2;
+    return sendRequest('GET', '/dapi/v1/ticker/bookTicker',
+        params: params, weight: weight);
+  }
+
+  /// Get COIN-M testnet open interest (Weight: 1)
+  Future<Map<String, dynamic>> getOpenInterest(String symbol) {
+    return sendRequest('GET', '/dapi/v1/openInterest',
+        params: {'symbol': symbol}, weight: 1);
+  }
+
+  /// Get COIN-M testnet open interest statistics (Weight: 1)
+  Future<List<dynamic>> getOpenInterestHist({
+    required String pair,
+    required String contractType,
+    required String period,
+    int? startTime,
+    int? endTime,
+    int limit = 30,
+  }) async {
+    final params = <String, dynamic>{
+      'pair': pair,
+      'contractType': contractType,
+      'period': period,
+      'limit': limit,
+    };
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+
+    final response = await sendRequest('GET', '/futures/data/openInterestHist',
+        params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+}
+
+/// COIN-M Futures Trading for testnet
+///
+/// Supports all trading operations for COIN-margined delivery futures.
+class TestnetFuturesCoinMTrading extends BinanceBase {
+  TestnetFuturesCoinMTrading({String? apiKey, String? apiSecret})
+      : super(
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+          baseUrl: 'https://testnet.binancefuture.com',
+        );
+
+  /// Place a new COIN-M futures order on testnet (Weight: 1)
+  ///
+  /// [type] LIMIT, MARKET, STOP, STOP_MARKET, TAKE_PROFIT, TAKE_PROFIT_MARKET,
+  ///        TRAILING_STOP_MARKET
+  /// [side] BUY or SELL
+  /// [positionSide] BOTH, LONG, SHORT (for hedge mode)
+  Future<Map<String, dynamic>> placeOrder({
+    required String symbol,
+    required String side,
+    required String type,
+    String? positionSide,
+    String? timeInForce,
+    double? quantity,
+    bool? reduceOnly,
+    double? price,
+    String? newClientOrderId,
+    double? stopPrice,
+    double? activationPrice,
+    double? callbackRate,
+    String? workingType,
+    bool? priceProtect,
+    String? newOrderRespType,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'side': side,
+      'type': type,
+    };
+
+    if (positionSide != null) params['positionSide'] = positionSide;
+    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (quantity != null) params['quantity'] = quantity;
+    if (reduceOnly != null) params['reduceOnly'] = reduceOnly;
+    if (price != null) params['price'] = price;
+    if (newClientOrderId != null) params['newClientOrderId'] = newClientOrderId;
+    if (stopPrice != null) params['stopPrice'] = stopPrice;
+    if (activationPrice != null) params['activationPrice'] = activationPrice;
+    if (callbackRate != null) params['callbackRate'] = callbackRate;
+    if (workingType != null) params['workingType'] = workingType;
+    if (priceProtect != null) params['priceProtect'] = priceProtect;
+    if (newOrderRespType != null) params['newOrderRespType'] = newOrderRespType;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/order', params: params, isOrder: true);
+  }
+
+  /// Place multiple orders (batch) on testnet (Weight: 5)
+  ///
+  /// Maximum 5 orders per request
+  Future<List<dynamic>> placeBatchOrders({
+    required List<Map<String, dynamic>> batchOrders,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{
+      'batchOrders': batchOrders,
+    };
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('POST', '/dapi/v1/batchOrders',
+        params: params, weight: 5, isOrder: true);
+    return response as List<dynamic>;
+  }
+
+  /// Query order status on testnet (Weight: 1)
+  Future<Map<String, dynamic>> getOrder({
+    required String symbol,
+    int? orderId,
+    String? origClientOrderId,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'symbol': symbol};
+
+    if (orderId != null) params['orderId'] = orderId;
+    if (origClientOrderId != null) {
+      params['origClientOrderId'] = origClientOrderId;
+    }
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v1/order', params: params, weight: 1);
+  }
+
+  /// Cancel an order on testnet (Weight: 1)
+  Future<Map<String, dynamic>> cancelOrder({
+    required String symbol,
+    int? orderId,
+    String? origClientOrderId,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'symbol': symbol};
+
+    if (orderId != null) params['orderId'] = orderId;
+    if (origClientOrderId != null) {
+      params['origClientOrderId'] = origClientOrderId;
+    }
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('DELETE', '/dapi/v1/order', params: params, weight: 1);
+  }
+
+  /// Cancel all open orders on a symbol (Weight: 1)
+  Future<Map<String, dynamic>> cancelAllOrders({
+    required String symbol,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'symbol': symbol};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('DELETE', '/dapi/v1/allOpenOrders', params: params, weight: 1);
+  }
+
+  /// Cancel multiple orders (batch) on testnet (Weight: 1)
+  Future<List<dynamic>> cancelBatchOrders({
+    required String symbol,
+    List<int>? orderIdList,
+    List<String>? origClientOrderIdList,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{'symbol': symbol};
+    if (orderIdList != null) params['orderIdList'] = orderIdList;
+    if (origClientOrderIdList != null) {
+      params['origClientOrderIdList'] = origClientOrderIdList;
+    }
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('DELETE', '/dapi/v1/batchOrders',
+        params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+
+  /// Auto-cancel all open orders (countdown) (Weight: 10)
+  ///
+  /// [countdownTime] Countdown time in milliseconds. 0 to cancel the timer.
+  Future<Map<String, dynamic>> setAutoCancel({
+    required String symbol,
+    required int countdownTime,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'countdownTime': countdownTime,
+    };
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/countdownCancelAll',
+        params: params, weight: 10);
+  }
+
+  /// Get current open order on testnet (Weight: 1)
+  Future<Map<String, dynamic>> getCurrentOpenOrder({
+    required String symbol,
+    int? orderId,
+    String? origClientOrderId,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'symbol': symbol};
+
+    if (orderId != null) params['orderId'] = orderId;
+    if (origClientOrderId != null) {
+      params['origClientOrderId'] = origClientOrderId;
+    }
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v1/openOrder', params: params, weight: 1);
+  }
+
+  /// Get all open orders on testnet (Weight: 1-40)
+  Future<List<dynamic>> getOpenOrders({String? symbol, int? recvWindow}) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final weight = symbol != null ? 1 : 40;
+    final response = await sendRequest('GET', '/dapi/v1/openOrders',
+        params: params, weight: weight);
+    return response as List<dynamic>;
+  }
+
+  /// Get all orders on testnet (Weight: 20)
+  Future<List<dynamic>> getAllOrders({
+    required String symbol,
+    int? orderId,
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'limit': limit,
+    };
+
+    if (orderId != null) params['orderId'] = orderId;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/allOrders',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet account balance (Weight: 1)
+  Future<List<dynamic>> getBalance({int? recvWindow}) async {
+    final params = <String, dynamic>{};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response =
+        await sendRequest('GET', '/dapi/v1/balance', params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+
+  /// Get COIN-M testnet account information (Weight: 5)
+  Future<Map<String, dynamic>> getAccountInfo({int? recvWindow}) {
+    final params = <String, dynamic>{};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v1/account', params: params, weight: 5);
+  }
+
+  /// Change initial leverage on testnet (Weight: 1)
+  Future<Map<String, dynamic>> changeInitialLeverage({
+    required String symbol,
+    required int leverage,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'leverage': leverage,
+    };
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/leverage', params: params, weight: 1);
+  }
+
+  /// Change margin type on testnet (Weight: 1)
+  ///
+  /// [marginType] ISOLATED or CROSSED
+  Future<Map<String, dynamic>> changeMarginType({
+    required String symbol,
+    required String marginType,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'marginType': marginType,
+    };
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/marginType', params: params, weight: 1);
+  }
+
+  /// Modify isolated position margin on testnet (Weight: 1)
+  ///
+  /// [type] 1 = Add margin, 2 = Reduce margin
+  Future<Map<String, dynamic>> modifyIsolatedPositionMargin({
+    required String symbol,
+    required double amount,
+    required int type,
+    String? positionSide,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'amount': amount,
+      'type': type,
+    };
+    if (positionSide != null) params['positionSide'] = positionSide;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/positionMargin',
+        params: params, weight: 1);
+  }
+
+  /// Get position margin change history on testnet (Weight: 1)
+  Future<List<dynamic>> getPositionMarginHistory({
+    required String symbol,
+    int? type,
+    int? startTime,
+    int? endTime,
+    int limit = 500,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{
+      'symbol': symbol,
+      'limit': limit,
+    };
+    if (type != null) params['type'] = type;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/positionMargin/history',
+        params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+
+  /// Get position information on testnet (Weight: 1)
+  Future<List<dynamic>> getPositionRisk({
+    String? marginAsset,
+    String? pair,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{};
+    if (marginAsset != null) params['marginAsset'] = marginAsset;
+    if (pair != null) params['pair'] = pair;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/positionRisk',
+        params: params, weight: 1);
+    return response as List<dynamic>;
+  }
+
+  /// Get account trade history on testnet (Weight: 20)
+  Future<List<dynamic>> getUserTrades({
+    String? symbol,
+    String? pair,
+    int? startTime,
+    int? endTime,
+    int? fromId,
+    int limit = 500,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (symbol != null) params['symbol'] = symbol;
+    if (pair != null) params['pair'] = pair;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+    if (fromId != null) params['fromId'] = fromId;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/userTrades',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get income history on testnet (Weight: 20)
+  Future<List<dynamic>> getIncomeHistory({
+    String? symbol,
+    String? incomeType,
+    int? startTime,
+    int? endTime,
+    int limit = 100,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (symbol != null) params['symbol'] = symbol;
+    if (incomeType != null) params['incomeType'] = incomeType;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/income',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get notional and leverage brackets on testnet (Weight: 1)
+  Future<dynamic> getLeverageBracket({String? pair, int? recvWindow}) async {
+    final params = <String, dynamic>{};
+    if (pair != null) params['pair'] = pair;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v2/leverageBracket',
+        params: params, weight: 1);
+  }
+
+  /// Change position mode on testnet (Weight: 1)
+  ///
+  /// [dualSidePosition] true = Hedge Mode, false = One-way Mode
+  Future<Map<String, dynamic>> changePositionMode({
+    required bool dualSidePosition,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'dualSidePosition': dualSidePosition};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('POST', '/dapi/v1/positionSide/dual',
+        params: params, weight: 1);
+  }
+
+  /// Get current position mode on testnet (Weight: 30)
+  Future<Map<String, dynamic>> getPositionMode({int? recvWindow}) {
+    final params = <String, dynamic>{};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v1/positionSide/dual',
+        params: params, weight: 30);
+  }
+
+  /// Get user's force orders (liquidation) on testnet (Weight: 20)
+  Future<List<dynamic>> getForceOrders({
+    String? symbol,
+    String? autoCloseType,
+    int? startTime,
+    int? endTime,
+    int limit = 50,
+    int? recvWindow,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (symbol != null) params['symbol'] = symbol;
+    if (autoCloseType != null) params['autoCloseType'] = autoCloseType;
+    if (startTime != null) params['startTime'] = startTime;
+    if (endTime != null) params['endTime'] = endTime;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/forceOrders',
+        params: params, weight: 20);
+    return response as List<dynamic>;
+  }
+
+  /// Get ADL quantile estimation on testnet (Weight: 5)
+  Future<List<dynamic>> getAdlQuantile({String? symbol, int? recvWindow}) async {
+    final params = <String, dynamic>{};
+    if (symbol != null) params['symbol'] = symbol;
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    final response = await sendRequest('GET', '/dapi/v1/adlQuantile',
+        params: params, weight: 5);
+    return response as List<dynamic>;
+  }
+
+  /// Get user commission rate on testnet (Weight: 20)
+  Future<Map<String, dynamic>> getCommissionRate({
+    required String symbol,
+    int? recvWindow,
+  }) {
+    final params = <String, dynamic>{'symbol': symbol};
+    if (recvWindow != null) params['recvWindow'] = recvWindow;
+
+    return sendRequest('GET', '/dapi/v1/commissionRate',
+        params: params, weight: 20);
+  }
+}
+
+/// COIN-M Futures User Data Stream for testnet
+class TestnetFuturesCoinMUserDataStream extends BinanceBase {
+  TestnetFuturesCoinMUserDataStream({String? apiKey, String? apiSecret})
+      : super(
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+          baseUrl: 'https://testnet.binancefuture.com',
+        );
+
+  /// Start a new user data stream (Weight: 1)
+  Future<Map<String, dynamic>> createListenKey() {
+    return sendRequest('POST', '/dapi/v1/listenKey', weight: 1);
+  }
+
+  /// Keepalive a user data stream (Weight: 1)
+  Future<Map<String, dynamic>> keepAliveListenKey() {
+    return sendRequest('PUT', '/dapi/v1/listenKey', weight: 1);
+  }
+
+  /// Close a user data stream (Weight: 1)
+  Future<Map<String, dynamic>> closeListenKey() {
+    return sendRequest('DELETE', '/dapi/v1/listenKey', weight: 1);
+  }
+}

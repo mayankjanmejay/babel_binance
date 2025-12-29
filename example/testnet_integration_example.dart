@@ -6,7 +6,8 @@
 /// Available Testnet Environments:
 /// - Spot Testnet: https://testnet.binance.vision/
 /// - Demo Trading: https://demo-api.binance.com (alternative)
-/// - Futures Testnet: https://testnet.binancefuture.com/
+/// - Futures USD-M Testnet: https://testnet.binancefuture.com/fapi
+/// - Futures COIN-M Testnet: https://testnet.binancefuture.com/dapi
 ///
 /// Features covered:
 /// - Testnet API key setup
@@ -224,13 +225,23 @@ Future<void> step4_AdvancedTestnetFeatures() async {
   print('   - Trade history');
   print('');
 
-  print('FUTURES TRADING FEATURES:');
+  print('USD-M FUTURES TRADING FEATURES:');
   print('   - Long and short positions');
   print('   - Leverage up to 125x');
-  print('   - Margin management');
+  print('   - Margin management (USDT-margined)');
   print('   - Position sizing');
   print('   - Liquidation simulation');
   print('   - Funding rates');
+  print('   - Endpoint: /fapi/v1/*');
+  print('');
+
+  print('COIN-M FUTURES TRADING FEATURES:');
+  print('   - Inverse contracts (settled in crypto)');
+  print('   - BTC, ETH margined positions');
+  print('   - Quarterly delivery contracts');
+  print('   - Perpetual contracts');
+  print('   - Leverage and margin management');
+  print('   - Endpoint: /dapi/v1/*');
   print('');
 
   print('WEBSOCKET FEATURES:');
@@ -289,6 +300,31 @@ Future<void> step4_AdvancedTestnetFeatures() async {
   print('stream.listen((data) {');
   print('  print(\'Account update: \$data\');');
   print('});');
+  print('```');
+  print('');
+
+  print('EXAMPLE: COIN-M FUTURES ON TESTNET');
+  print('```dart');
+  print('// Initialize testnet');
+  print('final binance = Binance.testnet(');
+  print('  apiKey: \'testnet_key\',');
+  print('  apiSecret: \'testnet_secret\',');
+  print(');');
+  print('');
+  print('// Get COIN-M futures market data');
+  print('final info = await binance.testnetFuturesCoinM.market.getExchangeInfo();');
+  print('final ticker = await binance.testnetFuturesCoinM.market.get24HrTicker(\'BTCUSD_PERP\');');
+  print('');
+  print('// Place a COIN-M futures order');
+  print('final order = await binance.testnetFuturesCoinM.trading.placeOrder(');
+  print('  symbol: \'BTCUSD_PERP\',');
+  print('  side: \'BUY\',');
+  print('  type: \'MARKET\',');
+  print('  quantity: 1,  // 1 contract = 100 USD');
+  print(');');
+  print('');
+  print('// Get position info');
+  print('final positions = await binance.testnetFuturesCoinM.trading.getPositionRisk();');
   print('```');
   print('');
   await _pause();
@@ -419,10 +455,11 @@ void step6_BestPractices() {
   print('');
   print('ADDITIONAL RESOURCES:');
   print('');
-  print('Testnet:         https://testnet.binance.vision/');
-  print('Demo Trading:    https://demo-api.binance.com');
-  print('API Docs:        https://developers.binance.com/docs/');
-  print('Futures Testnet: https://testnet.binancefuture.com/');
+  print('Spot Testnet:      https://testnet.binance.vision/');
+  print('Demo Trading:      https://demo-api.binance.com');
+  print('API Docs:          https://developers.binance.com/docs/');
+  print('USD-M Testnet:     https://testnet.binancefuture.com/fapi');
+  print('COIN-M Testnet:    https://testnet.binancefuture.com/dapi');
   print('');
   print('Happy testing! Remember: Test first, trade smart!');
 }
