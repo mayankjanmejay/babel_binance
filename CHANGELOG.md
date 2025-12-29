@@ -1,3 +1,10 @@
+## 0.6.6
+
+- **fix**: Fixed type mismatch errors in rate limiter where async tryConsume() was used synchronously
+- **fix**: Updated RateLimiter to use synchronous tryConsumeSync() for rate limit checks
+- **fix**: Updated RateLimiter.reset() to use synchronous resetSync() for bucket resets
+- **improvement**: Better thread-safety handling in rate limiting implementation
+
 ## 0.6.5
 
 - **fix**: Resolved minor linting issues in the testnet integration

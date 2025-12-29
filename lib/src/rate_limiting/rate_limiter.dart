@@ -68,7 +68,7 @@ class RateLimiter {
     // Use token buckets to rate limit
     if (config.throwOnLimit) {
       // Throw exception if limit would be exceeded
-      if (!_weightBucket.tryConsume(weight)) {
+      if (!_weightBucket.tryConsumeSync(weight)) {
         throw BinanceRateLimitException(
           statusCode: 429,
           errorMessage: 'Request weight limit exceeded',
@@ -76,7 +76,7 @@ class RateLimiter {
         );
       }
 
-      if (!_rawRequestsBucket.tryConsume(1)) {
+      if (!_rawRequestsBucket.tryConsumeSync(1)) {
         throw BinanceRateLimitException(
           statusCode: 429,
           errorMessage: 'Raw request limit exceeded',
@@ -84,7 +84,7 @@ class RateLimiter {
         );
       }
 
-      if (isOrder && !_ordersBucket.tryConsume(1)) {
+      if (isOrder && !_ordersBucket.tryConsumeSync(1)) {
         throw BinanceRateLimitException(
           statusCode: 429,
           errorMessage: 'Order rate limit exceeded',
@@ -117,7 +117,7 @@ class RateLimiter {
       if (serverWeight > ourWeight) {
         // Server thinks we used more, sync up
         final difference = serverWeight - ourWeight;
-        _weightBucket.tryConsume(difference);
+        _weightBucket.tryConsumeSync(difference);
       }
     }
   }
@@ -142,9 +142,9 @@ class RateLimiter {
 
   /// Reset all rate limiters (useful for testing)
   void reset() {
-    _weightBucket.reset();
-    _ordersBucket.reset();
-    _rawRequestsBucket.reset();
+    _weightBucket.resetSync();
+    _ordersBucket.resetSync();
+    _rawRequestsBucket.resetSync();
     _resetDailyOrderCount();
   }
 }

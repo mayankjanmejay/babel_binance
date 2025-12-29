@@ -35,17 +35,15 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.4
+  babel_binance: ^0.6.6
 ```
 
-> **🆕 Latest Updates (v0.6.4):**
+> **🆕 Latest Updates (v0.6.6):**
+> - 🔧 **Rate Limiter Fix**: Fixed type mismatch errors with async/sync token bucket operations
+> - 🛡️ **Thread Safety**: Improved rate limiting implementation with proper sync methods
 > - 🧪 **Binance Testnet Integration**: Full testnet support for realistic testing without real money
 > - 🌐 **Testnet API Endpoints**: Complete spot and futures trading on testnet.binance.vision
-> - 🎯 **Three-Tier Testing**: Simulated → Testnet → Live trading progression
-> - �️ **Risk-Free Development**: Test strategies with real API behavior but fake funds
-> - � **Enhanced Examples**: Comprehensive testnet integration guide and updated quick start
-> - � **Developer Experience**: Improved testing workflow with `Binance.testnet()` factory
-> - 🌐 All previous v0.6.3 features maintained (endpoint failover, enhanced reliability)
+> - 🎯 **Three-Tier Testing**: Simulated -> Testnet -> Live trading progression
 
 ### Your First API Call
 
@@ -467,7 +465,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.3
+  babel_binance: ^0.6.6
 ```
 
 ## Quick Start
