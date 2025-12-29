@@ -57,61 +57,92 @@ class MarginTrading extends BinanceBase {
           baseUrl: 'https://api.binance.com',
         );
 
+  /// Borrow margin loan
+  ///
+  /// [asset] Asset to borrow (e.g., 'USDT')
+  /// [amount] Amount as string for precision (e.g., '100.0')
   Future<Map<String, dynamic>> marginBorrow({
     required String asset,
-    required double amount,
+    required String amount,
     String? isIsolated,
     String? symbol,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'asset': asset,
+      'asset': asset.toUpperCase(),
       'amount': amount,
     };
     if (isIsolated != null) params['isIsolated'] = isIsolated;
-    if (symbol != null) params['symbol'] = symbol;
+    if (symbol != null) params['symbol'] = symbol.toUpperCase();
     if (recvWindow != null) params['recvWindow'] = recvWindow;
     return sendRequest('POST', '/sapi/v1/margin/loan', params: params);
   }
 
+  /// Repay margin loan
+  ///
+  /// [asset] Asset to repay (e.g., 'USDT')
+  /// [amount] Amount as string for precision (e.g., '100.0')
   Future<Map<String, dynamic>> marginRepay({
     required String asset,
-    required double amount,
+    required String amount,
     String? isIsolated,
     String? symbol,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'asset': asset,
+      'asset': asset.toUpperCase(),
       'amount': amount,
     };
     if (isIsolated != null) params['isIsolated'] = isIsolated;
-    if (symbol != null) params['symbol'] = symbol;
+    if (symbol != null) params['symbol'] = symbol.toUpperCase();
     if (recvWindow != null) params['recvWindow'] = recvWindow;
     return sendRequest('POST', '/sapi/v1/margin/repay', params: params);
   }
 
+  /// Place a margin order
+  ///
+  /// [symbol] Trading pair (e.g., 'BTCUSDT')
+  /// [side] Order side: 'BUY' or 'SELL'
+  /// [type] Order type: 'LIMIT', 'MARKET', 'STOP_LOSS', etc.
+  /// [quantity] Order quantity as string for precision (e.g., '0.001')
+  /// [price] Limit price as string (required for LIMIT orders)
   Future<Map<String, dynamic>> placeMarginOrder({
     required String symbol,
     required String side,
     required String type,
-    required double quantity,
-    double? price,
+    required String quantity,
+    String? price,
     String? timeInForce,
     String? isIsolated,
     int? recvWindow,
   }) {
+    // Validate side
+    final normalizedSide = side.toUpperCase();
+    if (!['BUY', 'SELL'].contains(normalizedSide)) {
+      throw ArgumentError('side must be BUY or SELL, got: $side');
+    }
+
+    // Validate type
+    final normalizedType = type.toUpperCase();
+    const validTypes = [
+      'LIMIT', 'MARKET', 'STOP_LOSS', 'STOP_LOSS_LIMIT',
+      'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT', 'LIMIT_MAKER'
+    ];
+    if (!validTypes.contains(normalizedType)) {
+      throw ArgumentError('type must be one of $validTypes, got: $type');
+    }
+
     final params = <String, dynamic>{
-      'symbol': symbol,
-      'side': side,
-      'type': type,
+      'symbol': symbol.toUpperCase(),
+      'side': normalizedSide,
+      'type': normalizedType,
       'quantity': quantity,
     };
     if (price != null) params['price'] = price;
-    if (timeInForce != null) params['timeInForce'] = timeInForce;
+    if (timeInForce != null) params['timeInForce'] = timeInForce.toUpperCase();
     if (isIsolated != null) params['isIsolated'] = isIsolated;
     if (recvWindow != null) params['recvWindow'] = recvWindow;
-    return sendRequest('POST', '/sapi/v1/margin/order', params: params);
+    return sendRequest('POST', '/sapi/v1/margin/order', params: params, isOrder: true);
   }
 }
 
