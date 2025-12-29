@@ -2177,20 +2177,21 @@ class TestnetFuturesCoinMTrading extends BinanceBase {
 
   /// Modify isolated position margin on testnet (Weight: 1)
   ///
+  /// [amount] Amount as string for precision (e.g., '100.0')
   /// [type] 1 = Add margin, 2 = Reduce margin
   Future<Map<String, dynamic>> modifyIsolatedPositionMargin({
     required String symbol,
-    required double amount,
+    required String amount,
     required int type,
     String? positionSide,
     int? recvWindow,
   }) {
     final params = <String, dynamic>{
-      'symbol': symbol,
+      'symbol': symbol.toUpperCase(),
       'amount': amount,
       'type': type,
     };
-    if (positionSide != null) params['positionSide'] = positionSide;
+    if (positionSide != null) params['positionSide'] = positionSide.toUpperCase();
     if (recvWindow != null) params['recvWindow'] = recvWindow;
 
     return sendRequest('POST', '/dapi/v1/positionMargin',
