@@ -1,3 +1,15 @@
+## 0.6.7
+
+- **feat**: Added typed WebSocket event classes with full `fromJson` and `toJson` support
+- **feat**: Added `MiniTickerEvent`, `TickerEvent`, `KlineEvent`, `AggTradeEvent`, `TradeEvent`, `BookTickerEvent`, `DepthEvent` classes
+- **feat**: Multi-symbol WebSocket streams via single connection using combined endpoint
+- **feat**: Convenience methods on `Binance` class: `priceStream()`, `candleStream()`, `tradeStream()`, `bookTickerStream()`, `tickerStream()`
+- **feat**: `TypedBinanceWebSocket` class for strongly-typed real-time data streams
+- **feat**: `StreamType` enum for type-safe stream configuration
+- **feat**: Testnet WebSocket support with `useProductionPrices` option for real market data
+- **improvement**: All WebSocket event classes now support serialization with `toJson()` method
+- **example**: Added `typed_websocket_example.dart` demonstrating multi-symbol real-time streams
+
 ## 0.6.6
 
 - **fix**: Fixed type mismatch errors in rate limiter where async tryConsume() was used synchronously

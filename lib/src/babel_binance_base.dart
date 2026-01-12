@@ -5,6 +5,9 @@ import './margin.dart';
 import './testnet.dart';
 import './config/binance_config.dart';
 import './logging/logger.dart';
+import './websocket/typed_websocket.dart';
+import './websocket/websocket_events.dart';
+import './websocket/websocket_config.dart';
 
 /// Main entry point for the Binance API wrapper.
 ///
@@ -48,11 +51,22 @@ class Binance {
   final BinanceConfig config;
   final BinanceLogger logger;
 
+  /// Typed WebSocket client for real-time data streams
+  final TypedBinanceWebSocket websocket;
+
+  /// WebSocket base URL for production
+  static const String _productionWsUrl = 'wss://stream.binance.com:9443';
+
+  /// WebSocket base URL for testnet
+  static const String _testnetWsUrl = 'wss://testnet.binance.vision';
+
   Binance({
     String? apiKey,
     String? apiSecret,
     BinanceConfig? config,
     BinanceLogger? logger,
+    String? wsBaseUrl,
+    WebSocketConfig? wsConfig,
   })  : config = config ?? BinanceConfig.defaultConfig,
         logger = logger ?? const NoOpLogger(),
         spot = Spot(apiKey: apiKey, apiSecret: apiSecret),
@@ -64,7 +78,11 @@ class Binance {
         testnetFutures = TestnetFuturesUsd(apiKey: apiKey, apiSecret: apiSecret),
         testnetFuturesCoinM = TestnetFuturesCoinM(apiKey: apiKey, apiSecret: apiSecret),
         demoSpot = DemoSpot(apiKey: apiKey, apiSecret: apiSecret),
-        demoFutures = DemoFuturesUsd(apiKey: apiKey, apiSecret: apiSecret);
+        demoFutures = DemoFuturesUsd(apiKey: apiKey, apiSecret: apiSecret),
+        websocket = TypedBinanceWebSocket(
+          baseUrl: wsBaseUrl ?? _productionWsUrl,
+          config: wsConfig,
+        );
 
   /// Create a Binance instance specifically configured for testnet
   ///
@@ -73,18 +91,23 @@ class Binance {
   ///
   /// Available endpoints:
   /// - REST API: https://testnet.binance.vision/api
-  /// - WebSocket: wss://stream.testnet.binance.vision:9443
+  /// - WebSocket: wss://testnet.binance.vision
+  ///
+  /// Set [useProductionPrices] to true to use production WebSocket for
+  /// real market prices while trading on testnet.
   factory Binance.testnet({
     required String apiKey,
     required String apiSecret,
     BinanceConfig? config,
     BinanceLogger? logger,
+    bool useProductionPrices = false,
   }) {
     return Binance(
       apiKey: apiKey,
       apiSecret: apiSecret,
       config: config,
       logger: logger,
+      wsBaseUrl: useProductionPrices ? _productionWsUrl : _testnetWsUrl,
     );
   }
 
@@ -110,11 +133,96 @@ class Binance {
     );
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // CONVENIENCE WEBSOCKET METHODS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// Get real-time price stream for multiple symbols
+  ///
+  /// Returns a stream of [MiniTickerEvent] for efficient price updates.
+  /// Uses a single WebSocket connection for all symbols.
+  ///
+  /// Example:
+  /// ```dart
+  /// binance.priceStream(['BTCUSDT', 'ETHUSDT', 'SOLUSDT']).listen((event) {
+  ///   print('${event.symbol}: ${event.close}');
+  /// });
+  /// ```
+  Stream<MiniTickerEvent> priceStream(List<String> symbols) {
+    return websocket.subscribeMiniTickerMulti(symbols);
+  }
+
+  /// Get real-time candlestick/kline stream for multiple symbols
+  ///
+  /// Returns a stream of [KlineEvent]. Check [KlineEvent.isClosed] to know
+  /// when a candle is finalized.
+  ///
+  /// Supported intervals: 1s, 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+  ///
+  /// Example:
+  /// ```dart
+  /// binance.candleStream(['BTCUSDT'], '5m').listen((event) {
+  ///   if (event.isClosed) {
+  ///     print('Closed candle: ${event.symbol} O=${event.open} C=${event.close}');
+  ///   }
+  /// });
+  /// ```
+  Stream<KlineEvent> candleStream(List<String> symbols, String interval) {
+    return websocket.subscribeKlineMulti(symbols, interval);
+  }
+
+  /// Get real-time aggregate trade stream for multiple symbols
+  ///
+  /// Returns a stream of [AggTradeEvent] for tick-level data.
+  /// Useful for UHFT strategies that need individual trade information.
+  ///
+  /// Example:
+  /// ```dart
+  /// binance.tradeStream(['BTCUSDT']).listen((event) {
+  ///   print('${event.isBuy ? "BUY" : "SELL"} ${event.quantity} @ ${event.price}');
+  /// });
+  /// ```
+  Stream<AggTradeEvent> tradeStream(List<String> symbols) {
+    return websocket.subscribeAggTradeMulti(symbols);
+  }
+
+  /// Get real-time book ticker stream for multiple symbols
+  ///
+  /// Returns a stream of [BookTickerEvent] with best bid/ask prices.
+  ///
+  /// Example:
+  /// ```dart
+  /// binance.bookTickerStream(['BTCUSDT']).listen((event) {
+  ///   print('${event.symbol}: bid=${event.bestBidPrice} ask=${event.bestAskPrice}');
+  /// });
+  /// ```
+  Stream<BookTickerEvent> bookTickerStream(List<String> symbols) {
+    return websocket.subscribeBookTickerMulti(symbols);
+  }
+
+  /// Get real-time 24hr ticker stream for multiple symbols
+  ///
+  /// Returns a stream of [TickerEvent] with full market statistics.
+  /// Use [priceStream] if you only need price updates (more efficient).
+  ///
+  /// Example:
+  /// ```dart
+  /// binance.tickerStream(['BTCUSDT']).listen((event) {
+  ///   print('${event.symbol}: ${event.priceChangePercent}% volume=${event.baseVolume}');
+  /// });
+  /// ```
+  Stream<TickerEvent> tickerStream(List<String> symbols) {
+    return websocket.subscribeTickerMulti(symbols);
+  }
+
   /// Dispose and clean up all resources
   ///
   /// Call this when you're done using the Binance client to properly
   /// close all HTTP connections, WebSocket connections, and release resources.
   Future<void> dispose() async {
+    // Dispose WebSocket first
+    await websocket.dispose();
+
     // Dispose spot trading resources
     spot.market.dispose();
     spot.trading.dispose();

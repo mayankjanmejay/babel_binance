@@ -36,6 +36,8 @@ export 'src/websocket/websocket_client.dart';
 export 'src/websocket/websocket_config.dart';
 export 'src/websocket/websocket_stream.dart';
 export 'src/websocket/stream_types.dart';
+export 'src/websocket/websocket_events.dart';
+export 'src/websocket/typed_websocket.dart';
 
 // Additional API modules
 export 'src/auto_invest.dart';

@@ -35,15 +35,14 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.6
+  babel_binance: ^0.6.7
 ```
 
-> **🆕 Latest Updates (v0.6.6):**
-> - 🔧 **Rate Limiter Fix**: Fixed type mismatch errors with async/sync token bucket operations
-> - 🛡️ **Thread Safety**: Improved rate limiting implementation with proper sync methods
-> - 🧪 **Binance Testnet Integration**: Full testnet support for realistic testing without real money
-> - 🌐 **Testnet API Endpoints**: Complete spot and futures trading on testnet.binance.vision
-> - 🎯 **Three-Tier Testing**: Simulated -> Testnet -> Live trading progression
+> **🆕 Latest Updates (v0.6.7):**
+> - 📡 **Typed WebSocket Streams**: Multi-symbol real-time data via single connection
+> - 🎯 **Event Classes**: `MiniTickerEvent`, `KlineEvent`, `AggTradeEvent`, `BookTickerEvent` with `fromJson`/`toJson`
+> - 🔌 **Convenience Methods**: `priceStream()`, `candleStream()`, `tradeStream()`, `bookTickerStream()`
+> - 🧪 **Testnet WebSocket**: Use `useProductionPrices` for real market data while trading on testnet
 
 ### Your First API Call
 
@@ -465,7 +464,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.6
+  babel_binance: ^0.6.7
 ```
 
 ## Quick Start
@@ -625,6 +624,67 @@ print('Available endpoints: ${binance.spot.market.availableEndpoints}');
 The failover system automatically detects connection issues and rotates through available endpoints until a successful connection is established. Once service is restored, it intelligently returns to the primary endpoint for optimal performance.
 
 ## WebSocket Usage
+
+### Typed Multi-Symbol Streams (Recommended)
+
+Subscribe to real-time data for multiple symbols using a single WebSocket connection:
+
+```dart
+import 'package:babel_binance/babel_binance.dart';
+
+void main() async {
+  final binance = Binance(); // No API key needed for public streams
+
+  // Real-time price updates for multiple symbols
+  binance.priceStream(['BTCUSDT', 'ETHUSDT', 'SOLUSDT']).listen((event) {
+    print('${event.symbol}: \$${event.close}');
+    // Access typed fields: event.open, event.high, event.low, event.baseVolume
+  });
+
+  // Candlestick/Kline stream with closed candle detection
+  binance.candleStream(['BTCUSDT'], '5m').listen((event) {
+    if (event.isClosed) {
+      print('Candle closed: O=${event.open} H=${event.high} L=${event.low} C=${event.close}');
+    }
+  });
+
+  // Aggregate trade stream for tick-level data
+  binance.tradeStream(['BTCUSDT']).listen((event) {
+    print('${event.isBuy ? "BUY" : "SELL"} ${event.quantity} @ \$${event.price}');
+  });
+
+  // Best bid/ask prices
+  binance.bookTickerStream(['BTCUSDT']).listen((event) {
+    print('Spread: \$${event.spread.toStringAsFixed(2)}');
+  });
+}
+```
+
+### Testnet with Production Prices
+
+Trade on testnet but get real market prices:
+
+```dart
+final binance = Binance.testnet(
+  apiKey: 'testnet-key',
+  apiSecret: 'testnet-secret',
+  useProductionPrices: true,  // Real market data!
+);
+```
+
+### Event Classes
+
+All events support `fromJson()` and `toJson()`:
+
+| Event Class | Stream Type | Key Fields |
+|-------------|-------------|------------|
+| `MiniTickerEvent` | `priceStream()` | `symbol`, `close`, `open`, `high`, `low`, `baseVolume` |
+| `KlineEvent` | `candleStream()` | `symbol`, `interval`, `open`, `high`, `low`, `close`, `isClosed` |
+| `AggTradeEvent` | `tradeStream()` | `symbol`, `price`, `quantity`, `isBuy`, `tradeTime` |
+| `BookTickerEvent` | `bookTickerStream()` | `symbol`, `bestBidPrice`, `bestAskPrice`, `spread` |
+| `TickerEvent` | `tickerStream()` | `symbol`, `priceChangePercent`, `lastPrice`, `baseVolume` |
+
+### User Data Stream (Legacy)
 
 ```dart
 final binance = Binance(apiKey: 'YOUR_API_KEY');
