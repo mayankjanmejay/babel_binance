@@ -1,3 +1,14 @@
+## 0.6.8
+
+- **feat**: Added `fromJson()` factory constructors to all model classes for full serialization support
+- **feat**: Added `toJson()`/`fromJson()` to `RateLimitConfig` for configuration persistence
+- **feat**: Added `toJson()`/`fromJson()` to `WebSocketConfig` for configuration persistence
+- **feat**: Added `fromJson()` to `SimpleEarnProduct`, `SimpleEarnPosition`, `SimpleEarnReward`
+- **feat**: Added `fromJson()` to `AutoInvestPlan`, `AutoInvestPlanDetail`, `AutoInvestSubscription`, `AutoInvestAsset`
+- **feat**: Added `fromJson()` to `FiatOrder`, `FiatPayment`, `FiatCurrency`
+- **feat**: Added `fromJson()` to `GiftCardToken`, `GiftCardRedemption`, `BuyCryptoBuyInfo`
+- **feat**: Added `fromJson()` to `VipLoanableAsset`, `VipCollateralAsset`, `VipLoanOrder`, `VipLoanRepayment`, `VipLoanAccount`
+
 ## 0.6.7
 
 - **feat**: Added typed WebSocket event classes with full `fromJson` and `toJson` support

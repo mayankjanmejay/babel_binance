@@ -20,6 +20,17 @@ class VipLoanableAsset {
   })  : _30dDailyInterestRate = dailyInterestRate30d,
         _7dDailyInterestRate = dailyInterestRate7d;
 
+  factory VipLoanableAsset.fromJson(Map<String, dynamic> json) {
+    return VipLoanableAsset(
+      loanCoin: json['loanCoin'] as String,
+      dailyInterestRate30d: double.parse(json['30dDailyInterestRate'].toString()),
+      dailyInterestRate7d: double.parse(json['7dDailyInterestRate'].toString()),
+      minLimit: double.parse(json['minLimit'].toString()),
+      maxLimit: double.parse(json['maxLimit'].toString()),
+      vipLevel: json['vipLevel'] as bool,
+    );
+  }
+
   double get dailyInterestRate30d => _30dDailyInterestRate;
   double get dailyInterestRate7d => _7dDailyInterestRate;
 
@@ -49,6 +60,17 @@ class VipCollateralAsset {
     required this.maxLimit,
     required this.vipLevel,
   });
+
+  factory VipCollateralAsset.fromJson(Map<String, dynamic> json) {
+    return VipCollateralAsset(
+      collateralCoin: json['collateralCoin'] as String,
+      initialLTV: double.parse(json['initialLTV'].toString()),
+      marginCallLTV: double.parse(json['marginCallLTV'].toString()),
+      liquidationLTV: double.parse(json['liquidationLTV'].toString()),
+      maxLimit: double.parse(json['maxLimit'].toString()),
+      vipLevel: json['vipLevel'] as bool,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'collateralCoin': collateralCoin,
@@ -87,6 +109,22 @@ class VipLoanOrder {
     required this.loanTerm,
   });
 
+  factory VipLoanOrder.fromJson(Map<String, dynamic> json) {
+    return VipLoanOrder(
+      orderId: json['orderId'] as int,
+      loanCoin: json['loanCoin'] as String,
+      collateralCoin: json['collateralCoin'] as String,
+      loanAmount: double.parse(json['loanAmount'].toString()),
+      collateralAmount: double.parse(json['collateralAmount'].toString()),
+      initialLTV: double.parse(json['initialLTV'].toString()),
+      currentLTV: double.parse(json['currentLTV'].toString()),
+      hourlyInterestRate: double.parse(json['hourlyInterestRate'].toString()),
+      status: json['status'] as String,
+      loanDate: DateTime.fromMillisecondsSinceEpoch(json['loanDate'] as int),
+      loanTerm: json['loanTerm'] as int,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'orderId': orderId,
         'loanCoin': loanCoin,
@@ -121,6 +159,18 @@ class VipLoanRepayment {
     required this.repayTime,
   });
 
+  factory VipLoanRepayment.fromJson(Map<String, dynamic> json) {
+    return VipLoanRepayment(
+      orderId: json['orderId'] as int,
+      repayAmount: double.parse(json['repayAmount'].toString()),
+      repayType: json['repayType'] as String,
+      remainingPrincipal: double.parse(json['remainingPrincipal'].toString()),
+      remainingInterest: double.parse(json['remainingInterest'].toString()),
+      currentLTV: double.parse(json['currentLTV'].toString()),
+      repayTime: DateTime.fromMillisecondsSinceEpoch(json['repayTime'] as int),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'orderId': orderId,
         'repayAmount': repayAmount.toString(),
@@ -150,6 +200,18 @@ class VipLoanAccount {
     required this.totalFreeCollateralValueInUSDT,
     required this.currentLTV,
   });
+
+  factory VipLoanAccount.fromJson(Map<String, dynamic> json) {
+    return VipLoanAccount(
+      totalCollateralValueInBTC: json['totalCollateralValueInBTC'] as String,
+      totalCollateralValueInUSDT: json['totalCollateralValueInUSDT'] as String,
+      totalLoanValueInBTC: json['totalLoanValueInBTC'] as String,
+      totalLoanValueInUSDT: json['totalLoanValueInUSDT'] as String,
+      totalFreeCollateralValueInBTC: json['totalFreeCollateralValueInBTC'] as String,
+      totalFreeCollateralValueInUSDT: json['totalFreeCollateralValueInUSDT'] as String,
+      currentLTV: json['currentLTV'] as String,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'totalCollateralValueInBTC': totalCollateralValueInBTC,

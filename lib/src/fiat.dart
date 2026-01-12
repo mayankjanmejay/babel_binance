@@ -27,6 +27,21 @@ class FiatOrder {
     required this.transactionType,
   });
 
+  factory FiatOrder.fromJson(Map<String, dynamic> json) {
+    return FiatOrder(
+      orderNo: json['orderNo'] as String,
+      fiatCurrency: json['fiatCurrency'] as String,
+      indicatedAmount: json['indicatedAmount'] as String,
+      amount: json['amount'] as String,
+      totalFee: json['totalFee'] as String,
+      method: json['method'] as String,
+      status: json['status'] as String,
+      createTime: DateTime.fromMillisecondsSinceEpoch(json['createTime'] as int),
+      updateTime: DateTime.fromMillisecondsSinceEpoch(json['updateTime'] as int),
+      transactionType: json['transactionType'] as String,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'orderNo': orderNo,
         'fiatCurrency': fiatCurrency,
@@ -66,6 +81,21 @@ class FiatPayment {
     required this.updateTime,
   });
 
+  factory FiatPayment.fromJson(Map<String, dynamic> json) {
+    return FiatPayment(
+      orderNo: json['orderNo'] as String,
+      sourceAmount: json['sourceAmount'] as String,
+      fiatCurrency: json['fiatCurrency'] as String,
+      obtainAmount: json['obtainAmount'] as String,
+      cryptoCurrency: json['cryptoCurrency'] as String,
+      totalFee: double.parse(json['totalFee'].toString()),
+      price: double.parse(json['price'].toString()),
+      status: json['status'] as String,
+      createTime: DateTime.fromMillisecondsSinceEpoch(json['createTime'] as int),
+      updateTime: DateTime.fromMillisecondsSinceEpoch(json['updateTime'] as int),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'orderNo': orderNo,
         'sourceAmount': sourceAmount,
@@ -104,6 +134,21 @@ class FiatCurrency {
     required this.depositFee,
     required this.withdrawFee,
   });
+
+  factory FiatCurrency.fromJson(Map<String, dynamic> json) {
+    return FiatCurrency(
+      currency: json['currency'] as String,
+      name: json['name'] as String,
+      depositEnabled: json['depositEnabled'] as bool,
+      withdrawEnabled: json['withdrawEnabled'] as bool,
+      minDeposit: double.parse(json['minDeposit'].toString()),
+      maxDeposit: double.parse(json['maxDeposit'].toString()),
+      minWithdraw: double.parse(json['minWithdraw'].toString()),
+      maxWithdraw: double.parse(json['maxWithdraw'].toString()),
+      depositFee: double.parse(json['depositFee'].toString()),
+      withdrawFee: double.parse(json['withdrawFee'].toString()),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'currency': currency,

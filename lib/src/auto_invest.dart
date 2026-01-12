@@ -29,6 +29,22 @@ class AutoInvestPlan {
     required this.details,
   });
 
+  factory AutoInvestPlan.fromJson(Map<String, dynamic> json) {
+    return AutoInvestPlan(
+      planId: json['planId'] as int,
+      planName: json['planName'] as String,
+      status: json['status'] as String,
+      targetAsset: json['targetAsset'] as String,
+      sourceAsset: json['sourceAsset'] as String,
+      sourceWalletBalance: double.parse(json['sourceWalletBalance'].toString()),
+      subscriptionAmount: double.parse(json['subscriptionAmount'].toString()),
+      subscriptionCycle: json['subscriptionCycle'] as String,
+      nextExecutionDateTime: DateTime.fromMillisecondsSinceEpoch(json['nextExecutionDateTime'] as int),
+      createDateTime: DateTime.fromMillisecondsSinceEpoch(json['createDateTime'] as int),
+      details: (json['details'] as List<dynamic>).map((d) => AutoInvestPlanDetail.fromJson(d as Map<String, dynamic>)).toList(),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'planId': planId,
         'planName': planName,
@@ -52,6 +68,13 @@ class AutoInvestPlanDetail {
     required this.targetAsset,
     required this.percentage,
   });
+
+  factory AutoInvestPlanDetail.fromJson(Map<String, dynamic> json) {
+    return AutoInvestPlanDetail(
+      targetAsset: json['targetAsset'] as String,
+      percentage: (json['percentage'] as num).toDouble(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'targetAsset': targetAsset,
@@ -82,6 +105,20 @@ class AutoInvestSubscription {
     required this.status,
   });
 
+  factory AutoInvestSubscription.fromJson(Map<String, dynamic> json) {
+    return AutoInvestSubscription(
+      transactionId: json['transactionId'] as int,
+      planId: json['planId'] as int,
+      planName: json['planName'] as String,
+      targetAsset: json['targetAsset'] as String,
+      executionAmount: double.parse(json['executionAmount'].toString()),
+      executionPrice: double.parse(json['executionPrice'].toString()),
+      executionQuantity: double.parse(json['executionQuantity'].toString()),
+      executionDateTime: DateTime.fromMillisecondsSinceEpoch(json['executionDateTime'] as int),
+      status: json['status'] as String,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'transactionId': transactionId,
         'planId': planId,
@@ -105,6 +142,14 @@ class AutoInvestAsset {
     required this.minAmount,
     required this.maxAmount,
   });
+
+  factory AutoInvestAsset.fromJson(Map<String, dynamic> json) {
+    return AutoInvestAsset(
+      asset: json['asset'] as String,
+      minAmount: double.parse(json['minAmount'].toString()),
+      maxAmount: double.parse(json['maxAmount'].toString()),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'asset': asset,

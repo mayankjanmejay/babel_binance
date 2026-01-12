@@ -27,6 +27,21 @@ class SimpleEarnProduct {
     this.duration,
   });
 
+  factory SimpleEarnProduct.fromJson(Map<String, dynamic> json) {
+    return SimpleEarnProduct(
+      asset: json['asset'] as String,
+      productId: json['productId'] as String,
+      productName: json['productName'] as String,
+      avgAnnualPercentageRate: double.parse(json['avgAnnualPercentageRate'].toString()),
+      minPurchaseAmount: double.parse(json['minPurchaseAmount'].toString()),
+      maxPurchaseAmount: double.parse(json['maxPurchaseAmount'].toString()),
+      canPurchase: json['canPurchase'] as bool,
+      canRedeem: json['canRedeem'] as bool,
+      status: json['status'] as String,
+      duration: json['duration'] as int?,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'asset': asset,
         'productId': productId,
@@ -62,6 +77,21 @@ class SimpleEarnPosition {
     this.lockedUntil,
   });
 
+  factory SimpleEarnPosition.fromJson(Map<String, dynamic> json) {
+    return SimpleEarnPosition(
+      productId: json['productId'] as String,
+      asset: json['asset'] as String,
+      amount: double.parse(json['amount'].toString()),
+      rewardAmount: double.parse(json['rewardAmount'].toString()),
+      createTime: DateTime.fromMillisecondsSinceEpoch(json['createTime'] as int),
+      status: json['status'] as String,
+      canRedeem: json['canRedeem'] as bool,
+      lockedUntil: json['lockedUntil'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lockedUntil'] as int)
+          : null,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'productId': productId,
         'asset': asset,
@@ -87,6 +117,15 @@ class SimpleEarnReward {
     required this.time,
     required this.type,
   });
+
+  factory SimpleEarnReward.fromJson(Map<String, dynamic> json) {
+    return SimpleEarnReward(
+      asset: json['asset'] as String,
+      amount: double.parse(json['amount'].toString()),
+      time: DateTime.fromMillisecondsSinceEpoch(json['time'] as int),
+      type: json['type'] as String,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'asset': asset,

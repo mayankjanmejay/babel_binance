@@ -35,12 +35,13 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.7
+  babel_binance: ^0.6.8
 ```
 
-> **🆕 Latest Updates (v0.6.7):**
+> **🆕 Latest Updates (v0.6.8):**
 > - 📡 **Typed WebSocket Streams**: Multi-symbol real-time data via single connection
 > - 🎯 **Event Classes**: `MiniTickerEvent`, `KlineEvent`, `AggTradeEvent`, `BookTickerEvent` with `fromJson`/`toJson`
+> - 🔄 **fromJson Serialization Support**: All WebSocket event classes now support `fromJson()` factory constructors for easy deserialization from raw JSON data
 > - 🔌 **Convenience Methods**: `priceStream()`, `candleStream()`, `tradeStream()`, `bookTickerStream()`
 > - 🧪 **Testnet WebSocket**: Use `useProductionPrices` for real market data while trading on testnet
 
@@ -464,7 +465,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  babel_binance: ^0.6.7
+  babel_binance: ^0.6.8
 ```
 
 ## Quick Start

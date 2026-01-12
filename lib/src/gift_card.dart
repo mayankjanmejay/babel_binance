@@ -27,6 +27,25 @@ class GiftCardToken {
     this.redeemedTime,
   });
 
+  factory GiftCardToken.fromJson(Map<String, dynamic> json) {
+    return GiftCardToken(
+      token: json['token'] as String,
+      referenceNo: json['referenceNo'] as String,
+      status: json['status'] as String,
+      amount: double.parse(json['amount'].toString()),
+      asset: json['asset'] as String,
+      createTime: DateTime.fromMillisecondsSinceEpoch(json['createTime'] as int),
+      expireTime: json['expireTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['expireTime'] as int)
+          : null,
+      isRedeemed: json['isRedeemed'] as bool,
+      redeemedBy: json['redeemedBy'] as String?,
+      redeemedTime: json['redeemedTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['redeemedTime'] as int)
+          : null,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'token': token,
         'referenceNo': referenceNo,
@@ -60,6 +79,17 @@ class GiftCardRedemption {
     required this.status,
   });
 
+  factory GiftCardRedemption.fromJson(Map<String, dynamic> json) {
+    return GiftCardRedemption(
+      referenceNo: json['referenceNo'] as String,
+      identityNo: json['identityNo'] as String,
+      amount: double.parse(json['amount'].toString()),
+      asset: json['asset'] as String,
+      redemptionTime: DateTime.fromMillisecondsSinceEpoch(json['redemptionTime'] as int),
+      status: json['status'] as String,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'referenceNo': referenceNo,
         'identityNo': identityNo,
@@ -86,6 +116,17 @@ class BuyCryptoBuyInfo {
     required this.asset,
     required this.status,
   });
+
+  factory BuyCryptoBuyInfo.fromJson(Map<String, dynamic> json) {
+    return BuyCryptoBuyInfo(
+      referenceNo: json['referenceNo'] as String,
+      orderNo: json['orderNo'] as String,
+      createTime: (json['createTime'] as num).toDouble(),
+      amount: double.parse(json['amount'].toString()),
+      asset: json['asset'] as String,
+      status: json['status'] as String,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'referenceNo': referenceNo,

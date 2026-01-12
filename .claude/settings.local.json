@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dart test:*)",
+      "Bash(powershell -Command \"\\(Get-Content ''lib/src/rate_limiting/rate_limiter.dart''\\) -replace ''\\\\.tryConsume\\\\\\('', ''.tryConsumeSync\\('' | Set-Content ''lib/src/rate_limiting/rate_limiter.dart''\")",
+      "Bash(powershell -Command:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: Resolve rate limiter async/sync type mismatch errors\n\n- Update RateLimiter to use tryConsumeSync\\(\\) instead of async tryConsume\\(\\)\n- Update RateLimiter.reset\\(\\) to use resetSync\\(\\) for bucket resets\n- Bump version to 0.6.6\n- Update CHANGELOG and README documentation\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(dart pub publish:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
